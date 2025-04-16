@@ -1,7 +1,7 @@
 #pragma once
 #include "stm32f4xx_hal.h"
 
-#define KEY_IRQ_MODE              0
+#define KEY_IRQ_MODE              1
 
 #define KEY_X_PROT                GPIOF
 #define KEY_RCC_IS_CLK_DISABLED() __HAL_RCC_GPIOF_IS_CLK_DISABLED()

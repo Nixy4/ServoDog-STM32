@@ -19,9 +19,9 @@ extern double             __aeabi_l2d(long long a);
 extern double             __aeabi_ul2d(unsigned long long a);
 
 extern float              __aeabi_i2f(int a);
-// extern float              __aeabi_ui2f(unsigned int a); //! 有问题
+// extern float              __aeabi_ui2f(unsigned int a); //!
 extern float              __aeabi_l2f(long long a);
-// extern float              __aeabi_ul2f(unsigned long long a); //! 有问题
+// extern float              __aeabi_ul2f(unsigned long long a); //!
 
 extern int                __aeabi_d2iz(double a);
 extern unsigned int       __aeabi_d2uiz(double a);

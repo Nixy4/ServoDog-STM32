@@ -44,14 +44,17 @@ typedef struct
 }servo_t;
 
 servo_t* servo_create(uint8_t id, easing_calc_fn calc, double offset);
+
 int servo_init(servo_t* s, uint8_t id, easing_calc_fn calc, double offset);
 
 void servo_turn_absolute(servo_t* s, double start, double stop, double ms);
 void servo_turn_relative(servo_t* s, double distance, double ms);
 void servo_turn_target(servo_t* s, double target, double ms);
+
 void servo_turn_absolute_block(servo_t* s, double start, double stop, double ms);
 void servo_turn_relative_block(servo_t* s, double distance, double ms);
 void servo_turn_target_block(servo_t* s, double target, double ms);
+
 int servo_turn_update(servo_t* s);
 
 void servo_set_calc(servo_t* s, easing_calc_fn calc);

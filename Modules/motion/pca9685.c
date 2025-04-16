@@ -75,19 +75,28 @@ static uint8_t readreg(uint8_t reg)
 void pca9685_set_psc(uint8_t psc)
 {
   uint8_t old, new;
+
   //使能PCA的广播地址响应, 用于同时控制多个PCA9685
   new = 0x00;
   SET_BIT(new, REG_MODE1_ALLCALL_BIT);
   writereg(REG_MODE1, new);
+
   //读取旧的模式值
-  old = readreg(REG_MODE1);
-  new = old;
+  old = readreg(REG_MODE1); 
+  new = old; 
+
+  //设置新的模式值: 1.禁用重启  2.启用睡眠模式
   CLEAR_BIT(new, REG_MODE1_RESTART_BIT); //禁用重启功能
   SET_BIT(new, REG_MODE1_SLEEP_BIT); //启用睡眠模式
   writereg(REG_MODE1, new);
+
+  //设置预分频寄存器
   writereg(REG_PSC, psc);//设置预分频寄存器
-  writereg(REG_MODE1, old);//恢复旧的模式值
+  //恢复旧的模式值
+  writereg(REG_MODE1, old);
   HAL_Delay(5);
+
+  //设置新的模式值: 1.重启  2.启用自动增加地址  3.启用广播地址响应
   SET_BIT(old, REG_MODE1_RESTART_BIT|REG_MODE1_AUTOINC_BIT|REG_MODE1_ALLCALL_BIT);
   writereg(REG_MODE1, old);
 }

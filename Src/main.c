@@ -82,6 +82,7 @@ static void MX_TIM2_Init(void);
 #include "hal_hw_uart_printf.h"
 #include "servo.h"
 #include "leg.h"
+#include "kinematics.h"
 
 static const char* TAG = "MAIN";
 
@@ -151,6 +152,8 @@ double standing_toe_y;
 
 leg_t lf,lb,rf,rb;
 
+
+
 /* USER CODE END 0 */
 
 /**
@@ -194,7 +197,7 @@ int main(void)
 
   pca9685_set_freq(50);
   leg_init(&lf,&lf_cfg);
-  leg_init(&lb,&lb_cfg);
+  leg_init(&lb,&lb_cfg); 
   leg_init(&rf,&rf_cfg);
   leg_init(&rb,&rb_cfg);
   double x = -1.009543078434836;
@@ -209,6 +212,12 @@ int main(void)
   // leg_set_angle(&lb,0,0,true);
   // leg_set_angle(&rf,0,0,true);
   // leg_set_angle(&rb,0,0,true);
+
+  // kinematics_special_points_test();
+  // kinematics_range_test();
+
+ 
+  
 
   /* USER CODE END 2 */
 

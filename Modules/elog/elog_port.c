@@ -92,7 +92,7 @@ void elog_port_output_unlock(void) {
 const char *elog_port_get_time(void) {
     
     /* add your code here */
-    return "xxxxx";
+    return "";
 }
 
 /**
@@ -103,7 +103,7 @@ const char *elog_port_get_time(void) {
 const char *elog_port_get_p_info(void) {
     
     /* add your code here */
-    return "xxxxx";
+    return "";
 }
 
 /**
@@ -114,5 +114,5 @@ const char *elog_port_get_p_info(void) {
 const char *elog_port_get_t_info(void) {
     
     /* add your code here */
-    return "xxxxx";
+    return "";
 }

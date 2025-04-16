@@ -7,8 +7,6 @@
 #define LEG_TYPE_RF 0x10
 #define LEG_TYPE_RB 0x11
 
-
-
 typedef struct
 {
   int type;

@@ -28,6 +28,7 @@ void key_init()
 
 #if KEY_IRQ_MODE
 static volatile key_value_t key_value = KEY_UNKNOWN;
+
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
   if(GPIO_Pin == KEY_UP_PIN) {
