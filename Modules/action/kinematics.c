@@ -6,9 +6,7 @@
 
 #define TAG "Kinematics"
 
-#define PI 3.141592653589793f
-#define DEG_TO_RAD(deg) ((deg) * 0.01745329251994329547f)
-#define RAD_TO_DEG(rad) ((rad) * 57.29577951308232286465f)
+
 
 static const double L1 = 80.0f;
 static const double L2 = 65.0f;
@@ -35,6 +33,11 @@ double I3_L7_to_R12(double L7) {
 }
 
 double I4_XZ_to_RX7(double X, double Z) {
+
+	if (X ==0) {
+		return PI2_;
+	}
+
 	double K = Z / X;
 	if (X >= 0 && Z >= 0) {
 		return atan(K);
@@ -67,15 +70,15 @@ double I8_L6_to_RS2(double L6) {
 	return acos(T);
 }
 
-Data caculateFromXZ(double X, double Z) {
-	Data data;
-	data.L7 = I1_XZ_to_L7(X, Z);
+kinematics_data_t inverse_kinematics(double X, double Z) {
+	kinematics_data_t data;
+	data.L7  = I1_XZ_to_L7(X, Z);
 	data.R17 = I2_L7_to_R17(data.L7);
 	data.R12 = I3_L7_to_R12(data.L7);
 	data.R7X = I4_XZ_to_RX7(X, Z);
 	data.RS1 = I5_R17R7X_to_RS1(data.R17, data.R7X);
 	data.R35 = I6_R12_to_R35(data.R12);
-	data.L6 = I7_R35_to_L6(data.R35);
+	data.L6  = I7_R35_to_L6(data.R35);
 	data.RS2 = I8_L6_to_RS2(data.L6);
 	data.AS1 = RAD_TO_DEG(data.RS1);
 	data.AS2 = RAD_TO_DEG(data.RS2);
@@ -83,6 +86,84 @@ Data caculateFromXZ(double X, double Z) {
 	data.X = X;
 	data.Z = Z;
 	return data;
+}
+
+double F1_RS2_to_L6(double RS2) {
+    double _a = 1;
+    double _b = -2 * L8 * cos(RS2);
+    double _c = pow(L8, 2) - pow(L9, 2);
+    double D = pow(_b, 2) - 4 * _a * _c;
+    if (D < 0) {
+        fprintf(stderr, "Error: Discriminant is negative.\n");
+        return 0;
+    }
+    return (-_b + sqrt(D)) / (2 * _a);
+}
+
+double F2_L6_to_R35(double L6) {
+    double T = (pow(L3, 2) + pow(L5, 2) - pow(L6, 2)) / (2 * L3 * L5);
+    return acos(T);
+}
+
+double F3_R15R35_to_R13(double R15, double R35) {
+    return R15 + R35;
+}
+
+double F4_R13_to_R12(double R13) {
+    return PI - R13;
+}
+
+double F5_R12_to_L7(double R12) {
+    return sqrt(pow(L1, 2) + pow(L2, 2) - 2 * L1 * L2 * cos(R12));
+}
+
+double F6_L7_to_R17(double L7) {
+    double T = (pow(L1, 2) + pow(L7, 2) - pow(L2, 2)) / (2 * L1 * L7);
+    return acos(T);
+}
+
+double F7_RS1R17_to_R7X(double RS1, double R17) {
+    return RS1 + R17;
+}
+
+void F8_L7R7X_to_xz(double L7, double R7X, double *X, double *Z) {
+    *X = L7 * cos(R7X);
+    *Z = L7 * sin(R7X);
+
+    if (R7X > PI / 2) {
+        *X = -*X;
+    } else if (R7X > PI) {
+        *X = -*X;
+        *Z = -*Z;
+    }
+}
+
+kinematics_data_t forward_kinematics(double AS1, double AS2) {
+    kinematics_data_t data = {0};
+    if (AS2 > 120) {
+        fprintf(stderr, "Error: AS2 > 120\n");
+        AS2 = 120;
+    }
+
+    data.AS1 = AS1;
+    data.AS2 = AS2;
+    data.RS1 = AS1 * PI / 180;
+    data.RS2 = AS2 * PI / 180;
+
+    data.L6 = F1_RS2_to_L6(data.RS2);
+    data.R35 = F2_L6_to_R35(data.L6);
+    data.R13 = F3_R15R35_to_R13(R15, data.R35);
+    data.R12 = F4_R13_to_R12(data.R13);
+    data.L7 = F5_R12_to_L7(data.R12);
+    data.R17 = F6_L7_to_R17(data.L7);
+    data.R7X = F7_RS1R17_to_R7X(data.RS1, data.R17);
+    F8_L7R7X_to_xz(data.L7, data.R7X, &data.X, &data.Z);
+
+    if (data.RS1 + data.R17 > PI / 2) {
+        data.X = -data.X;
+    }
+
+    return data;
 }
 
 void logComparison(bool eq, const char* tag, double val1, double val2) {
@@ -93,7 +174,7 @@ void logComparison(bool eq, const char* tag, double val1, double val2) {
 	}
 }
 
-bool dataCompare(const Data* d1, const Data* d2) {
+bool dataCompare(const kinematics_data_t* d1, const kinematics_data_t* d2) {
 	const double angle_error = 0.001;
 	const double radian_error = DEG_TO_RAD(angle_error);
 	const double length_error = 0.001;
@@ -117,9 +198,9 @@ bool dataCompare(const Data* d1, const Data* d2) {
 
 
 	if (!all_eq) {
-		elog_e(TAG, "Data comparison failed!");
+		elog_e(TAG, "kinematics_data_t comparison failed!");
 	}else {
-		elog_i(TAG, "Data comparison passed!");
+		elog_i(TAG, "kinematics_data_t comparison passed!");
 	}
 
 	logComparison(AS1_eq, "AS1", d1->AS1, d2->AS1);
@@ -139,7 +220,7 @@ bool dataCompare(const Data* d1, const Data* d2) {
 	return all_eq;
 }
 
-void dataElog(const char* data_tag, const Data* data) {
+void dataElog(const char* data_tag, const kinematics_data_t* data) {
 	printf("%s\n"
 	"| AS1   : %7.3f  | AS2   : %7.3f  |\n"
 	"| RS1   : %7.3f  | RS2   : %7.3f  |\n"

@@ -71,7 +71,7 @@ static void MX_USART2_UART_Init(void);
 #include <stdio.h>
 #include <string.h>
 #include "math.h"
-#include "pac9685.h"
+#include "pca9685.h"
 #include "easing.h"
 #include "elog.h"
 #include "hal_hw_uart_printf.h"

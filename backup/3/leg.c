@@ -1,6 +1,6 @@
 #include "stdio.h"
 #include "leg.h"
-#include "pac9685.h"
+#include "pca9685.h"
 #include "elog.h"
 
 #define R(x) (x)
