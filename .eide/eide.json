@@ -288,10 +288,10 @@
           "MDK-ARM/RTE/_RobotDogMoveTest",
           "Modules/cjson",
           "Modules/elog",
+          "Modules/kinematics",
           "Modules/misc",
-          "Modules/motion",
-          "Modules/ws2812",
-          "Modules"
+          "Modules/servo",
+          "Modules/quadruped"
         ],
         "libList": [],
         "defineList": [
