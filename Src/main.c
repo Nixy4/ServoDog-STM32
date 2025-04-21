@@ -314,9 +314,10 @@ void elog_init_default()
 //   }
 // }
 
-#include "stm32_hal_hw_i2c_pca9685.h"
+#include "pca9685.h"
 #include "quadruped.h"
-#include "EasingCoordWalk.h"
+
+
 
 LegConfig rf_cfg = 
 {
@@ -324,9 +325,11 @@ LegConfig rf_cfg =
   .pcaChannel2 = 5,
   .offset1 = 0,
   .offset2 = 0,
+  .angle1 = 0,
+  .angle2 = 0,
   .ea1_config = DEFAULT_EA_CONFIG(),
   .ea2_config = DEFAULT_EA_CONFIG(),
-  .ec_config = EC_CONFIG_WALK_FIRST()
+  .ec_config = DEFAULT_EC_CONFIG(),
 };
 
 LegConfig rb_cfg = 
@@ -335,9 +338,11 @@ LegConfig rb_cfg =
   .pcaChannel2 = 4,
   .offset1 = 0,
   .offset2 = 0,
+  .angle1 = 0,
+  .angle2 = 0,
   .ea1_config = DEFAULT_EA_CONFIG(),
   .ea2_config = DEFAULT_EA_CONFIG(),
-  .ec_config = EC_CONFIG_WALK_SECOND()
+  .ec_config = DEFAULT_EC_CONFIG(),
 };
 
 LegConfig lf_cfg = 
@@ -346,9 +351,11 @@ LegConfig lf_cfg =
   .pcaChannel2 = 7,
   .offset1 = 0,
   .offset2 = 0,
+  .angle1 = 0,
+  .angle2 = 0,
   .ea1_config = DEFAULT_EA_CONFIG(),
   .ea2_config = DEFAULT_EA_CONFIG(),
-  .ec_config = EC_CONFIG_WALK_SECOND()
+  .ec_config = DEFAULT_EC_CONFIG(),
 };
 
 LegConfig lb_cfg = 
@@ -357,19 +364,25 @@ LegConfig lb_cfg =
   .pcaChannel2 = 6,
   .offset1 = 0,
   .offset2 = 0,
+  .angle1 = 0,
+  .angle2 = 0,
   .ea1_config = DEFAULT_EA_CONFIG(),
   .ea2_config = DEFAULT_EA_CONFIG(),
-  .ec_config = EC_CONFIG_WALK_FIRST()
+  .ec_config = DEFAULT_EC_CONFIG(),
 };
 
-void init()
+void setup()
 {
   pca9685_set_freq(50);
   leg_init(LEG_ID_RF, &rf_cfg);
   leg_init(LEG_ID_RB, &rb_cfg);
   leg_init(LEG_ID_LF, &lf_cfg);
   leg_init(LEG_ID_LB, &lb_cfg);
-  elog_i(TAG, "Leg Init Success");
+}
+
+void loop()
+{
+
 }
 
 /* USER CODE END 0 */
@@ -414,14 +427,8 @@ int main(void)
 
   elog_init_default();
 
-  // motion_init();
-  // motion_stand0(500);
-
-  // walk0(1000);
-  // walk2(10);
-
-  // motion_stand0(500);
-  // motion_fall0(500);
+  setup();
+  loop();
 
   /* USER CODE END 2 */
 
