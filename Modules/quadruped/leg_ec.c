@@ -1,4 +1,4 @@
-#include "quad_def.h"
+#include "quadruped_def.h"
 
 #define TAG "Easing Coord"
 

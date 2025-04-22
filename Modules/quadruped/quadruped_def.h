@@ -48,9 +48,6 @@
 #define RADIANS(x)      ((x) * 0.01745329251994329547f)
 #define DEGREES(x)      ((x) * 57.29577951308232286465f)
 
-
-
-
 typedef uint16_t EasingMode;
 
 typedef struct
@@ -213,6 +210,8 @@ struct Leg
   EasingCoord ec;
 } ;
 
+
+
 void leg_inverse_kinematics(Leg* leg, float X, float Z);
 
 float _easing_base_Linear(const float t);       // linear t
@@ -261,15 +260,15 @@ Coord _easing_coord_zero(EasingCoord* ec);
 
 Coord _easing_gait_walk_first(EasingGait* eg);
 Coord _easing_gait_walk_second(EasingGait* eg);
-
-#define DEFAULT_EA_CONFIG() {\
+ 
+#define EASING_ANGLE_CONFIG_DEFAULT() {\
   .mode = EASING_MODE_DEFAULT,\
   .function = _easing_base_Linear,\
   .frameCount = 500,\
   .interval = 0\
 }
 
-#define DEFAULT_EC_CONFIG() {\
+#define EASING_COORD_CONFIG_DEFAULT() {\
   .mode = EASING_MODE_DEFAULT,\
   .function = _easing_coord_zero,\
   .frameCount = 500,\

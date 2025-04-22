@@ -1,4 +1,4 @@
-#include "quad_def.h"
+#include "quadruped_def.h"
 
 #define TAG "Kinematics"
 
@@ -36,9 +36,6 @@ void leg_inverse_kinematics(Leg* leg, float X, float Z)
   leg->IKINE.R7X     = RX7;
   leg->IKINE.COORD.X = X;
   leg->IKINE.COORD.Z = Z;
-  return;
-err0:
-  elog_e(TAG, "RX7 Error >> X:%f Z:%f", X, Z);
   return;
 err1:
   elog_e(TAG, "L6 Error >> X:%f Z:%f", X, Z);

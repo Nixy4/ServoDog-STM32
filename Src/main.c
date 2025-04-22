@@ -81,7 +81,7 @@ static const char* TAG = "MAIN";
 void elog_init_default()
 {
   elog_init();
-  elog_set_fmt(ELOG_LVL_ASSERT,   ELOG_FMT_ALL);
+  elog_set_fmt(ELOG_LVL_ASSERT,   ELOG_FMT_ALL);// 参数是否为空
   elog_set_fmt(ELOG_LVL_ERROR,    ELOG_FMT_LVL|ELOG_FMT_TAG|ELOG_FMT_TIME);
   elog_set_fmt(ELOG_LVL_WARN,     ELOG_FMT_LVL|ELOG_FMT_TAG|ELOG_FMT_TIME);
   elog_set_fmt(ELOG_LVL_INFO,     ELOG_FMT_LVL|ELOG_FMT_TAG|ELOG_FMT_TIME);
@@ -317,8 +317,6 @@ void elog_init_default()
 #include "pca9685.h"
 #include "quadruped.h"
 
-
-
 LegConfig rf_cfg = 
 {
   .pcaChannel1 = 0,
@@ -327,9 +325,9 @@ LegConfig rf_cfg =
   .offset2 = 0,
   .angle1 = 0,
   .angle2 = 0,
-  .ea1_config = DEFAULT_EA_CONFIG(),
-  .ea2_config = DEFAULT_EA_CONFIG(),
-  .ec_config = DEFAULT_EC_CONFIG(),
+  .ea1_config = EASING_ANGLE_CONFIG_DEFAULT(),
+  .ea2_config = EASING_ANGLE_CONFIG_DEFAULT(),
+  .ec_config = EASING_COORD_CONFIG_DEFAULT(),
 };
 
 LegConfig rb_cfg = 
@@ -340,9 +338,9 @@ LegConfig rb_cfg =
   .offset2 = 0,
   .angle1 = 0,
   .angle2 = 0,
-  .ea1_config = DEFAULT_EA_CONFIG(),
-  .ea2_config = DEFAULT_EA_CONFIG(),
-  .ec_config = DEFAULT_EC_CONFIG(),
+  .ea1_config = EASING_ANGLE_CONFIG_DEFAULT(),
+  .ea2_config = EASING_ANGLE_CONFIG_DEFAULT(),
+  .ec_config = EASING_COORD_CONFIG_DEFAULT(),
 };
 
 LegConfig lf_cfg = 
@@ -353,9 +351,9 @@ LegConfig lf_cfg =
   .offset2 = 0,
   .angle1 = 0,
   .angle2 = 0,
-  .ea1_config = DEFAULT_EA_CONFIG(),
-  .ea2_config = DEFAULT_EA_CONFIG(),
-  .ec_config = DEFAULT_EC_CONFIG(),
+  .ea1_config = EASING_ANGLE_CONFIG_DEFAULT(),
+  .ea2_config = EASING_ANGLE_CONFIG_DEFAULT(),
+  .ec_config = EASING_COORD_CONFIG_DEFAULT(),
 };
 
 LegConfig lb_cfg = 
@@ -366,9 +364,9 @@ LegConfig lb_cfg =
   .offset2 = 0,
   .angle1 = 0,
   .angle2 = 0,
-  .ea1_config = DEFAULT_EA_CONFIG(),
-  .ea2_config = DEFAULT_EA_CONFIG(),
-  .ec_config = DEFAULT_EC_CONFIG(),
+  .ea1_config = EASING_ANGLE_CONFIG_DEFAULT(),
+  .ea2_config = EASING_ANGLE_CONFIG_DEFAULT(),
+  .ec_config = EASING_COORD_CONFIG_DEFAULT(),
 };
 
 void setup()

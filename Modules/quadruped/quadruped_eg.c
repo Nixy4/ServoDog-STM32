@@ -1,4 +1,4 @@
-#include "quad_def.h"
+#include "quadruped_def.h"
 
 Coord _easing_gait_walk_first(EasingGait* eg)
 {

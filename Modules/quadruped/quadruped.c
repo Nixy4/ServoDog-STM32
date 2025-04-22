@@ -1,2 +1,3 @@
 #include "quadruped.h"
-#define TAG "QUADRUPED"
+
+#define TAG "Quadruped"
