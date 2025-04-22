@@ -22,7 +22,7 @@ void leg_init(Leg *leg, LegID id ,
 
 void leg_set_angle(Leg *leg, float thightAngle, float shankAngle)
 {
-  if( leg->id >= LEG_TYPE_LF )
+  if( leg->id >= LEG_ID_LF )
   {
     thightAngle = 180-thightAngle;
     shankAngle = shankAngle > 120 ? 120 : shankAngle;

@@ -5,10 +5,10 @@ Leg legs[4];
 void quad_init(void)
 {
   pca9685_set_freq(50);
-  leg_init( &legs[LEG_ID_RF], 0, 5, 0, 0);
-  leg_init( &legs[LEG_ID_RB], 1, 4, 0, 0);
-  leg_init( &legs[LEG_ID_LF], 3, 7, 0, 0);
-  leg_init( &legs[LEG_ID_LB], 2, 6, 0, 0);
+  leg_init( &legs[LEG_ID_RF], LEG_ID_RF, 0, 5, 0, 0);
+  leg_init( &legs[LEG_ID_RB], LEG_ID_RB, 1, 4, 0, 0);
+  leg_init( &legs[LEG_ID_LF], LEG_ID_LF, 3, 7, 0, 0);
+  leg_init( &legs[LEG_ID_LB], LEG_ID_LB, 2, 6, 0, 0);
 }
 
 void quad_stand()

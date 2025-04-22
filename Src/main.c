@@ -97,6 +97,11 @@ void elog_init_default()
 }
 
 #include "quad.h"
+#include "walk.h"
+
+WalkData walk1;
+WalkData walk2;
+WalkData walk3;
 
 /* USER CODE END 0 */
 
@@ -142,6 +147,14 @@ int main(void)
 
   quad_init();
   quad_stand();
+
+  walk_init(&walk1, 200, 30, 30);
+  walk_init(&walk2, 500, 40, 40);
+  walk_init(&walk3, 1000, 50, 50);
+
+  walk_n_step(&walk1, 10);
+  walk_n_step(&walk2, 10);
+  walk_n_step(&walk3, 10);
 
   /* USER CODE END 2 */
 

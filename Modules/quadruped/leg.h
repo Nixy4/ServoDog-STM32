@@ -2,7 +2,9 @@
 
 //! 头文件做架构设置
 
+#include "pca9685.h"
 #include "stdint.h"
+#include "math.h"
 
 #define PI  3.141592653589793f
 #define DPI 6.283185307179586f
