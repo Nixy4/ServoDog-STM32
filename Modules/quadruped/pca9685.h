@@ -1,6 +1,6 @@
 #pragma once
 
-#include "easing.h"
+#include "stdint.h"
 
 #define PCA9685_LED0  0U
 #define PCA9685_LED1  1U
@@ -19,7 +19,7 @@
 #define PCA9685_LED14 14U
 #define PCA9685_LED15 15U
 
-#define PCA9685_I2C_ADDR 0x80
+#define PCA9685_I2C_ADDR         0x80
 #define HAL_I2C_TRANSFER_TIMEOUT 100
 
 void pca9685_set_freq(double freq);
