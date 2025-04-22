@@ -39,6 +39,8 @@
 #define EASING_MODE_DEFAULT     EASING_TIMES_SINGLE | EASING_DIR_FORWARD
 #define EASING_MODE_NTIMES(n)   EASING_TIMES_MANYTIMES | (n << EASING_TIMES_SET)
 
+#define EASING_FRAME_COUNT_DEFUALT  5U
+
 #define AMIRRORID(id,x) (id < LEG_ID_LEFT_START ? x : (180.f - x))
 #define AMIRRORR(x)     (x)
 #define AMIRRORL(x)     (180.f - x)
@@ -50,11 +52,23 @@
 
 typedef uint16_t EasingMode;
 
-typedef struct
+typedef enum
+{
+  LEG_ID_RIGHT_START = 0U,
+  LEG_ID_RF = LEG_ID_RIGHT_START,
+  LEG_ID_RB,
+  LEG_ID_LEFT_START,
+  LEG_ID_LB = LEG_ID_LEFT_START,
+  LEG_ID_LF,
+  LEG_ID_MAX
+} LegID;
+
+struct Coord
 {
   float X;
   float Z;
-} Coord;
+};
+typedef struct Coord Coord;
 
 typedef struct
 {
@@ -63,7 +77,12 @@ typedef struct
   float L6, L7;
   float R12, R13, R17, R35, R7X;
   Coord COORD;
-} Kinematics;
+} KinematicsData;
+
+typedef struct
+{
+  Coord legsCoord[4];
+} GaitData;
 
 typedef struct EasingAngle EasingAngle;
 typedef struct EasingAngleConfig EasingAngleConfig;
@@ -75,7 +94,7 @@ typedef Coord (*EasingCoordFunciton)(EasingCoord* ec);
 
 typedef struct EasingGait EasingGait;
 typedef struct EasingGaitConfig EasingGaitConfig;
-typedef Coord (*EasingGaitFunciton)(EasingGait* eg);
+typedef GaitData (*EasingGaitFunciton)(EasingGait* eg);
 
 typedef struct LegConfig LegConfig;
 typedef struct Leg Leg;
@@ -134,54 +153,11 @@ struct EasingCoordConfig
   void* customData;
 } ;
 
-struct EasingGait
-{
-  EasingGaitFunciton function;
-  float swingWidth;
-  float swingHeight;
-  float swingDuty;
-  Coord start;
-  Coord current;
-  uint32_t frameCount;
-  uint32_t frameIndex;
-  uint32_t frameInverval;
-  uint32_t loopCount;
-} ;
-
-struct EasingGaitConfig
-{
-  EasingGaitFunciton function;
-  float swingWidth;
-  float swingHeight;
-  float swingDuty;
-  Coord start;
-  uint32_t frameCount;
-  uint32_t frameInverval;
-  uint32_t loopCount;
-} ;
-
-typedef enum
-{
-  LEG_ID_RIGHT_START = 0U,
-  LEG_ID_RF = LEG_ID_RIGHT_START,
-  LEG_ID_RB,
-  LEG_ID_LEFT_START,
-  LEG_ID_LB = LEG_ID_LEFT_START,
-  LEG_ID_LF,
-  LEG_ID_MAX
-} LegID;
-
-#define LEG_PTR(id) &legs[id]
-#define LEG_PTR_RF  &legs[LEG_ID_RF]
-#define LEG_PTR_RB  &legs[LEG_ID_RB]
-#define LEG_PTR_LB  &legs[LEG_ID_LB]
-#define LEG_PTR_LF  &legs[LEG_ID_LF]
-
 struct LegConfig
 {
   //! Hardware !//
   int pcaChannel1 , pcaChannel2;
-  float offset1, offset2;
+  float start1, start2;
   float angle1, angle2;
 
   //! Easing Angle !//
@@ -196,11 +172,11 @@ struct Leg
 {
   //! Hardware !//
   uint8_t pcaChannel1 , pcaChannel2;
-  float offset1, offset2;
+  float start1, start2;
   float angle1, angle2;
 
-  //! Kinematics !//
-  Kinematics IKINE;
+  //! KinematicsData !//
+  KinematicsData IKINE;
 
   //! Easing Angle !//
   EasingAngle ea1;
@@ -210,7 +186,31 @@ struct Leg
   EasingCoord ec;
 } ;
 
+struct EasingGait
+{
+  EasingGaitFunciton function;
+  float swingWidth;
+  float swingHeight;
+  float swingDuty;
+  Coord offset;
+  Coord current;
+  uint32_t frameCount;
+  uint32_t frameIndex;
+  uint32_t frameInverval;
+  uint32_t loopCount;
+} ;
 
+struct EasingGaitConfig
+{
+  EasingGaitFunciton function;
+  float swingWidth;
+  float swingHeight;
+  float swingDuty;
+  Coord offset;
+  uint32_t frameCount;
+  uint32_t frameInverval;
+  uint32_t loopCount;
+} ;
 
 void leg_inverse_kinematics(Leg* leg, float X, float Z);
 
@@ -256,7 +256,7 @@ float _easing_base_InBounce(const float t);     // back 衰减反弹
 float _easing_base_OutBounce(const float t);
 float _easing_base_InOutBounce(const float t);
 
-Coord _easing_coord_zero(EasingCoord* ec);
+Coord _easing_coord_Linear(EasingCoord* ec);
 
 Coord _easing_gait_walk_first(EasingGait* eg);
 Coord _easing_gait_walk_second(EasingGait* eg);
@@ -270,7 +270,7 @@ Coord _easing_gait_walk_second(EasingGait* eg);
 
 #define EASING_COORD_CONFIG_DEFAULT() {\
   .mode = EASING_MODE_DEFAULT,\
-  .function = _easing_coord_zero,\
+  .function = _easing_coord_Linear,\
   .frameCount = 500,\
   .interval = 0,\
   .customData = NULL\
@@ -281,7 +281,7 @@ Coord _easing_gait_walk_second(EasingGait* eg);
   .swingWidth = 40.0f,\
   .swingHeight = 45.0f,\
   .swingDuty = 0.5f,\
-  .start = {0.0f, 115.0f},\
+  .offset = {0.0f, 115.0f},\
   .frameCount = 500,\
   .frameInverval = 0,\
   .loopCount = 10\
@@ -292,27 +292,36 @@ Coord _easing_gait_walk_second(EasingGait* eg);
   .swingWidth = 40.0f,\
   .swingHeight = 45.0f,\
   .swingDuty = 0.5f,\
-  .start = {0.0f, 115.0f},\
+  .offset = {0.0f, 115.0f},\
   .frameCount = 500,\
   .frameInverval = 0,\
   .loopCount = 10\
 }
 
-void leg_ea_init_ptr(EasingAngle* ea, const EasingAngleConfig* cfg);
-void leg_ea_absolute(LegID id, float a1_start, float a1_stop, float a2_start, float a2_stop);
-void leg_ea_relative(LegID id, float distance1, float distance2);
-void leg_ea_target(LegID id, float target1, float target2);
-bool leg_ea_is_complete(LegID id);
-bool leg_ea_update(LegID id);
-
-void leg_ec_init_ptr(EasingCoord* ec, const EasingCoordConfig* cfg);
-void leg_ec_absolute(LegID id, float x_start, float z_start, float x_stop, float z_stop);
-void leg_ec_relative(LegID id, float x_distance, float z_distance);
-void leg_ec_target(LegID id, float x_target, float z_target);
-bool leg_ec_is_complete(LegID id);
-bool leg_ec_update(LegID id);
-
 Leg* leg_ptr(LegID id);
 int  leg_init(LegID id, const LegConfig* cfg);
 void leg_set_angle(LegID id, float a1, float a2);
 void leg_set_coord(LegID id, float x, float z);
+
+void leg_ea_init(EasingAngle* ea, const EasingAngleConfig* cfg);
+void leg_ea_absolute(LegID id, float a1_start, float a1_stop, float a2_start, float a2_stop, uint16_t frames);
+void leg_ea_relative(LegID id, float distance1, float distance2, uint16_t frames);
+void leg_ea_target(LegID id, float target1, float target2, uint16_t frames);
+bool leg_ea_is_complete(LegID id);
+bool leg_ea_update(LegID id);
+
+void _leg_ec_init(EasingCoord* ec, const EasingCoordConfig* cfg);
+void leg_ec_absolute(LegID id, float x_start, float z_start, float x_stop, float z_stop, uint16_t frames);
+void leg_ec_relative(LegID id, float x_distance, float z_distance, uint16_t frames);
+void leg_ec_target(LegID id, float x_target, float z_target, uint16_t frames);
+bool leg_ec_is_complete(LegID id);
+bool leg_ec_update(LegID id);
+
+extern const KinematicsData fksp_x_min;
+extern const KinematicsData fksp_x_max;
+extern const KinematicsData fksp_z_min;
+extern const KinematicsData fksp_z_max;
+extern const KinematicsData fksp_x0_z_min;
+extern const KinematicsData fksp_x0_z_max;
+extern const KinematicsData fksp_start;
+extern const KinematicsData fksp_stop;

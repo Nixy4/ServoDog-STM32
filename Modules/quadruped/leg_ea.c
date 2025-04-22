@@ -2,7 +2,7 @@
 
 #define TAG "Easing Angle"
 
-void leg_ea_init_ptr(EasingAngle* ea, const EasingAngleConfig* cfg)
+void leg_ea_init(EasingAngle* ea, const EasingAngleConfig* cfg)
 {
   // memset(ea, 0, sizeof(EasingAngle));
   ea->mode = cfg->mode;
@@ -11,13 +11,14 @@ void leg_ea_init_ptr(EasingAngle* ea, const EasingAngleConfig* cfg)
   ea->interval = cfg->interval;
 }
 
-void leg_ea_absolute_ptr(EasingAngle* ea, float start, float stop)
+void _leg_ea_absolute(EasingAngle* ea, float start, float stop, uint16_t frames)
 {
   ea->start = start;
   ea->stop = stop;
   ea->delta = stop - start;
   ea->current = start;
   ea->frameIndex = 0;
+  ea->frameCount = frames ? frames : EASING_FRAME_COUNT_DEFUALT;
   ea->step = 0.f;
   ea->direction = ea->mode & EASING_DIR_REVERSE;
   if (ea->mode & EASING_TIMES_INFINITE) {
@@ -30,52 +31,52 @@ void leg_ea_absolute_ptr(EasingAngle* ea, float start, float stop)
   ea->lastTick = 0;
 }
 
-void leg_ea_relative_ptr(EasingAngle* ea, float distance)
+void _leg_ea_relative(EasingAngle* ea, float distance, uint16_t frames)
 {
-  leg_ea_absolute_ptr(ea, ea->current, ea->current + distance);
+  _leg_ea_absolute(ea, ea->current, ea->current + distance, frames);
 }
 
-void leg_ea_target_ptr(EasingAngle* ea, float target)
+void _leg_ea_target(EasingAngle* ea, float target, uint16_t frames)
 {
-  leg_ea_absolute_ptr(ea, ea->current, target);
+  _leg_ea_absolute(ea, ea->current, target, frames);
 }
 
-void leg_ea_absolute(LegID id, float a1_start, float a1_stop, float a2_start, float a2_stop)
+void leg_ea_absolute(LegID id, float a1_start, float a1_stop, float a2_start, float a2_stop, uint16_t frames)
 {
   Leg* leg = leg_ptr(id);
   if( a1_start != a1_stop)
   {
-    leg_ea_absolute_ptr(&leg->ea1, a1_start, a1_stop);
+    _leg_ea_absolute(&leg->ea1, a1_start, a1_stop, frames);
   }
   if( a2_start != a2_stop)
   {
-    leg_ea_absolute_ptr(&leg->ea2, a2_start, a2_stop);
+    _leg_ea_absolute(&leg->ea2, a2_start, a2_stop, frames);
   }
 }
 
-void leg_ea_relative(LegID id, float distance1, float distance2)
+void leg_ea_relative(LegID id, float distance1, float distance2, uint16_t frames)
 {
   Leg* leg = leg_ptr(id);
   if( distance1 != 0.f)
   {
-    leg_ea_relative_ptr(&leg->ea1, distance1);
+    _leg_ea_relative(&leg->ea1, distance1, frames);
   }
   if( distance2 != 0.f)
   {
-    leg_ea_relative_ptr(&leg->ea2, distance2);
+    _leg_ea_relative(&leg->ea2, distance2, frames);
   }
 }
 
-void leg_ea_target(LegID id, float target1, float target2)
+void leg_ea_target(LegID id, float target1, float target2, uint16_t frames)
 {
   Leg* leg = leg_ptr(id);
   if( target1 != leg->ea1.stop)
   {
-    leg_ea_target_ptr(&leg->ea1, target1);
+    _leg_ea_target(&leg->ea1, target1, frames);
   }
   if( target2 != leg->ea2.stop)
   {
-    leg_ea_target_ptr(&leg->ea2, target2);
+    _leg_ea_target(&leg->ea2, target2, frames);
   }
 }
 

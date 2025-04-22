@@ -263,56 +263,56 @@ void elog_init_default()
 //   motion_stand0(ms);
 // }
 
-// #define WALK_X_BASE       30.f
-// #define WALK_Z_BASE       115.f
-// #define WALK_PERIOD       200.f
-// #define WALK_SWING_DUTY   0.5f
-// #define WALK_SWING_TIME   (WALK_PERIOD*WALK_SWING_DUTY)
-// #define WALK_SWING_WIDTH  30.f
-// #define WALK_SWING_HEIGHT 30.f
+#define WALK_X_BASE       30.f
+#define WALK_Z_BASE       115.f
+#define WALK_PERIOD       200.f
+#define WALK_SWING_DUTY   0.5f
+#define WALK_SWING_TIME   (WALK_PERIOD*WALK_SWING_DUTY)
+#define WALK_SWING_WIDTH  30.f
+#define WALK_SWING_HEIGHT 30.f
 
-// gait_t walk = 
-// {
-//   .periedTick = WALK_PERIOD,
-//   .swingDuty = WALK_SWING_DUTY,
-//   .swingTime = WALK_SWING_TIME,
-//   .swingWidth = WALK_SWING_WIDTH,
-//   .swingHeight = WALK_SWING_HEIGHT,
-//   .xBase = WALK_X_BASE,
-//   .zBase = WALK_Z_BASE,
-//   .deltaTick = 1,
-//   .rfPtr = &rf,
-//   .rbPtr = &rb,
-//   .lfPtr = &lf,
-//   .lbPtr = &lb,
-//   .t = 0,
-// };
+gait_t walk = 
+{
+  .periedTick = WALK_PERIOD,
+  .swingDuty = WALK_SWING_DUTY,
+  .swingTime = WALK_SWING_TIME,
+  .swingWidth = WALK_SWING_WIDTH,
+  .swingHeight = WALK_SWING_HEIGHT,
+  .xBase = WALK_X_BASE,
+  .zBase = WALK_Z_BASE,
+  .deltaTick = 1,
+  .rfPtr = &rf,
+  .rbPtr = &rb,
+  .lfPtr = &lf,
+  .lbPtr = &lb,
+  .t = 0,
+};
 
-// void walk0(double ms)
-// {
-//   leg_move_target(&rf, walk.xBase, walk.zBase, ms);
-//   leg_move_target(&rb, walk.xBase, walk.zBase, ms);
-//   leg_move_target(&lf, walk.xBase, walk.zBase, ms);
-//   leg_move_target(&lb, walk.xBase, walk.zBase, ms);
-//   legs_update_block();
-// }
+void walk0(double ms)
+{
+  leg_move_target(&rf, walk.xBase, walk.zBase, ms);
+  leg_move_target(&rb, walk.xBase, walk.zBase, ms);
+  leg_move_target(&lf, walk.xBase, walk.zBase, ms);
+  leg_move_target(&lb, walk.xBase, walk.zBase, ms);
+  legs_update_block();
+}
 
-// void walk1(double ms)
-// {
-//   // leg_move_target(&rf, walk.xBase, walk.zBase, ms);
-//   leg_move_target(&rb, walk.xBase, walk.zBase, ms);
-//   // leg_move_target(&lf, walk.xBase, walk.zBase, ms);
-//   leg_move_target(&lb, walk.xBase, walk.zBase, ms);
-//   legs_update_block();
-// }
+void walk1(double ms)
+{
+  // leg_move_target(&rf, walk.xBase, walk.zBase, ms);
+  leg_move_target(&rb, walk.xBase, walk.zBase, ms);
+  // leg_move_target(&lf, walk.xBase, walk.zBase, ms);
+  leg_move_target(&lb, walk.xBase, walk.zBase, ms);
+  legs_update_block();
+}
 
-// void walk2(int steps)
-// {
-//   for(int i = 0; i < steps; i++)
-//   {
-//     while(gait_update(&walk) != 0);
-//   }
-// }
+void walk2(int steps)
+{
+  for(int i = 0; i < steps; i++)
+  {
+    while(gait_update(&walk) != 0);
+  }
+}
 
 #include "pca9685.h"
 #include "quadruped.h"
@@ -321,8 +321,8 @@ LegConfig rf_cfg =
 {
   .pcaChannel1 = 0,
   .pcaChannel2 = 5,
-  .offset1 = 0,
-  .offset2 = 0,
+  .start1 = 0,
+  .start2 = 0,
   .angle1 = 0,
   .angle2 = 0,
   .ea1_config = EASING_ANGLE_CONFIG_DEFAULT(),
@@ -334,8 +334,8 @@ LegConfig rb_cfg =
 {
   .pcaChannel1 = 1,
   .pcaChannel2 = 4,
-  .offset1 = 0,
-  .offset2 = 0,
+  .start1 = 0,
+  .start2 = 0,
   .angle1 = 0,
   .angle2 = 0,
   .ea1_config = EASING_ANGLE_CONFIG_DEFAULT(),
@@ -347,8 +347,8 @@ LegConfig lf_cfg =
 {
   .pcaChannel1 = 3,
   .pcaChannel2 = 7,
-  .offset1 = 0,
-  .offset2 = 0,
+  .start1 = 0,
+  .start2 = 0,
   .angle1 = 0,
   .angle2 = 0,
   .ea1_config = EASING_ANGLE_CONFIG_DEFAULT(),
@@ -360,8 +360,8 @@ LegConfig lb_cfg =
 {
   .pcaChannel1 = 2,
   .pcaChannel2 = 6,
-  .offset1 = 0,
-  .offset2 = 0,
+  .start1 = 0,
+  .start2 = 0,
   .angle1 = 0,
   .angle2 = 0,
   .ea1_config = EASING_ANGLE_CONFIG_DEFAULT(),
@@ -371,16 +371,31 @@ LegConfig lb_cfg =
 
 void setup()
 {
+  elog_i(TAG, "--------------------Setup--------------------");
+  elog_set_filter_lvl(ELOG_LVL_INFO);
+  // elog_set_filter_lvl(ELOG_LVL_DEBUG);
   pca9685_set_freq(50);
   leg_init(LEG_ID_RF, &rf_cfg);
   leg_init(LEG_ID_RB, &rb_cfg);
   leg_init(LEG_ID_LF, &lf_cfg);
   leg_init(LEG_ID_LB, &lb_cfg);
+
+  // leg_ea_target(LEG_ID_RF, 60, 110, 2000);
+  // while(leg_ea_update(LEG_ID_RF) != 0);
+  // HAL_Delay(1000);
+  // leg_ea_target(LEG_ID_RF, 0, 0, 2000);
+  // while(leg_ea_update(LEG_ID_RF) != 0);
+  // HAL_Delay(1000);
+
+  leg_ec_target(LEG_ID_RF, fksp_x0_z_max.COORD.X, fksp_x0_z_max.COORD.Z, 2000);
+  while(leg_ec_update(LEG_ID_RF) != 0);
+  leg_ec_target(LEG_ID_RF, fksp_start.COORD.X, fksp_start.COORD.Z, 2000);
+  while(leg_ec_update(LEG_ID_RF) != 0);  
 }
 
 void loop()
 {
-
+  elog_d(TAG, "--------------------Loop--------------------");
 }
 
 /* USER CODE END 0 */
@@ -422,18 +437,15 @@ int main(void)
   MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
   printf("MX Init Success\r\n");
-
   elog_init_default();
-
   setup();
-  loop();
-
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+    loop();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

@@ -2,12 +2,15 @@
 
 #define TAG "Easing Coord"
 
-Coord _easing_coord_zero(EasingCoord* ec)
+Coord _easing_coord_Linear(EasingCoord* ec)
 {
-  return (Coord) {ec->current.X, ec->current.Z};
+  Coord K = {0.f, 0.f};
+  K.X = _easing_base_Linear(ec->step.X);
+  K.Z = _easing_base_Linear(ec->step.Z);
+  return K;
 }
 
-void elog_d_ec_ptr(EasingCoord* ec)
+static void elog_d_ec(EasingCoord* ec)
 {  
   elog_d(TAG, "| %10s | %20.10f |","mode",ec->mode);
   elog_d(TAG, "| %10s | %20.10f |","start.X",ec->start.X);
@@ -29,23 +32,27 @@ void elog_d_ec_ptr(EasingCoord* ec)
   elog_d(TAG, "| %10s | %20u |","interval",ec->interval);
 }
 
-void leg_ec_init_ptr(EasingCoord* ec, const EasingCoordConfig* cfg)
+void _leg_ec_init(EasingCoord* ec, const EasingCoordConfig* cfg)
 {
   ec->mode = cfg->mode;
-  ec->function = cfg->function != NULL ? cfg->function : _easing_coord_zero;
+  ec->function = cfg->function != NULL ? cfg->function : _easing_coord_Linear;
+  ec->current = (Coord) {fksp_start.COORD.X, fksp_start.COORD.Z};
   ec->frameCount = cfg->frameCount;
   ec->interval = cfg->interval;
   ec->customData = cfg->customData;
 }
 
-void leg_ec_absolute_ptr(EasingCoord* ec, Coord start, Coord stop)
+void _leg_ec_absolute(EasingCoord* ec, Coord start, Coord stop, uint16_t frames)
 {
+  elog_i(TAG, "Param | %10s : %20.10f , %20.10f | %20.10f , %20.10f | %10u |", "start", start.X, start.Z, stop.X, stop.Z, frames);
+
   ec->start = start;
   ec->stop = stop;
   ec->delta.X = stop.X - start.X;
   ec->delta.Z = stop.Z - start.Z;
   ec->current = start;
   ec->frameIndex = 0;
+  ec->frameCount = frames ? frames : EASING_FRAME_COUNT_DEFUALT;
   ec->step = (Coord) {0.f, 0.f};
   ec->direction = ec->mode & EASING_DIR_REVERSE;
   if (ec->mode & EASING_TIMES_INFINITE) {
@@ -58,40 +65,40 @@ void leg_ec_absolute_ptr(EasingCoord* ec, Coord start, Coord stop)
   ec->lastTick = 0;
 }
 
-void leg_ec_relative_ptr(EasingCoord* ec, Coord distance)
+void _leg_ec_relative(EasingCoord* ec, Coord distance, uint16_t frames)
 {
-  leg_ec_absolute_ptr(ec, ec->current, (Coord) {ec->current.X + distance.X, ec->current.Z + distance.Z});
+  _leg_ec_absolute(ec, ec->current, (Coord) {ec->current.X + distance.X, ec->current.Z + distance.Z}, frames);
 }
 
-void leg_ec_target_ptr(EasingCoord* ec, Coord target)
+void _leg_ec_target(EasingCoord* ec, Coord target, uint16_t frames)
 {
-  leg_ec_absolute_ptr(ec, ec->current, target);
+  _leg_ec_absolute(ec, ec->current, target, frames);
 }
 
-void leg_ec_absolute(LegID id, float x_start, float z_start, float x_stop, float z_stop)
+void leg_ec_absolute(LegID id, float x_start, float z_start, float x_stop, float z_stop, uint16_t frames)
 {
   Leg* leg = leg_ptr(id);
   if( x_start != x_stop || z_start != z_stop)
   {
-    leg_ec_absolute_ptr(&leg->ec, (Coord) {x_start, z_start}, (Coord) {x_stop, z_stop});
+    _leg_ec_absolute(&leg->ec, (Coord) {x_start, z_start}, (Coord) {x_stop, z_stop} ,frames);
   }
 }
 
-void leg_ec_relative(LegID id, float x_distance, float z_distance)
+void leg_ec_relative(LegID id, float x_distance, float z_distance, uint16_t frames)
 {
   Leg* leg = leg_ptr(id);
   if( x_distance != 0.f || z_distance != 0.f)
   {
-    leg_ec_relative_ptr(&leg->ec, (Coord) {x_distance, z_distance});
+    _leg_ec_relative(&leg->ec, (Coord) {x_distance, z_distance}, frames);
   }
 }
 
-void leg_ec_target(LegID id, float x_target, float z_target)
+void leg_ec_target(LegID id, float x_target, float z_target, uint16_t frames)
 {
   Leg* leg = leg_ptr(id);
   if( x_target != leg->ec.stop.X || z_target != leg->ec.stop.Z)
   {
-    leg_ec_target_ptr(&leg->ec, (Coord) {x_target, z_target});
+    _leg_ec_target(&leg->ec, (Coord) {x_target, z_target}, frames);
   }
 }
 
@@ -105,7 +112,7 @@ bool leg_ec_is_complete(LegID id)
   return false;
 }
 
-bool leg_ec_update_ptr(EasingCoord* ec)
+bool _leg_ec_update(EasingCoord* ec)
 {
   // elog_d_ec_ptr(ec);
 
@@ -140,19 +147,17 @@ bool leg_ec_update_ptr(EasingCoord* ec)
 
   if (ec->frameIndex == ec->frameCount) 
   {
-    ec->step.X = 1.f;
-    ec->step.Z = 1.f;
-    ec->current.X = ec->direction ? ec->start.X : ec->stop.X;
-    ec->current.Z = ec->direction ? ec->start.Z : ec->stop.Z;
+    ec->step = (Coord) {1.f, 1.f};
+    ec->current = ec->direction ? ec->start : ec->stop;
     if (!(ec->mode & EASING_TIMES_INFINITE)) {
       if(ec->times--) {return true;}
     }
   } else {
     ec->step.X = (float)(ec->frameIndex - 1) / (ec->frameCount - 1);
     ec->step.Z = (float)(ec->frameIndex - 1) / (ec->frameCount - 1);
-    Coord e = ec->function(ec);
-    ec->current.X = ec->direction ? (ec->stop.X - ec->delta.X * e.X) : (ec->start.X + ec->delta.X * e.X);
-    ec->current.Z = ec->direction ? (ec->stop.Z - ec->delta.Z * e.Z) : (ec->start.Z + ec->delta.Z * e.Z);
+    Coord K = ec->function(ec);
+    ec->current.X = ec->direction ? (ec->stop.X - ec->delta.X * K.X) : (ec->start.X + ec->delta.X * K.X);
+    ec->current.Z = ec->direction ? (ec->stop.Z - ec->delta.Z * K.Z) : (ec->start.Z + ec->delta.Z * K.Z);
   }
   return true;
 }
@@ -163,7 +168,7 @@ bool leg_ec_update(LegID id)
   bool ret = false;
   if( leg->ec.times != 0)
   {
-    ret|=leg_ec_update_ptr(&leg->ec);
+    ret|=_leg_ec_update(&leg->ec);
     leg_set_coord(id, leg->ec.current.X, leg->ec.current.Z);
   }
   return ret;

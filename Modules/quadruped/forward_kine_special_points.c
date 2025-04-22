@@ -85,7 +85,7 @@ INFO: X接近0时Z最大的点:
 
 */
 
-const Kinematics x_min = {
+const KinematicsData fksp_x_min = {
 	.AS1 = 158.0,
 	.AS2 = 120.0,
 	.RS1 = 2.75762021815104052535616574459709,
@@ -101,7 +101,7 @@ const Kinematics x_min = {
 	.COORD.Z = -0.50337889445808225996614737596246
 };
 
-const Kinematics x_max = {
+const KinematicsData fksp_x_max = {
 	.AS1 = 0.0,
 	.AS2 = 120.0,
 	.RS1 = 0.0,
@@ -117,7 +117,7 @@ const Kinematics x_max = {
 	.COORD.Z = 49.76103419232561009266646578907967
 };
 
-const Kinematics z_min = {
+const KinematicsData fksp_z_min = {
 	.AS1 = 180.0,
 	.AS2 = 73.0,
 	.RS1 = 3.14159265358979311599796346854419,
@@ -133,7 +133,7 @@ const Kinematics z_min = {
 	.COORD.Z = -64.99999411076412059173890156671405
 };
 
-const Kinematics z_max = {
+const KinematicsData fksp_z_max = {
 	.AS1 = 68.0,
 	.AS2 = 120.0,
 	.RS1 = 1.18682389135614418940178893535631,
@@ -149,7 +149,7 @@ const Kinematics z_max = {
 	.COORD.Z = 131.58954026718029695075529161840677
 };
 
-const Kinematics start = {
+const KinematicsData fksp_start = {
 	.AS1 = 0.0,
 	.AS2 = 0.0,
 	.RS1 = 0.0,
@@ -165,7 +165,7 @@ const Kinematics start = {
 	.COORD.Z = 52.97716130151788149760250234976411
 };
 
-const Kinematics end = {
+const KinematicsData fksp_end = {
 	.AS1 = 180.0,
 	.AS2 = 120.0,
 	.RS1 = 3.14159265358979311599796346854419,
@@ -181,7 +181,7 @@ const Kinematics end = {
 	.COORD.Z = -49.76103419232561719809382339008152
 };
 
-const Kinematics x0_z_max = {
+const KinematicsData fksp_x0_z_max = {
 	.AS1 = 0.0,
 	.AS2 = 120.0,
 	.RS1 = 0.0,
@@ -197,7 +197,7 @@ const Kinematics x0_z_max = {
 	.COORD.Z = 131.58954026718029695075529161840677
 };
 
-const Kinematics x0_z_min = {
+const KinematicsData fksp_x0_z_min = {
 	.AS1 = 0.0,
 	.AS2 = 120.0,
 	.RS1 = 0.0,

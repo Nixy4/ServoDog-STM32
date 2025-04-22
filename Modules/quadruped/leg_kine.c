@@ -1,6 +1,6 @@
 #include "quadruped_def.h"
 
-#define TAG "Kinematics"
+#define TAG "KinematicsData"
 
 void leg_inverse_kinematics(Leg* leg, float X, float Z)
 {
