@@ -286,12 +286,11 @@
           "Drivers/CMSIS/Include",
           ".cmsis/include",
           "MDK-ARM/RTE/_RobotDogMoveTest",
+          "Modules",
           "Modules/cjson",
           "Modules/elog",
           "Modules/misc",
-          "Modules/motion",
-          "Modules/ws2812",
-          "Modules"
+          "Modules/quadruped"
         ],
         "libList": [],
         "defineList": [
