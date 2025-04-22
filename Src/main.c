@@ -96,6 +96,8 @@ void elog_init_default()
   elog_start();
 }
 
+#include "quad.h"
+
 /* USER CODE END 0 */
 
 /**
@@ -137,6 +139,9 @@ int main(void)
   printf("MX Init Success\r\n");
 
   elog_init_default();
+
+  quad_init();
+  quad_stand();
 
   /* USER CODE END 2 */
 

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "pca9685.h"
 #include "leg.h"
 
 void quad_init(void);
