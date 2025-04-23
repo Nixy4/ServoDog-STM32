@@ -61,14 +61,14 @@ void _gait_walk(Gait* gait)
     z1 = -z1 + gait->originalPoint.Z;
   // }
 
-  elog_v(TAG,"| %10s : %10s | %10s : %10s |", "----------", "----------", "----------", "----------");
-  elog_v(TAG,"| %10s : %10.5f | %10s : %10.5f |", "swingWidth", swingWidth, "swingHeight", swingHeight);
-  elog_v(TAG,"| %10s : %10.5f | %10s : %10s |", "swingDuty", gait->swingDuty, "", "");
-  elog_v(TAG,"| %10s : %10.5f | %10s : %10.5f |", "frameIndex", frameIndex, "frameCount", frameCount);
-  elog_v(TAG,"| %10s : %10d | %10s : %10d |", "timesIndex", gait->timesIndex, "times", gait->times);
-  elog_v(TAG,"| %10s : %10.5f | %10s : %10.5f |", "x0", x0, "z0", z0);
-  elog_v(TAG,"| %10s : %10.5f | %10s : %10.5f |", "x1", x1, "z1", z1);
-  elog_v(TAG,"| %10s : %10.5f | %10s : %10.5f |", "Kx", Kx, "Kz", Kz);
+  elog_v(TAG,"| %15s : %15s | %15s : %15s |", "----------", "----------", "----------", "----------");
+  elog_v(TAG,"| %15s : %10.5f | %15s : %10.5f |", "swingWidth", swingWidth, "swingHeight", swingHeight);
+  elog_v(TAG,"| %15s : %10.5f | %15s : %15s |", "swingDuty", gait->swingDuty, "", "");
+  elog_v(TAG,"| %15s : %10.5f | %15s : %10.5f |", "frameIndex", frameIndex, "frameCount", frameCount);
+  elog_v(TAG,"| %15s : %10d | %15s : %10d |", "timesIndex", gait->timesIndex, "times", gait->times);
+  elog_v(TAG,"| %15s : %10.5f | %15s : %10.5f |", "x0", x0, "z0", z0);
+  elog_v(TAG,"| %15s : %10.5f | %15s : %10.5f |", "x1", x1, "z1", z1);
+  elog_v(TAG,"| %15s : %10.5f | %15s : %10.5f |", "Kx", Kx, "Kz", Kz);
 
   gait->current.orientation.rf = (Coord){.X = x0, .Z = z0};
   gait->current.orientation.rb = (Coord){.X = x1, .Z = z1};
@@ -83,19 +83,29 @@ void gait_init(Gait* gait, const GaitConfig* cfg)
   gait->swingWidth      = cfg->swingWidth;
   gait->swingHeight     = cfg->swingHeight;
   gait->swingDuty       = cfg->swingDuty;
-  gait->swingFrameCount = cfg->frameCount * cfg->swingDuty;
+  // gait->swingFrameCount = cfg->frameCount * cfg->swingDuty;
 
   gait->originalPoint   = cfg->originalPoint;
   
   gait->frameCount      = cfg->frameCount;
   gait->frameInverval   = cfg->frameInverval;
+
+  elog_i(TAG,"| %15s : %10.5f | %15s : %10.5f |", "swingWidth", gait->swingWidth,             "swingHeight", gait->swingHeight);
+  elog_i(TAG,"| %15s : %10.5f | %15s : %10.5f |", "swingDuty", gait->swingDuty,               "swingFrameCount", gait->swingFrameCount);
+  elog_i(TAG,"| %15s : %10.5f | %15s : %10.5f |", "frameCount", gait->frameCount,             "frameInverval", gait->frameInverval);
+  elog_i(TAG,"| %15s : %10.5f | %15s : %10.5f |", "originalPoint.X", gait->originalPoint.X,   "originalPoint.Z", gait->originalPoint.Z);
+  elog_i(TAG,"| %15s : %10d | %15s : %10d |",     "timesIndex", gait->timesIndex,             "times", cfg->times);
+  elog_i(TAG,"| %15s : %10d | %15s : %10.5f |",     "frameIndex", gait->frameIndex,             "frameCount", gait->frameCount);
+  elog_i(TAG,"| %15s : %10.5f | %15s : %10.5f |", "Kx", 0.f, "Kz", 0.f);
+  elog_i(TAG,"| %15s : %10.5f | %15s : %10.5f |", "x0", 0.f, "z0", 0.f);
+  elog_i(TAG,"| %15s : %10.5f | %15s : %10.5f |", "x1", 0.f, "z1", 0.f);
 }
 
 void gait_start(Gait* gait, uint16_t frames, int16_t times)
 {
   gait->frameIndex   = 0;
   gait->frameCount   = frames;
-  gait->frameInverval= 0;
+  gait->frameInverval= 1;
   gait->times        = times;
   gait->timesIndex   = times;
   gait->lastTick     = 0;
@@ -104,8 +114,7 @@ void gait_start(Gait* gait, uint16_t frames, int16_t times)
   gait->current.orientation.rb = gait->originalPoint;
   gait->current.orientation.lf = gait->originalPoint;
   gait->current.orientation.lb = gait->originalPoint;
-  //移动所有腿到原点
-  
+
 }
 
 bool gait_update(Gait* gait)
@@ -115,6 +124,7 @@ bool gait_update(Gait* gait)
       return true;
     }
   }
+
   if(gait->timesIndex==0) {
     return false;
   }
@@ -124,6 +134,7 @@ bool gait_update(Gait* gait)
     gait->frameIndex = 0;
     gait->timesIndex--;
   }
+
   if(gait->frameInverval > 0) {
     gait->lastTick = HAL_GetTick();
   }

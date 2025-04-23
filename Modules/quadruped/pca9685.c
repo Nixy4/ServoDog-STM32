@@ -49,9 +49,8 @@ static void writereg(uint8_t reg, uint8_t val)
 {
   HAL_StatusTypeDef status;
   uint8_t buf[2] = {reg, val};
-  status = HAL_I2C_Master_Transmit(&hi2c2, PCA9685_I2C_ADDR, buf, sizeof(buf), HAL_I2C_TRANSFER_TIMEOUT);
-  if (status != HAL_OK) 
-  {
+  status = HAL_I2C_Master_Transmit(&hi2c2, PCA9685_I2C_ADDR, buf, 2, HAL_I2C_TRANSFER_TIMEOUT);
+  if (status != HAL_OK) {
     elog_e(TAG, "PCA9685 write reg failed, reg: 0x%02X, val: 0x%02X", reg, val);
   }
   elog_v(TAG, "write reg [%02X] = %02X", reg, val);
@@ -129,7 +128,6 @@ void pca9685_set_angle(uint8_t ledx, double angle)
     elog_e(TAG, "PCA9685 set angle failed, ledx: %d", ledx);
     return;
   }
-  elog_v(TAG, "PCA9685 set angle, ledx: %d, angle: %f", ledx, angle);
   uint32_t off = 0;
   off = __aeabi_d2ulz(angle * 2.276 + 0.5) + 102;
   pca9685_set_pwm(ledx, 0, off);

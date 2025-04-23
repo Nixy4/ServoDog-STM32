@@ -93,12 +93,13 @@ void elog_init_default()
 
 void quad_standup0(Quadruped* quad, uint16_t frames)
 {
-  leg_eangle_target(&quad->rf, kfsp_x0_z_max.AS1, kfsp_x0_z_max.AS2, frames);
-  leg_eangle_target(&quad->rb, kfsp_x0_z_max.AS1, kfsp_x0_z_max.AS2, frames);
-  leg_eangle_target(&quad->lf, kfsp_x0_z_max.AS1, kfsp_x0_z_max.AS2, frames);
-  leg_eangle_target(&quad->lb, kfsp_x0_z_max.AS1, kfsp_x0_z_max.AS2, frames);
-  bool flag = false;
+  leg_eangle_target(&quad->rf, 68, 115, frames);
+  leg_eangle_target(&quad->rb, 68, 115, frames);
+  leg_eangle_target(&quad->lf, 68, 115, frames);
+  leg_eangle_target(&quad->lb, 68, 115, frames);
+  bool flag;
   do {
+    flag = false;
     flag |= leg_eangle_update(&quad->rf);
     flag |= leg_eangle_update(&quad->rb);
     flag |= leg_eangle_update(&quad->lf);
@@ -186,12 +187,9 @@ GaitConfig walk_cfg =
   .swingHeight = 35,
   .swingDuty = 0.5f,
   .originalPoint = {
-    .X = 15.f,
-    .Z = 120.f,
+    .X = 30.f,
+    .Z = 115.f,
   },
-  .frameCount = 2000,
-  .frameInverval = 1,
-  .times = 10,
 };
 
 Quadruped dog;
@@ -200,19 +198,17 @@ void setup()
 {
   elog_i(TAG, "--------------------Setup--------------------");
   // elog_set_filter_lvl(ELOG_LVL_INFO);
-  elog_set_filter_lvl(ELOG_LVL_DEBUG);
-  // elog_set_filter_lvl(ELOG_LVL_VERBOSE);
+  // elog_set_filter_lvl(ELOG_LVL_DEBUG);
+  elog_set_filter_lvl(ELOG_LVL_VERBOSE);
   pca9685_set_freq(50);
-
-  
 
   quad_init(&dog,&rf_cfg,&rb_cfg,&lf_cfg,&lb_cfg,&walk_cfg);
 
   quad_standup0(&dog, 1000);
 
-  quad_gait_start(&dog,500,5);
+  quad_gait_start(&dog,300,5);
 
-  while(quad_gait_update(&dog));
+  while(  quad_gait_update(&dog)  );
 
   quad_falldown0(&dog, 1000);
 }
@@ -259,11 +255,10 @@ int main(void)
   MX_TIM2_Init();
   MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
+  #include "hal_hw_uart_printf.h"
+  hal_printf_init(&huart3,115200);
   printf("MX Init Success\r\n");
   elog_init_default();
-
-  // kinematics_inverse(&dog.rf, (Coord){.X=0,.Z=115} );
-  // kinematics_debug_data(&dog.rf.IKINE);
   setup();
 
 
