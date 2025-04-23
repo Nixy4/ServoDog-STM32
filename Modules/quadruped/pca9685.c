@@ -129,6 +129,7 @@ void pca9685_set_angle(uint8_t ledx, double angle)
     elog_e(TAG, "PCA9685 set angle failed, ledx: %d", ledx);
     return;
   }
+  elog_v(TAG, "PCA9685 set angle, ledx: %d, angle: %f", ledx, angle);
   uint32_t off = 0;
   off = __aeabi_d2ulz(angle * 2.276 + 0.5) + 102;
   pca9685_set_pwm(ledx, 0, off);

@@ -2,7 +2,24 @@
 
 #define TAG "KinematicsData"
 
-void leg_inverse_kinematics(Leg* leg, float X, float Z)
+void _elog_d_ikine(KinematicsData* ikine)
+{
+  elog_d(TAG, "| %10s | %20s |","----------","--------------------");
+  elog_d(TAG, "| %10s | %20.10f |","AS1",ikine->AS1);
+  elog_d(TAG, "| %10s | %20.10f |","AS2",ikine->AS2);
+  elog_d(TAG, "| %10s | %20.10f |","RS1",ikine->RS1);
+  elog_d(TAG, "| %10s | %20.10f |","RS2",ikine->RS2);
+  elog_d(TAG, "| %10s | %20.10f |","L6",ikine->L6);
+  elog_d(TAG, "| %10s | %20.10f |","L7",ikine->L7);
+  elog_d(TAG, "| %10s | %20.10f |","R12",ikine->R12);
+  elog_d(TAG, "| %10s | %20.10f |","R17",ikine->R17);
+  elog_d(TAG, "| %10s | %20.10f |","R35",ikine->R35);
+  elog_d(TAG, "| %10s | %20.10f |","RX7",ikine->R7X);
+  elog_d(TAG, "| %10s | %20.10f |","X",ikine->COORD.X);
+  elog_d(TAG, "| %10s | %20.10f |","Z",ikine->COORD.Z);
+}
+
+void kinematics_inverse(Leg* leg, float X, float Z)
 {
   float L6, L7, R12, R17, R35, RX7, T, K, RS1, RS2;
   L7 = sqrt(pow(X, 2) + pow(Z, 2));
@@ -36,6 +53,7 @@ void leg_inverse_kinematics(Leg* leg, float X, float Z)
   leg->IKINE.R7X     = RX7;
   leg->IKINE.COORD.X = X;
   leg->IKINE.COORD.Z = Z;
+  _elog_d_ikine(&leg->IKINE);
   return;
 err1:
   elog_e(TAG, "L6 Error >> X:%f Z:%f", X, Z);

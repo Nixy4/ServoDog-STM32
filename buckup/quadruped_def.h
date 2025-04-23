@@ -50,43 +50,6 @@
 #define RADIANS(x)      ((x) * 0.01745329251994329547f)
 #define DEGREES(x)      ((x) * 57.29577951308232286465f)
 
-#define EASING_ANGLE_CONFIG_DEFAULT() {\
-  .mode = EASING_MODE_DEFAULT,\
-  .function = _easing_base_Linear,\
-  .frameCount = 500,\
-  .interval = 0\
-}
-
-#define EASING_COORD_CONFIG_DEFAULT() {\
-  .mode = EASING_MODE_DEFAULT,\
-  .function = _easing_coord_Linear,\
-  .frameCount = 500,\
-  .interval = 0,\
-  .customData = NULL\
-}
-
-#define EASING_GAIT_WALK_FIRST() {\
-  .function = _easing_gait_walk_first,\
-  .swingWidth = 40.0f,\
-  .swingHeight = 45.0f,\
-  .swingDuty = 0.5f,\
-  .offset = {0.0f, 115.0f},\
-  .frameCount = 500,\
-  .frameInverval = 0,\
-  .loopCount = 10\
-}
-
-#define EASING_GAIT_WALK_SECOND() {\
-  .function = _easing_gait_walk_second,\
-  .swingWidth = 40.0f,\
-  .swingHeight = 45.0f,\
-  .swingDuty = 0.5f,\
-  .offset = {0.0f, 115.0f},\
-  .frameCount = 500,\
-  .frameInverval = 0,\
-  .loopCount = 10\
-}
-
 typedef uint8_t EasingMode;
 
 typedef enum
@@ -108,6 +71,18 @@ typedef struct Coord
   float Z;
 } Coord;
 
+typedef union QuadCoord
+{
+  Coord id[4];
+  struct
+  {
+    Coord rf;
+    Coord rb;
+    Coord lf;
+    Coord lb;
+  } orientation;
+} QuadCoord;
+
 typedef struct
 {
   float AS1, AS2;
@@ -124,25 +99,6 @@ typedef float (*EasingAngleFunciton)(float);
 typedef struct EasingCoord EasingCoord;
 typedef struct EasingCoordConfig EasingCoordConfig;
 typedef Coord (*EasingCoordFunciton)(EasingCoord*);
-
-typedef union QuadCoord
-{
-  Coord id[4];
-  struct
-  {
-    Coord rf;
-    Coord rb;
-    Coord lf;
-    Coord lb;
-  } orientation;
-} QuadCoord;
-
-typedef enum GaitStep
-{
-  GAIT_STEP_START = 0U,
-  GAIT_STEP_PERIOD,
-  GAIT_STEP_END,
-} GaitStep;
 
 typedef struct Gait Gait;
 typedef struct GaitConfig GaitConfig;
@@ -203,12 +159,11 @@ struct EasingCoordConfig
   uint16_t frameCount;
   uint32_t interval;
   void* customData;
-};
+} ;
 
 struct LegConfig
 {
   //! Hardware !//
-  LegID id;
   int pcaChannel1 , pcaChannel2;
   float offset1, offset2;
   float angle1, angle2;
@@ -219,15 +174,11 @@ struct LegConfig
 
   //! Easing Coord !//
   EasingCoordConfig ec_config;
-
-  //! Application !//
-
 } ;
 
 struct Leg
 {
   //! Hardware !//
-  LegID id;
   uint8_t pcaChannel1 , pcaChannel2;
   float offset1, offset2;
   float angle1, angle2;
@@ -241,20 +192,19 @@ struct Leg
   
   //! Easing Coord !//
   EasingCoord ec;
-};
+} ;
 
 struct Gait
 {
-  GaitFunciton function;
-  GaitStep step;
+  GaitFunciton startFunc;
+  GaitFunciton periodFunc;
+  GaitFunciton stopFunc;
 
   float swingWidth;
   float swingHeight;
   float swingDuty;
-  float swingFrameCount;
 
-  Coord originalPoint
-;
+  Coord offset;
   QuadCoord current;
 
   float frameCount;
@@ -262,31 +212,26 @@ struct Gait
   float frameInverval;
 
   int16_t times;
-  int16_t timesIndex;
-};
+} ;
 
 struct GaitConfig
 {
-  GaitFunciton function;
+  GaitFunciton startFunc;
+  GaitFunciton periodFunc;
+  GaitFunciton stopFunc;
 
   float swingWidth;
   float swingHeight;
   float swingDuty;
 
-  Coord originalPoint;
+  Coord offset;
 
   float frameCount;
   float frameInverval;
-};
+} ;
 
-struct Quadruped
-{
-  Leg legs[4];
-  Gait gait;
-};
-
-void kinematics_debug_data(KinematicsData* kdata);
-void kinematics_inverse(Leg* leg, Coord coord);
+void _elog_d_ikine(KinematicsData* ikine);
+void kinematics_inverse(Leg* leg, float X, float Z);
 
 float _easing_base_Linear(const float t);       // linear t
 
@@ -330,41 +275,84 @@ float _easing_base_InBounce(const float t);     // back 衰减反弹
 float _easing_base_OutBounce(const float t);
 float _easing_base_InOutBounce(const float t);
 
-void easing_angle_init(EasingAngle* ea, const EasingAngleConfig* cfg);
-void easing_angle_absolute(EasingAngle* ea, float start, float stop, uint16_t frames);
-void easing_angle_relative(EasingAngle* ea, float distance, uint16_t frames);
-void easing_angle_target(EasingAngle* ea, float target, uint16_t frames);
-bool easing_angle_update(EasingAngle* ea);
-
 Coord _easing_coord_Linear(EasingCoord* ec);
+ 
+#define EASING_ANGLE_CONFIG_DEFAULT() {\
+  .mode = EASING_MODE_DEFAULT,\
+  .function = _easing_base_Linear,\
+  .frameCount = 500,\
+  .interval = 0\
+}
 
-void easing_coord_init(EasingCoord* ec, const EasingCoordConfig* cfg);
-void easing_coord_absolute(EasingCoord* ec, Coord start, Coord stop, uint16_t frames);
-void easing_coord_relative(EasingCoord* ec, Coord distance, uint16_t frames);
-void easing_coord_target(EasingCoord* ec, Coord target, uint16_t frames);
-bool easing_coord_update(EasingCoord* ec);
+#define EASING_COORD_CONFIG_DEFAULT() {\
+  .mode = EASING_MODE_DEFAULT,\
+  .function = _easing_coord_Linear,\
+  .frameCount = 500,\
+  .interval = 0,\
+  .customData = NULL\
+}
 
-void leg_init(Leg* leg, const LegConfig* cfg);
+#define EASING_GAIT_WALK_FIRST() {\
+  .function = _easing_gait_walk_first,\
+  .swingWidth = 40.0f,\
+  .swingHeight = 45.0f,\
+  .swingDuty = 0.5f,\
+  .offset = {0.0f, 115.0f},\
+  .frameCount = 500,\
+  .frameInverval = 0,\
+  .loopCount = 10\
+}
+
+#define EASING_GAIT_WALK_SECOND() {\
+  .function = _easing_gait_walk_second,\
+  .swingWidth = 40.0f,\
+  .swingHeight = 45.0f,\
+  .swingDuty = 0.5f,\
+  .offset = {0.0f, 115.0f},\
+  .frameCount = 500,\
+  .frameInverval = 0,\
+  .loopCount = 10\
+}
+
+Leg* leg_ptr(Leg* leg);
+int  leg_init(Leg* leg, const LegConfig* cfg);
 void leg_set_angle(Leg* leg, float a1, float a2);
-void leg_set_coord(Leg* leg, Coord coord);
+void leg_set_coord(Leg* leg, float x, float z);
 
-void leg_eangle_absolute(Leg* leg, float start1, float stop1, float start2, float stop2, uint16_t frames);
+void leg_eangle_absolute(Leg* leg, float a1_start, float a1_stop, float a2_start, float a2_stop, uint16_t frames);
 void leg_eangle_relative(Leg* leg, float distance1, float distance2, uint16_t frames);
 void leg_eangle_target(Leg* leg, float target1, float target2, uint16_t frames);
 bool leg_eangle_update(Leg* leg);
+void leg_eangle_absolute_block(Leg* leg, float a1_start, float a1_stop, float a2_start, float a2_stop, uint16_t frames);
+void leg_eangle_relative_block(Leg* leg, float distance1, float distance2, uint16_t frames);
+void leg_eangle_target_block(Leg* leg, float target1, float target2, uint16_t frames);
 void leg_eangle_update_block(Leg* leg);
+void leg_eangle_update_all_block();
 
-void leg_ecoord_absolute(Leg* leg, Coord start, Coord stop, uint16_t frames);
-void leg_ecoord_relative(Leg* leg, Coord distance, uint16_t frames);
-void leg_ecoord_target(Leg* leg, Coord target, uint16_t frames);
+void leg_ecoord_absolute(Leg* leg, float x_start, float z_start, float x_stop, float z_stop, uint16_t frames);
+void leg_ecoord_relative(Leg* leg, float x_distance, float z_distance, uint16_t frames);
+void leg_ecoord_target(Leg* leg, float x_target, float z_target, uint16_t frames);
 bool leg_ecoord_update(Leg* leg);
+void leg_ecoord_absolute_block(Leg* leg, float x_start, float z_start, float x_stop, float z_stop, uint16_t frames);
+void leg_ecoord_relative_block(Leg* leg, float x_distance, float z_distance, uint16_t frames);
+void leg_ecoord_target_block(Leg* leg, float x_target, float z_target, uint16_t frames);
 void leg_ecoord_update_block(Leg* leg);
+void leg_ecoord_update_all_block(void);
 
-QuadCoord _gait_walk(Gait* gait);
+void quad_standup0(uint16_t frames);
+void quad_falldown0(uint16_t frames);
+void quad_falldown1(uint16_t frames);
 
-void gait_init(Gait* gait, const GaitConfig* cfg);
-void gait_start(Gait* gait, uint16_t frames, int16_t times);
-bool gait_update(Gait* gait);
+QuadCoord _quad_gait_start_walk(Gait* qg);
+QuadCoord _quad_gait_period_walk(Gait* qg);
+QuadCoord _quad_gait_stop_walk(Gait* qg);
+
+void quadruped_gait_init(Gait* eg, const GaitConfig* cfg);
+bool quadruped_gait_update(Gait* eg);
+void quadruped_gait_operation0(Gait* eg, uint16_t frames);
+void quadruped_gait_operation1(Gait* eg, uint16_t frames, int16_t times);
+void quadruped_gait_operation0_block(Gait* eg, uint16_t frames);
+void quadruped_gait_operation1_block(Gait* eg, uint16_t frames, int16_t times);
 
 extern const KinematicsData kfsp_x_min;
 extern const KinematicsData kfsp_x_max;

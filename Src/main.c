@@ -45,10 +45,8 @@ I2C_HandleTypeDef hi2c2;
 TIM_HandleTypeDef htim2;
 
 UART_HandleTypeDef huart4;
-UART_HandleTypeDef huart1;
-UART_HandleTypeDef huart2;
+UART_HandleTypeDef huart3;
 DMA_HandleTypeDef hdma_uart4_rx;
-DMA_HandleTypeDef hdma_usart2_rx;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
@@ -59,11 +57,10 @@ DMA_HandleTypeDef hdma_usart2_rx;
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_DMA_Init(void);
-static void MX_USART1_UART_Init(void);
 static void MX_I2C2_Init(void);
 static void MX_UART4_Init(void);
-static void MX_USART2_UART_Init(void);
 static void MX_TIM2_Init(void);
+static void MX_USART3_UART_Init(void);
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
 
@@ -263,140 +260,182 @@ void elog_init_default()
 //   motion_stand0(ms);
 // }
 
-#define WALK_X_BASE       30.f
-#define WALK_Z_BASE       115.f
-#define WALK_PERIOD       200.f
-#define WALK_SWING_DUTY   0.5f
-#define WALK_SWING_TIME   (WALK_PERIOD*WALK_SWING_DUTY)
-#define WALK_SWING_WIDTH  30.f
-#define WALK_SWING_HEIGHT 30.f
+// #define WALK_X_BASE       20.f
+// #define WALK_Z_BASE       120.f
+// #define WALK_PERIOD       100.f
+// #define WALK_SWING_DUTY   0.5f
+// #define WALK_SWING_TIME   (WALK_PERIOD*WALK_SWING_DUTY)
+// #define WALK_SWING_WIDTH  30.f  
+// #define WALK_SWING_HEIGHT 30.f
 
-gait_t walk = 
-{
-  .periedTick = WALK_PERIOD,
-  .swingDuty = WALK_SWING_DUTY,
-  .swingTime = WALK_SWING_TIME,
-  .swingWidth = WALK_SWING_WIDTH,
-  .swingHeight = WALK_SWING_HEIGHT,
-  .xBase = WALK_X_BASE,
-  .zBase = WALK_Z_BASE,
-  .deltaTick = 1,
-  .rfPtr = &rf,
-  .rbPtr = &rb,
-  .lfPtr = &lf,
-  .lbPtr = &lb,
-  .t = 0,
-};
+// gait_t walk = 
+// {
+//   .periedTick = WALK_PERIOD,
+//   .swingDuty = WALK_SWING_DUTY,
+//   .swingTime = WALK_SWING_TIME,
+//   .swingWidth = WALK_SWING_WIDTH,
+//   .swingHeight = WALK_SWING_HEIGHT,
+//   .xBase = WALK_X_BASE,
+//   .zBase = WALK_Z_BASE,
+//   .deltaTick = 1,
+//   .rfPtr = &rf,
+//   .rbPtr = &rb,
+//   .lfPtr = &lf,
+//   .lbPtr = &lb,
+//   .t = 0,
+// };
 
-void walk0(double ms)
-{
-  leg_move_target(&rf, walk.xBase, walk.zBase, ms);
-  leg_move_target(&rb, walk.xBase, walk.zBase, ms);
-  leg_move_target(&lf, walk.xBase, walk.zBase, ms);
-  leg_move_target(&lb, walk.xBase, walk.zBase, ms);
-  legs_update_block();
-}
+// void walk0(double ms)
+// {
+//   leg_move_target(&rf, walk.xBase, walk.zBase, ms);
+//   leg_move_target(&rb, walk.xBase, walk.zBase, ms);
+//   leg_move_target(&lf, walk.xBase, walk.zBase, ms);
+//   leg_move_target(&lb, walk.xBase, walk.zBase, ms);
+//   legs_update_block();
+// }
 
-void walk1(double ms)
-{
-  // leg_move_target(&rf, walk.xBase, walk.zBase, ms);
-  leg_move_target(&rb, walk.xBase, walk.zBase, ms);
-  // leg_move_target(&lf, walk.xBase, walk.zBase, ms);
-  leg_move_target(&lb, walk.xBase, walk.zBase, ms);
-  legs_update_block();
-}
+// void walk1(double ms)
+// {
+//   // leg_move_target(&rf, walk.xBase, walk.zBase, ms);
+//   leg_move_target(&rb, walk.xBase, walk.zBase, ms);
+//   // leg_move_target(&lf, walk.xBase, walk.zBase, ms);
+//   leg_move_target(&lb, walk.xBase, walk.zBase, ms);
+//   legs_update_block();
+// }
 
-void walk2(int steps)
-{
-  for(int i = 0; i < steps; i++)
-  {
-    while(gait_update(&walk) != 0);
-  }
-}
+// void walk2(int steps)
+// {
+//   for(int i = 0; i < steps; i++)
+//   {
+//     while(gait_update(&walk) != 0);
+//   }
+// }
 
 #include "pca9685.h"
-#include "quadruped.h"
+#include "quadruped_def.h"
 
 LegConfig rf_cfg = 
 {
   .pcaChannel1 = 0,
   .pcaChannel2 = 5,
-  .start1 = 0,
-  .start2 = 0,
+  .offset1 = 0,
+  .offset2 = 0,
   .angle1 = 0,
   .angle2 = 0,
-  .ea1_config = EASING_ANGLE_CONFIG_DEFAULT(),
-  .ea2_config = EASING_ANGLE_CONFIG_DEFAULT(),
-  .ec_config = EASING_COORD_CONFIG_DEFAULT(),
+  // .ea1_config = EASING_ANGLE_CONFIG_DEFAULT(),
+  // .ea2_config = EASING_ANGLE_CONFIG_DEFAULT(),
+  // .ec_config = EASING_COORD_CONFIG_DEFAULT(),
 };
 
 LegConfig rb_cfg = 
 {
   .pcaChannel1 = 1,
   .pcaChannel2 = 4,
-  .start1 = 0,
-  .start2 = 0,
+  .offset1 = 0,
+  .offset2 = 0,
   .angle1 = 0,
   .angle2 = 0,
-  .ea1_config = EASING_ANGLE_CONFIG_DEFAULT(),
-  .ea2_config = EASING_ANGLE_CONFIG_DEFAULT(),
-  .ec_config = EASING_COORD_CONFIG_DEFAULT(),
+  // .ea1_config = EASING_ANGLE_CONFIG_DEFAULT(),
+  // .ea2_config = EASING_ANGLE_CONFIG_DEFAULT(),
+  // .ec_config = EASING_COORD_CONFIG_DEFAULT(),
 };
 
 LegConfig lf_cfg = 
 {
   .pcaChannel1 = 3,
   .pcaChannel2 = 7,
-  .start1 = 0,
-  .start2 = 0,
+  .offset1 = 0,
+  .offset2 = 0,
   .angle1 = 0,
   .angle2 = 0,
-  .ea1_config = EASING_ANGLE_CONFIG_DEFAULT(),
-  .ea2_config = EASING_ANGLE_CONFIG_DEFAULT(),
-  .ec_config = EASING_COORD_CONFIG_DEFAULT(),
+  // .ea1_config = EASING_ANGLE_CONFIG_DEFAULT(),
+  // .ea2_config = EASING_ANGLE_CONFIG_DEFAULT(),
+  // .ec_config = EASING_COORD_CONFIG_DEFAULT(),
 };
 
 LegConfig lb_cfg = 
 {
   .pcaChannel1 = 2,
   .pcaChannel2 = 6,
-  .start1 = 0,
-  .start2 = 0,
+  .offset1 = 0,
+  .offset2 = 0,
   .angle1 = 0,
   .angle2 = 0,
-  .ea1_config = EASING_ANGLE_CONFIG_DEFAULT(),
-  .ea2_config = EASING_ANGLE_CONFIG_DEFAULT(),
-  .ec_config = EASING_COORD_CONFIG_DEFAULT(),
+  // .ea1_config = EASING_ANGLE_CONFIG_DEFAULT(),
+  // .ea2_config = EASING_ANGLE_CONFIG_DEFAULT(),
+  // .ec_config = EASING_COORD_CONFIG_DEFAULT(),
 };
 
-void setup()
-{
-  elog_i(TAG, "--------------------Setup--------------------");
-  elog_set_filter_lvl(ELOG_LVL_INFO);
-  // elog_set_filter_lvl(ELOG_LVL_DEBUG);
-  pca9685_set_freq(50);
-  leg_init(LEG_ID_RF, &rf_cfg);
-  leg_init(LEG_ID_RB, &rb_cfg);
-  leg_init(LEG_ID_LF, &lf_cfg);
-  leg_init(LEG_ID_LB, &lb_cfg);
+// Gait walk;
+// GaitConfig walk_cfg = 
+// {
+//   .startFunc     = _quad_gait_start_walk,
+//   .periodFunc    = _quad_gait_period_walk,
+//   .stopFunc      = _quad_gait_stop_walk,
+//   .swingWidth    = 30,
+//   .swingHeight   = 30,
+//   .swingDuty     = 0.5,
+//   .offset        = {0, 115},
+//   .frameCount    = 0,
+//   .frameInverval = 0
+// };
 
-  // leg_ea_target(LEG_ID_RF, 60, 110, 2000);
-  // while(leg_ea_update(LEG_ID_RF) != 0);
+// void test0()
+// {
+//   leg_eangle_target(LEG_ID_RF, 60, 110, 2000);
+//   while(leg_eangle_update(LEG_ID_RF) != 0);
+//   HAL_Delay(1000);
+//   leg_eangle_target(LEG_ID_RF, 0, 0, 2000);
+//   while(leg_eangle_update(LEG_ID_RF) != 0);
+//   HAL_Delay(1000);
+// }
+
+// void test1()
+// {
+//   leg_ecoord_target(LEG_ID_RF, kfsp_x0_z_max.COORD.X, kfsp_x0_z_max.COORD.Z, 2000);
+//   while(leg_ecoord_update(LEG_ID_RF) != 0);
+//   leg_ecoord_target(LEG_ID_RF, kfsp_start.COORD.X, kfsp_start.COORD.Z, 2000);
+//   while(leg_ecoord_update(LEG_ID_RF) != 0);  
+// }
+
+// void test3()
+// {
+
+// }
+
+// void setup()
+// {
+//   elog_i(TAG, "--------------------Setup--------------------");
+//   // elog_set_filter_lvl(ELOG_LVL_INFO);
+//   // elog_set_filter_lvl(ELOG_LVL_DEBUG);
+//   elog_set_filter_lvl(ELOG_LVL_VERBOSE);
+//   pca9685_set_freq(50);
+//   leg_init(LEG_ID_RF, &rf_cfg);
+//   leg_init(LEG_ID_RB, &rb_cfg);
+//   leg_init(LEG_ID_LF, &lf_cfg);
+//   leg_init(LEG_ID_LB, &lb_cfg);
+//   quadruped_gait_init(&walk, &walk_cfg);
+
+  // leg_set_coord(LEG_ID_RF, kfsp_start.COORD.X, kfsp_start.COORD.Z);
+  // leg_set_coord(LEG_ID_RB, kfsp_start.COORD.X, kfsp_start.COORD.Z);
+  // leg_set_coord(LEG_ID_LF, kfsp_start.COORD.X, kfsp_start.COORD.Z);
+  // leg_set_coord(LEG_ID_LB, kfsp_start.COORD.X, kfsp_start.COORD.Z);
+
+  // leg_set_coord(LEG_ID_RF, kfsp_x0_z_max.COORD.X, kfsp_x0_z_max.COORD.Z);
+  // leg_set_coord(LEG_ID_RB, kfsp_x0_z_max.COORD.X, kfsp_x0_z_max.COORD.Z);
+  // leg_set_coord(LEG_ID_LF, kfsp_x0_z_max.COORD.X, kfsp_x0_z_max.COORD.Z);
+  // leg_set_coord(LEG_ID_LB, kfsp_x0_z_max.COORD.X, kfsp_x0_z_max.COORD.Z);
+
+  // quad_standup0(500);
+  // quadruped_gait_operation1_block(&walk, 200, 5);
   // HAL_Delay(1000);
-  // leg_ea_target(LEG_ID_RF, 0, 0, 2000);
-  // while(leg_ea_update(LEG_ID_RF) != 0);
-  // HAL_Delay(1000);
+  // quad_falldown0(500);
+// }
 
-  leg_ec_target(LEG_ID_RF, fksp_x0_z_max.COORD.X, fksp_x0_z_max.COORD.Z, 2000);
-  while(leg_ec_update(LEG_ID_RF) != 0);
-  leg_ec_target(LEG_ID_RF, fksp_start.COORD.X, fksp_start.COORD.Z, 2000);
-  while(leg_ec_update(LEG_ID_RF) != 0);  
-}
-
-void loop()
-{
-  elog_d(TAG, "--------------------Loop--------------------");
-}
+// void loop()
+// {
+//   // elog_d(TAG, "--------------------Loop--------------------");
+// }
 
 /* USER CODE END 0 */
 
@@ -430,22 +469,21 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_DMA_Init();
-  MX_USART1_UART_Init();
   MX_I2C2_Init();
   MX_UART4_Init();
-  MX_USART2_UART_Init();
   MX_TIM2_Init();
+  MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
   printf("MX Init Success\r\n");
   elog_init_default();
-  setup();
+  // setup();
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    loop();
+    // loop();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -626,68 +664,35 @@ static void MX_UART4_Init(void)
 }
 
 /**
-  * @brief USART1 Initialization Function
+  * @brief USART3 Initialization Function
   * @param None
   * @retval None
   */
-static void MX_USART1_UART_Init(void)
+static void MX_USART3_UART_Init(void)
 {
 
-  /* USER CODE BEGIN USART1_Init 0 */
+  /* USER CODE BEGIN USART3_Init 0 */
 
-  /* USER CODE END USART1_Init 0 */
+  /* USER CODE END USART3_Init 0 */
 
-  /* USER CODE BEGIN USART1_Init 1 */
+  /* USER CODE BEGIN USART3_Init 1 */
 
-  /* USER CODE END USART1_Init 1 */
-  huart1.Instance = USART1;
-  huart1.Init.BaudRate = 115200;
-  huart1.Init.WordLength = UART_WORDLENGTH_8B;
-  huart1.Init.StopBits = UART_STOPBITS_1;
-  huart1.Init.Parity = UART_PARITY_NONE;
-  huart1.Init.Mode = UART_MODE_TX_RX;
-  huart1.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-  huart1.Init.OverSampling = UART_OVERSAMPLING_16;
-  if (HAL_UART_Init(&huart1) != HAL_OK)
+  /* USER CODE END USART3_Init 1 */
+  huart3.Instance = USART3;
+  huart3.Init.BaudRate = 115200;
+  huart3.Init.WordLength = UART_WORDLENGTH_8B;
+  huart3.Init.StopBits = UART_STOPBITS_1;
+  huart3.Init.Parity = UART_PARITY_NONE;
+  huart3.Init.Mode = UART_MODE_TX_RX;
+  huart3.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart3.Init.OverSampling = UART_OVERSAMPLING_16;
+  if (HAL_UART_Init(&huart3) != HAL_OK)
   {
     Error_Handler();
   }
-  /* USER CODE BEGIN USART1_Init 2 */
+  /* USER CODE BEGIN USART3_Init 2 */
 
-  /* USER CODE END USART1_Init 2 */
-
-}
-
-/**
-  * @brief USART2 Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_USART2_UART_Init(void)
-{
-
-  /* USER CODE BEGIN USART2_Init 0 */
-
-  /* USER CODE END USART2_Init 0 */
-
-  /* USER CODE BEGIN USART2_Init 1 */
-
-  /* USER CODE END USART2_Init 1 */
-  huart2.Instance = USART2;
-  huart2.Init.BaudRate = 115200;
-  huart2.Init.WordLength = UART_WORDLENGTH_8B;
-  huart2.Init.StopBits = UART_STOPBITS_1;
-  huart2.Init.Parity = UART_PARITY_NONE;
-  huart2.Init.Mode = UART_MODE_TX_RX;
-  huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-  huart2.Init.OverSampling = UART_OVERSAMPLING_16;
-  if (HAL_UART_Init(&huart2) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN USART2_Init 2 */
-
-  /* USER CODE END USART2_Init 2 */
+  /* USER CODE END USART3_Init 2 */
 
 }
 
@@ -704,9 +709,6 @@ static void MX_DMA_Init(void)
   /* DMA1_Stream2_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(DMA1_Stream2_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(DMA1_Stream2_IRQn);
-  /* DMA1_Stream5_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA1_Stream5_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(DMA1_Stream5_IRQn);
 
 }
 
@@ -727,6 +729,7 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOF_CLK_ENABLE();
   __HAL_RCC_GPIOH_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
+  __HAL_RCC_GPIOB_CLK_ENABLE();
   __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOD_CLK_ENABLE();
 
@@ -757,6 +760,14 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : PD6 */
+  GPIO_InitStruct.Pin = GPIO_PIN_6;
+  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+  GPIO_InitStruct.Alternate = GPIO_AF7_USART2;
+  HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
   /* USER CODE BEGIN MX_GPIO_Init_2 */
   /* USER CODE END MX_GPIO_Init_2 */
