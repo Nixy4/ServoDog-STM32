@@ -213,8 +213,7 @@ void elog_set_filter_kw(const char *keyword);
 void elog_set_filter_tag_lvl(const char *tag, uint8_t level);
 uint8_t elog_get_filter_tag_lvl(const char *tag);
 void elog_raw_output(const char *format, ...);
-void elog_output(uint8_t level, const char *tag, const char *file, const char *func,
-        const long line, const char *format, ...);
+void elog_output(uint8_t level, const char *tag, const char *file, const char *func, const long line, const char *format, ...);
 void elog_output_lock_enabled(bool enabled);
 extern void (*elog_assert_hook)(const char* expr, const char* func, size_t line);
 void elog_assert_set_hook(void (*hook)(const char* expr, const char* func, size_t line));

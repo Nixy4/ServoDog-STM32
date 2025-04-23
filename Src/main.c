@@ -91,6 +91,38 @@ void elog_init_default()
 #include "pca9685.h"
 #include "quadruped_def.h"
 
+void quad_standup0(Quadruped* quad, uint16_t frames)
+{
+  leg_eangle_target(&quad->rf, kfsp_x0_z_max.AS1, kfsp_x0_z_max.AS2, frames);
+  leg_eangle_target(&quad->rb, kfsp_x0_z_max.AS1, kfsp_x0_z_max.AS2, frames);
+  leg_eangle_target(&quad->lf, kfsp_x0_z_max.AS1, kfsp_x0_z_max.AS2, frames);
+  leg_eangle_target(&quad->lb, kfsp_x0_z_max.AS1, kfsp_x0_z_max.AS2, frames);
+  bool flag = false;
+  do {
+    flag |= leg_eangle_update(&quad->rf);
+    flag |= leg_eangle_update(&quad->rb);
+    flag |= leg_eangle_update(&quad->lf);
+    flag |= leg_eangle_update(&quad->lb);
+  } while (flag);
+  HAL_Delay(1000);
+}
+
+void quad_falldown0(Quadruped* quad, uint16_t frames)
+{
+  leg_eangle_target(&quad->rf, kfsp_start.AS1, kfsp_start.AS2, frames);
+  leg_eangle_target(&quad->rb, kfsp_start.AS1, kfsp_start.AS2, frames);
+  leg_eangle_target(&quad->lf, kfsp_start.AS1, kfsp_start.AS2, frames);
+  leg_eangle_target(&quad->lb, kfsp_start.AS1, kfsp_start.AS2, frames);
+  bool flag = false;
+  do {
+    flag |= leg_eangle_update(&quad->rf);
+    flag |= leg_eangle_update(&quad->rb);
+    flag |= leg_eangle_update(&quad->lf);
+    flag |= leg_eangle_update(&quad->lb);
+  } while (flag);
+  HAL_Delay(1000);
+}
+
 LegConfig rf_cfg = 
 {
   .id = LEG_ID_RF,
@@ -154,11 +186,11 @@ GaitConfig walk_cfg =
   .swingHeight = 35,
   .swingDuty = 0.5f,
   .originalPoint = {
-    .X = 0,
-    .Z = 115,
+    .X = 15.f,
+    .Z = 120.f,
   },
-  .frameCount = 500,
-  .frameInverval = 0,
+  .frameCount = 2000,
+  .frameInverval = 1,
   .times = 10,
 };
 
@@ -167,14 +199,22 @@ Quadruped dog;
 void setup()
 {
   elog_i(TAG, "--------------------Setup--------------------");
-  elog_set_filter_lvl(ELOG_LVL_INFO);
-  // elog_set_filter_lvl(ELOG_LVL_DEBUG);
+  // elog_set_filter_lvl(ELOG_LVL_INFO);
+  elog_set_filter_lvl(ELOG_LVL_DEBUG);
   // elog_set_filter_lvl(ELOG_LVL_VERBOSE);
   pca9685_set_freq(50);
+
   
+
   quad_init(&dog,&rf_cfg,&rb_cfg,&lf_cfg,&lb_cfg,&walk_cfg);
-  quad_gait_start(&dog,300,10);
+
+  quad_standup0(&dog, 1000);
+
+  quad_gait_start(&dog,500,5);
+
   while(quad_gait_update(&dog));
+
+  quad_falldown0(&dog, 1000);
 }
 
 void loop()

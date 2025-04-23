@@ -124,7 +124,7 @@ typedef enum GaitStep
 
 typedef struct Gait Gait;
 typedef struct GaitConfig GaitConfig;
-typedef QuadCoord (*GaitFunciton)(Gait*);
+typedef void (*GaitFunciton)(Gait*);
 
 typedef struct LegConfig LegConfig;
 typedef struct Leg Leg;
@@ -235,6 +235,8 @@ struct Gait
   float frameIndex;
   float frameInverval;
 
+  uint32_t lastTick;
+
   int16_t times;
   int16_t timesIndex;
 };
@@ -263,7 +265,7 @@ struct Quadruped
 typedef struct Quadruped Quadruped;
 
 void kinematics_debug_data(KinematicsData* kdata);
-void kinematics_inverse(Leg* leg, Coord coord);
+KinematicsData kinematics_inverse(float X,float Z);
 
 float _easing_base_Linear(const float t);       // linear t
 
@@ -337,7 +339,7 @@ void leg_ecoord_target(Leg* leg, Coord target, uint16_t frames);
 bool leg_ecoord_update(Leg* leg);
 void leg_ecoord_update_block(Leg* leg);
 
-QuadCoord _gait_walk(Gait* gait);
+void _gait_walk(Gait* gait);
 
 void gait_init(Gait* gait, const GaitConfig* cfg);
 void gait_start(Gait* gait, uint16_t frames, int16_t times);

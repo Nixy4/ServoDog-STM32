@@ -26,7 +26,7 @@ void leg_set_angle(Leg* leg, float a1, float a2)
 
 void leg_set_coord(Leg* leg, Coord coord)
 {
-  kinematics_inverse(leg, coord);
+  leg->IKINE = kinematics_inverse(coord.X, coord.Z);
   leg_set_angle(leg, leg->IKINE.AS1, leg->IKINE.AS2);
 }
 

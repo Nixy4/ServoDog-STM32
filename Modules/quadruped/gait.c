@@ -2,9 +2,8 @@
 
 #define TAG "Gait"
 
-inline QuadCoord _gait_walk(Gait* gait)
+void _gait_walk(Gait* gait)
 {
-  QuadCoord QC;
   float T, Kx, Kz, x0, z0, x1, z1;
   float swingWidth      = gait->swingWidth;
   float swingHeight     = gait->swingHeight;
@@ -34,33 +33,34 @@ inline QuadCoord _gait_walk(Gait* gait)
   }
   else
   {
-    return (gait->current);
+    return;
   }
   
-  if(gait->timesIndex==gait->times)
-  {
-    //第一个周期 0组 腿不动
-    x0 = gait->originalPoint.X;
-    z0 = gait->originalPoint.Z;
-    x1 = -x1 + gait->originalPoint.X;
-    z1 = -z1 + gait->originalPoint.Z;
-  }
-  else if(gait->timesIndex==1)
-  {
-    //最后一个周期 1组 腿不动
-    x0 = -x0 + gait->originalPoint.X;
-    z0 = -z0 + gait->originalPoint.Z;
-    x1 = gait->originalPoint.X;
-    z1 = gait->originalPoint.Z;  
-  }
-  else
-  {
+  // if(gait->timesIndex==gait->times)
+  // {
+  //   //第一个周期 0组 腿不动
+  //   x0 = gait->originalPoint.X;
+  //   z0 = gait->originalPoint.Z;
+  //   x1 = -x1 + gait->originalPoint.X;
+  //   z1 = -z1 + gait->originalPoint.Z;
+  // }
+  // else if(gait->timesIndex==1)
+  // {
+  //   //最后一个周期 1组 腿不动
+  //   x0 = -x0 + gait->originalPoint.X;
+  //   z0 = -z0 + gait->originalPoint.Z;
+  //   x1 = gait->originalPoint.X;
+  //   z1 = gait->originalPoint.Z;  
+  // }
+  // else
+  // {
     //中间的周期
     x0 = -x0 + gait->originalPoint.X;
     z0 = -z0 + gait->originalPoint.Z;
     x1 = -x1 + gait->originalPoint.X;
     z1 = -z1 + gait->originalPoint.Z;
-  }
+  // }
+
   elog_v(TAG,"| %10s : %10s | %10s : %10s |", "----------", "----------", "----------", "----------");
   elog_v(TAG,"| %10s : %10.5f | %10s : %10.5f |", "swingWidth", swingWidth, "swingHeight", swingHeight);
   elog_v(TAG,"| %10s : %10.5f | %10s : %10s |", "swingDuty", gait->swingDuty, "", "");
@@ -70,11 +70,10 @@ inline QuadCoord _gait_walk(Gait* gait)
   elog_v(TAG,"| %10s : %10.5f | %10s : %10.5f |", "x1", x1, "z1", z1);
   elog_v(TAG,"| %10s : %10.5f | %10s : %10.5f |", "Kx", Kx, "Kz", Kz);
 
-  QC.orientation.rf = (Coord) { x0, z0 };
-  QC.orientation.rb = (Coord) { x1, z1 };
-  QC.orientation.lf = (Coord) { x1, z1 };
-  QC.orientation.lb = (Coord) { x0, z0 };  
-  return QC;
+  gait->current.orientation.rf = (Coord){.X = x0, .Z = z0};
+  gait->current.orientation.rb = (Coord){.X = x1, .Z = z1};
+  gait->current.orientation.lf = (Coord){.X = x1, .Z = z1};
+  gait->current.orientation.lb = (Coord){.X = x0, .Z = z0};
 }
 
 void gait_init(Gait* gait, const GaitConfig* cfg)
@@ -99,22 +98,34 @@ void gait_start(Gait* gait, uint16_t frames, int16_t times)
   gait->frameInverval= 0;
   gait->times        = times;
   gait->timesIndex   = times;
+  gait->lastTick     = 0;
+  gait->swingFrameCount = frames * gait->swingDuty;
   gait->current.orientation.rf = gait->originalPoint;
   gait->current.orientation.rb = gait->originalPoint;
   gait->current.orientation.lf = gait->originalPoint;
   gait->current.orientation.lb = gait->originalPoint;
+  //移动所有腿到原点
+  
 }
 
 bool gait_update(Gait* gait)
 {
+  if(gait->frameInverval > 0) {
+    if(HAL_GetTick() - gait->lastTick < gait->frameInverval) {
+      return true;
+    }
+  }
   if(gait->timesIndex==0) {
     return false;
   }
-  gait->current = gait->function(gait);
+  _gait_walk(gait);
   gait->frameIndex++;
   if(gait->frameIndex > gait->frameCount) {
     gait->frameIndex = 0;
     gait->timesIndex--;
+  }
+  if(gait->frameInverval > 0) {
+    gait->lastTick = HAL_GetTick();
   }
   return true;
 }
