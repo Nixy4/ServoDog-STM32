@@ -1,5 +1,7 @@
 #include "quadruped_def.h"
 
+#define TAG "Gait"
+
 inline QuadCoord _gait_walk(Gait* gait)
 {
   QuadCoord QC;
@@ -17,7 +19,7 @@ inline QuadCoord _gait_walk(Gait* gait)
     Kz = (1-cos(T)) / 2.f;
     x0 = (Kx)   * swingWidth;
     z0 = (Kz)   * swingHeight;
-    x1 = (1-Kx) * swingHeight;
+    x1 = swingWidth - swingWidth * Kx;
     z1 = 0;
   }
   else if( frameIndex > swingFrameCount && frameIndex < frameCount)
@@ -25,7 +27,7 @@ inline QuadCoord _gait_walk(Gait* gait)
     T  = DPI*(frameIndex-swingFrameCount)/swingFrameCount;
     Kx = (T-sin(T)) / DPI;
     Kz = (1-cos(T)) / 2.f;
-    x0 = (1-Kx) * swingWidth;
+    x0 = swingWidth - swingWidth * Kx; 
     z0 = 0;
     x1 = (Kx)   * swingWidth;
     z1 = (Kz)   * swingHeight;
@@ -41,7 +43,7 @@ inline QuadCoord _gait_walk(Gait* gait)
     x0 = gait->originalPoint.X;
     z0 = gait->originalPoint.Z;
     x1 = -x1 + gait->originalPoint.X;
-    z1 = -z1 + gait->originalPoint.Z;      
+    z1 = -z1 + gait->originalPoint.Z;
   }
   else if(gait->timesIndex==1)
   {
@@ -59,7 +61,15 @@ inline QuadCoord _gait_walk(Gait* gait)
     x1 = -x1 + gait->originalPoint.X;
     z1 = -z1 + gait->originalPoint.Z;
   }
-  
+  elog_v(TAG,"| %10s : %10s | %10s : %10s |", "----------", "----------", "----------", "----------");
+  elog_v(TAG,"| %10s : %10.5f | %10s : %10.5f |", "swingWidth", swingWidth, "swingHeight", swingHeight);
+  elog_v(TAG,"| %10s : %10.5f | %10s : %10s |", "swingDuty", gait->swingDuty, "", "");
+  elog_v(TAG,"| %10s : %10.5f | %10s : %10.5f |", "frameIndex", frameIndex, "frameCount", frameCount);
+  elog_v(TAG,"| %10s : %10d | %10s : %10d |", "timesIndex", gait->timesIndex, "times", gait->times);
+  elog_v(TAG,"| %10s : %10.5f | %10s : %10.5f |", "x0", x0, "z0", z0);
+  elog_v(TAG,"| %10s : %10.5f | %10s : %10.5f |", "x1", x1, "z1", z1);
+  elog_v(TAG,"| %10s : %10.5f | %10s : %10.5f |", "Kx", Kx, "Kz", Kz);
+
   QC.orientation.rf = (Coord) { x0, z0 };
   QC.orientation.rb = (Coord) { x1, z1 };
   QC.orientation.lf = (Coord) { x1, z1 };
@@ -69,13 +79,17 @@ inline QuadCoord _gait_walk(Gait* gait)
 
 void gait_init(Gait* gait, const GaitConfig* cfg)
 {
-  gait->function      = cfg->function;
-  gait->swingWidth    = cfg->swingWidth;
-  gait->swingHeight   = cfg->swingHeight;
-  gait->swingDuty     = cfg->swingDuty;
-  gait->originalPoint = cfg->originalPoint;
-  gait->frameCount    = cfg->frameCount;
-  gait->frameInverval = cfg->frameInverval;
+  gait->function        = cfg->function;
+
+  gait->swingWidth      = cfg->swingWidth;
+  gait->swingHeight     = cfg->swingHeight;
+  gait->swingDuty       = cfg->swingDuty;
+  gait->swingFrameCount = cfg->frameCount * cfg->swingDuty;
+
+  gait->originalPoint   = cfg->originalPoint;
+  
+  gait->frameCount      = cfg->frameCount;
+  gait->frameInverval   = cfg->frameInverval;
 }
 
 void gait_start(Gait* gait, uint16_t frames, int16_t times)

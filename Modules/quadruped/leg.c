@@ -6,10 +6,10 @@
 void leg_set_angle(Leg* leg, float a1, float a2)
 {
   //! Hardware !//
-  a1 = ALIMITT(a1);
+  a1 = ALIMITT(a1);  // 0 >> 180
   a2 = ALIMITS(a2);
   //存入偏移和镜像之前的参数
-  leg->angle1 = a1; 
+  leg->angle1 = a1;  // 
   leg->angle2 = a2;
   //偏移
   a1 = AOFFSET(a1, leg->offset1);

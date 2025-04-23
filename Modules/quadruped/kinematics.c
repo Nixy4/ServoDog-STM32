@@ -14,30 +14,32 @@ void kinematics_debug_data(KinematicsData* kdata)
   elog_d(TAG, "| %10s | %20.10f |","R12",kdata->R12);
   elog_d(TAG, "| %10s | %20.10f |","R17",kdata->R17);
   elog_d(TAG, "| %10s | %20.10f |","R35",kdata->R35);
-  elog_d(TAG, "| %10s | %20.10f |","RX7",kdata->R7X);
+  elog_d(TAG, "| %10s | %20.10f |","R7X",kdata->R7X);
   elog_d(TAG, "| %10s | %20.10f |","X",kdata->COORD.X);
   elog_d(TAG, "| %10s | %20.10f |","Z",kdata->COORD.Z);
 }
 
 void kinematics_inverse(Leg* leg, Coord coord)
 {
-  float L6, L7, R12, R17, R35, RX7, T, K, RS1, RS2;
+  float L6, L7, R12, R17, R35, R7X, T, K, RS1, RS2;
   float X = coord.X;
   float Z = coord.Z;
   L7 = sqrt(pow(X, 2) + pow(Z, 2));
   R17 = acos((pow(L1, 2) + pow(L7, 2) - pow(L2, 2)) / (2 * L1 * L7));
   T = (pow(L1, 2) + pow(L2, 2) - pow(L7, 2)) / (2 * L1 * L2);
   R12 = acos(T);
+
   if(X==0) {
-    RX7=HPI; 
+    R7X=HPI; 
   } else {
     K= Z / X;
+    if(X>0&&Z>=0) R7X=atan(K);
+    else if(X<0&&Z>=0) R7X=PI+atan(K);
+    else if(X<0&&Z<0) R7X=PI+atan(K);
+    else {R7X=0.0f;}
   }
-  if(X>0&&Z>=0) RX7=atan(K);
-  else if(X<0&&Z>=0) RX7=PI+atan(K);
-  else if(X<0&&Z<0) RX7=PI+atan(K);
-  else {RX7=0.0f;}
-  RS1 = RX7 - R17;
+
+  RS1 = R7X - R17;
   R35 = PI - R12 - R15;
   L6 = sqrt(pow(L3, 2) + pow(L5, 2) - 2 * L3 * L5 * cos(R35));
   if(L6 > L8 + L9) {goto err1;}
@@ -52,7 +54,7 @@ void kinematics_inverse(Leg* leg, Coord coord)
   leg->IKINE.R12     = R12;
   leg->IKINE.R17     = R17;
   leg->IKINE.R35     = R35;
-  leg->IKINE.R7X     = RX7;
+  leg->IKINE.R7X     = R7X;
   leg->IKINE.COORD   = coord;
   kinematics_debug_data(&leg->IKINE);
   return;

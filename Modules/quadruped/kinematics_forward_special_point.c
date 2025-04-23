@@ -197,6 +197,35 @@ const KinematicsData kfsp_x0_z_max = {
 	.COORD.Z = 131.58954026718029695075529161840677
 };
 
+/*
+D/KinematicsData  [] | ---------- | -------------------- |
+D/KinematicsData  [] |        AS1 |       -33.1798820496 |
+D/KinematicsData  [] |        AS2 |        91.1909866333 |
+D/KinematicsData  [] |        RS1 |        -0.5790981650 |
+D/KinematicsData  [] |        RS2 |         1.5915828943 |
+D/KinematicsData  [] |         L6 |        71.1311874390 |
+D/KinematicsData  [] |         L7 |       115.0000000000 |
+D/KinematicsData  [] |        R12 |         1.8234765530 |
+D/KinematicsData  [] |        R17 |         0.5790981650 |
+D/KinematicsData  [] |        R35 |         0.9148347378 |
+D/KinematicsData  [] |        RX7 |         0.0000000000 |
+D/KinematicsData  [] |          X |         0.0000000000 |
+D/KinematicsData  [] |          Z |       115.0000000000 |
+D/KinematicsData  [] | ---------- | -------------------- |
+D/KinematicsData  [] |        AS1 |       -33.1798820496 |
+D/KinematicsData  [] |        AS2 |        91.1909866333 |
+D/KinematicsData  [] |        RS1 |        -0.5790981650 |
+D/KinematicsData  [] |        RS2 |         1.5915828943 |
+D/KinematicsData  [] |         L6 |        71.1311874390 |
+D/KinematicsData  [] |         L7 |       115.0000000000 |
+D/KinematicsData  [] |        R12 |         1.8234765530 |
+D/KinematicsData  [] |        R17 |         0.5790981650 |
+D/KinematicsData  [] |        R35 |         0.9148347378 |
+D/KinematicsData  [] |        RX7 |         0.0000000000 |
+D/KinematicsData  [] |          X |         0.0000000000 |
+D/KinematicsData  [] |          Z |       115.0000000000 |
+*/
+
 const KinematicsData kfsp_x0_z_min = {
 	.AS1 = 180.0,
 	.AS2 = 73.0,

@@ -65,28 +65,6 @@
   .customData = NULL\
 }
 
-#define EASING_GAIT_WALK_FIRST() {\
-  .function = _easing_gait_walk_first,\
-  .swingWidth = 40.0f,\
-  .swingHeight = 45.0f,\
-  .swingDuty = 0.5f,\
-  .offset = {0.0f, 115.0f},\
-  .frameCount = 500,\
-  .frameInverval = 0,\
-  .loopCount = 10\
-}
-
-#define EASING_GAIT_WALK_SECOND() {\
-  .function = _easing_gait_walk_second,\
-  .swingWidth = 40.0f,\
-  .swingHeight = 45.0f,\
-  .swingDuty = 0.5f,\
-  .offset = {0.0f, 115.0f},\
-  .frameCount = 500,\
-  .frameInverval = 0,\
-  .loopCount = 10\
-}
-
 typedef uint8_t EasingMode;
 
 typedef enum
@@ -273,6 +251,8 @@ struct GaitConfig
 
   float frameCount;
   float frameInverval;
+
+  int16_t times;
 };
 
 struct Quadruped
@@ -369,8 +349,8 @@ void quad_init(
   const LegConfig* rb_cfg, 
   const LegConfig* lf_cfg, 
   const LegConfig* lb_cfg,
-  const GaitConfig* gait_cfg
-  );
+  const GaitConfig* gait_cfg);
+void quad_gait_start(Quadruped* quad, uint16_t frames, int16_t times);
 bool quad_gait_update(Quadruped* quad);
 void quad_standup0(Quadruped* quad, uint16_t frames);
 void quad_falldown0(Quadruped* quad, uint16_t frames);
