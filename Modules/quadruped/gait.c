@@ -59,6 +59,7 @@ inline QuadCoord _gait_walk(Gait* gait)
     x1 = -x1 + gait->originalPoint.X;
     z1 = -z1 + gait->originalPoint.Z;
   }
+  
   QC.orientation.rf = (Coord) { x0, z0 };
   QC.orientation.rb = (Coord) { x1, z1 };
   QC.orientation.lf = (Coord) { x1, z1 };

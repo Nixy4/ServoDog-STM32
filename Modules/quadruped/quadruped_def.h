@@ -219,16 +219,13 @@ struct LegConfig
 
   //! Easing Coord !//
   EasingCoordConfig ec_config;
-
-  //! Application !//
-
-} ;
+};
 
 struct Leg
 {
   //! Hardware !//
-  LegID id;
-  uint8_t pcaChannel1 , pcaChannel2;
+  LegID id; //为了判断角度是否需要镜像
+  uint8_t pcaChannel1 , pcaChannel2;// 对应的舵机通道
   float offset1, offset2;
   float angle1, angle2;
 
@@ -253,8 +250,7 @@ struct Gait
   float swingDuty;
   float swingFrameCount;
 
-  Coord originalPoint
-;
+  Coord originalPoint;
   QuadCoord current;
 
   float frameCount;
@@ -281,9 +277,10 @@ struct GaitConfig
 
 struct Quadruped
 {
-  Leg legs[4];
+  Leg rf, rb, lf, lb;
   Gait gait;
 };
+typedef struct Quadruped Quadruped;
 
 void kinematics_debug_data(KinematicsData* kdata);
 void kinematics_inverse(Leg* leg, Coord coord);
@@ -365,6 +362,19 @@ QuadCoord _gait_walk(Gait* gait);
 void gait_init(Gait* gait, const GaitConfig* cfg);
 void gait_start(Gait* gait, uint16_t frames, int16_t times);
 bool gait_update(Gait* gait);
+
+void quad_init(
+  Quadruped* quad, 
+  const LegConfig* rf_cfg, 
+  const LegConfig* rb_cfg, 
+  const LegConfig* lf_cfg, 
+  const LegConfig* lb_cfg,
+  const GaitConfig* gait_cfg
+  );
+bool quad_gait_update(Quadruped* quad);
+void quad_standup0(Quadruped* quad, uint16_t frames);
+void quad_falldown0(Quadruped* quad, uint16_t frames);
+void quad_falldown1(Quadruped* quad, uint16_t frames);
 
 extern const KinematicsData kfsp_x_min;
 extern const KinematicsData kfsp_x_max;
