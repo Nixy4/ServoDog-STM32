@@ -175,6 +175,7 @@ void logComparison(bool eq, const char* tag, double val1, double val2) {
 }
 
 bool dataCompare(const kinematics_data_t* d1, const kinematics_data_t* d2) {
+	
 	const double angle_error = 0.001;
 	const double radian_error = DEG_TO_RAD(angle_error);
 	const double length_error = 0.001;

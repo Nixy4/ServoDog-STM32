@@ -19,28 +19,20 @@ int gait_equation(gait_t* g)
     T = _2PI * t / swingTime;
     Kx = (T-sin(T)) / _2PI;
     Kz = (1-cos(T)) / 2.f;
-
     x_swing = swingWidth * Kx;
     z_swing = swingHeight * Kz;
-
     x_support = swingWidth -swingWidth * Kx;
     z_support = 0;
-
-    // elog_d(TAG," SWING t:%f, st:%f, T=%f, Kx:%f, Kz:%f, x_swing:%f, x_support:%f, z:%f", t, swingTime, T, Kx, Kz, x_swing, x_support, z);
   } 
   else if( t >swingTime && t < period ) 
   {
     T = _2PI * (t - swingTime) / swingTime;
-
     Kx = (T-sin(T)) / _2PI;
     Kz = (1-cos(T)) / 2.f;
-
     x_swing = swingWidth -swingWidth * Kx;
     z_swing = 0;
-
     x_support = swingWidth * Kx;
     z_support = swingHeight * Kz;
-    // elog_d(TAG," SUPPORT t:%f, st:%f, T=%f, Kx:%f, Kz:%f, x_swing:%f, x_support:%f, z:%f", t, swingTime, T, Kx, Kz, x_swing, x_support, z);
   }
   else 
   {
@@ -49,12 +41,12 @@ int gait_equation(gait_t* g)
   }
 
   //* 同步数据 *//
-  data.swingCoord.x   = -x_swing + g->x_base;
-  data.swingCoord.z   = -z_swing + g->z_base;
-  data.supportCoord.x = -x_support + g->x_base;
-  data.supportCoord.z = -z_support + g->z_base;
+  data.swingCoord.x   = -x_swing    + g->x_base;
+  data.swingCoord.z   = -z_swing    + g->z_base;
+  data.supportCoord.x = -x_support  + g->x_base;
+  data.supportCoord.z = -z_support  + g->z_base;
 
-  // g->data = data;
+  g->data = data;
   
   g->rfCoord = data.swingCoord;
   g->rbCoord = data.supportCoord;

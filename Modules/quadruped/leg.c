@@ -9,11 +9,8 @@
 
 static const char* TAG = "LEG";
 
-// #define LA(x) (x)
-// #define RA(x) (180.f-x)
-
-#define LA(x) (180.f-x)
 #define RA(x) (x)
+#define LA(x) (180.f-x)
 
 static inline double thighAngleLimit(double angle)
 {

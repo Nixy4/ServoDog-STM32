@@ -78,8 +78,6 @@ static void MX_USART3_UART_Init(void);
 #include "kinematics.h"
 #include "gait.h"
 
-
-
 static const char* TAG = "MAIN";
 
 void elog_init_default()
