@@ -1,19 +1,18 @@
 #include "kinematics.h"
 #include "leg.h"
 #include "elog.h"
-#include "base.h"
 #include "math.h"
 
 typedef struct 
 {
-  double peried;
-  double swingDuty;
-  double swingTime;
-  double swingHeight;
-  double swingWidth;
-  double x_base;
-  double z_base;
-  double t_delta;
+  QUAD_TYPE peried;
+  QUAD_TYPE swingDuty;
+  QUAD_TYPE swingTime;
+  QUAD_TYPE swingHeight;
+  QUAD_TYPE swingWidth;
+  QUAD_TYPE x_base;
+  QUAD_TYPE z_base;
+  QUAD_TYPE t_delta;
   leg_t* rf;
   leg_t* rb;
   leg_t* lf;
@@ -28,14 +27,14 @@ typedef struct
 
 typedef struct
 {
-  double peried;
-  double swingDuty;
-  double swingTime;
-  double swingWidth;
-  double swingHeight;
-  double x_base;
-  double z_base;
-  double t_delta;
+  QUAD_TYPE peried;
+  QUAD_TYPE swingDuty;
+  QUAD_TYPE swingTime;
+  QUAD_TYPE swingWidth;
+  QUAD_TYPE swingHeight;
+  QUAD_TYPE x_base;
+  QUAD_TYPE z_base;
+  QUAD_TYPE t_delta;
 
   leg_t* rfPtr;
   leg_t* rbPtr;
@@ -47,7 +46,7 @@ typedef struct
   coord_t lfCoord;
   coord_t lbCoord;
 
-  volatile double t;
+  volatile QUAD_TYPE t;
   volatile gait_data_t data;
 } gait_t;
 

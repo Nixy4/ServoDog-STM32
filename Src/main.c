@@ -77,6 +77,7 @@ static void MX_USART3_UART_Init(void);
 #include "leg.h"
 #include "kinematics.h"
 #include "gait.h"
+#include "quad_config.h"
 
 static const char* TAG = "MAIN";
 
@@ -92,46 +93,6 @@ void elog_init_default()
   elog_set_filter_lvl(ELOG_LVL_DEBUG);
   elog_start();
 }
-
-const leg_init_t rf_cfg = {
-  .type = LEG_TYPE_RF,
-  .thighServoId = 0,
-  .thighAngle = 0,
-  .thighOffset = 0,
-  .shankServoId = 5,
-  .shankAngle = 0,
-  .shankOffset = 0
-};
-
-const leg_init_t rb_cfg = {
-  .type = LEG_TYPE_RB,
-  .thighServoId = 1,
-  .thighAngle = 0,
-  .thighOffset = 0,
-  .shankServoId = 4,
-  .shankAngle = 0,
-  .shankOffset = 0
-};
-
-const leg_init_t lf_cfg = {
-  .type = LEG_TYPE_LF,
-  .thighServoId = 3,
-  .thighAngle = 0,
-  .thighOffset = -10,
-  .shankServoId = 7,
-  .shankAngle = 0,
-  .shankOffset = 0
-};
-
-const leg_init_t lb_cfg = {
-  .type = LEG_TYPE_LB,
-  .thighServoId = 2,
-  .thighAngle = 0,
-  .thighOffset = -10,
-  .shankServoId = 6,
-  .shankAngle = 0,
-  .shankOffset = 0
-};
 
 leg_t lf,lb,rf,rb;
 
@@ -438,14 +399,15 @@ void motion_bow0(double ms)
   motion_stand0(ms);
 }
 
-#define WALK_X_BASE       30.f
-#define WALK_Z_BASE       115.f
 #define WALK_PERIOD       200.f
 #define WALK_SWING_DUTY   0.5f
 #define WALK_SWING_TIME   (WALK_PERIOD*WALK_SWING_DUTY)
-#define WALK_SWING_WIDTH  30.f
-#define WALK_SWING_HEIGHT 30.f
+#define WALK_SWING_WIDTH  35.f
+#define WALK_SWING_HEIGHT 35.f
+#define WALK_X_BASE       WALK_SWING_WIDTH/2.f
+#define WALK_Z_BASE       110.f
 
+//TODO:Walk参数
 gait_t walk = 
 {
   .peried = WALK_PERIOD,
@@ -528,7 +490,37 @@ int main(void)
 
   elog_init_default();
 
+//TODO:MAIN
   motion_init();
+
+  // servo_set_angle(&rf.thighServo, 0, false);
+  // servo_set_angle(&rf.shankhServo, 0, false);
+  // servo_set_angle(&rb.thighServo, 0, false);
+  // servo_set_angle(&rb.shankhServo, 0, false);
+
+  // servo_set_angle(&lf.thighServo, 180, false);
+  // servo_set_angle(&lf.shankhServo, 180, false);
+  // servo_set_angle(&lb.thighServo, 180, false);
+  // servo_set_angle(&lb.shankhServo, 180, false);
+
+  // HAL_Delay(3000 );
+
+  // servo_set_angle(&rf.thighServo, 90, false);
+  // servo_set_angle(&rf.shankhServo, 90, false);
+  // servo_set_angle(&rb.thighServo, 90, false);
+  // servo_set_angle(&rb.shankhServo, 90, false);
+
+  // servo_set_angle(&lf.thighServo, 90, false);
+  // servo_set_angle(&lf.shankhServo, 90, false);
+  // servo_set_angle(&lb.thighServo, 90, false);
+  // servo_set_angle(&lb.shankhServo, 90, false);
+
+
+  // leg_set_angle(&rf, 90, 90, false);
+  // leg_set_angle(&lf, 90, 90, false);
+  // leg_set_angle(&rb, 90, 90, false);
+  // leg_set_angle(&lb, 90, 90, false);
+
   motion_stand0(500);
 
   walk0(1000);

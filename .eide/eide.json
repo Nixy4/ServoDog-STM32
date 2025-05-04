@@ -33,16 +33,14 @@
               },
               {
                 "path": "Src/stm32f4xx_hal_msp.c"
+              },
+              {
+                "path": "Src/stm32f4xx_hal_timebase_tim.c"
               }
             ],
             "folders": []
           }
         ]
-      },
-      {
-        "name": "::CMSIS",
-        "files": [],
-        "folders": []
       },
       {
         "name": "Drivers",
@@ -118,6 +116,11 @@
             "folders": []
           }
         ]
+      },
+      {
+        "name": "::CMSIS",
+        "files": [],
+        "folders": []
       }
     ]
   },
@@ -278,8 +281,8 @@
           "Modules/elog",
           "Modules/key",
           "Modules/misc",
-          "Modules/quadruped",
-          "Modules/ws2812"
+          "Modules/ws2812",
+          "Modules/quadruped"
         ],
         "libList": [],
         "defineList": [
@@ -293,7 +296,7 @@
           "beforeBuildTasks": [],
           "afterBuildTasks": [],
           "global": {
-            "use-microLIB": false,
+            "use-microLIB": true,
             "output-debug-info": "enable"
           },
           "c/cpp-compiler": {
@@ -307,7 +310,6 @@
           "asm-compiler": {},
           "linker": {
             "output-format": "elf",
-            "xo-base": "",
             "ro-base": "0x08000000",
             "rw-base": "0x20000000"
           }

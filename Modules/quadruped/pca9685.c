@@ -101,14 +101,14 @@ void pca9685_set_psc(uint8_t psc)
   writereg(REG_MODE1, old);
 }
 
-void pca9685_set_freq(double freq)
+void pca9685_set_freq(QUAD_TYPE freq)
 {
   freq *= 0.98f; // 频率补偿, 使得实际频率接近设定频率
   // 50Hz * 0.98 = 49Hz ; 25000000Hz / 49Hz ≈ 510204 tick/s; 510204 tick/s / 4096 tick ≈ 124.5 tick/s
   // 50Hz * 0.92 = 46Hz ; 25000000Hz / 46Hz ≈ 543478 tick/s; 543478 tick/s / 4096 tick ≈ 132.8 tick/s
   // 周期1 = 1 / (124.5-1) ≈ 8.09ms;
   // 周期2 = 1 / (132.8-1) ≈ 7.59ms;
-  uint8_t psc = ( (uint8_t)( (double)(ICLK) / ( (double)CNT_MAX * freq ) ) ) - 1 ;
+  uint8_t psc = ( (uint8_t)( (QUAD_TYPE)(ICLK) / ( (QUAD_TYPE)CNT_MAX * freq ) ) ) - 1 ;
   pca9685_set_psc(psc);
 }
 
@@ -122,7 +122,7 @@ void pca9685_set_pwm(uint8_t ledx, uint16_t on, uint16_t off)
   HAL_I2C_Master_Transmit(&hi2c2, PCA9685_I2C_ADDR, buf, 5, HAL_I2C_TRANSFER_TIMEOUT);
 }
 
-void pca9685_set_angle(uint8_t ledx, double angle)
+void pca9685_set_angle(uint8_t ledx, QUAD_TYPE angle)
 {
   if (!IS_LEDX(ledx)) {
     elog_e(TAG, "PCA9685 set angle failed, ledx: %d", ledx);

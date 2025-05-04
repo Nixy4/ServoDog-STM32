@@ -12,7 +12,7 @@ static const char* TAG = "LEG";
 #define RA(x) (x)
 #define LA(x) (180.f-x)
 
-static inline double thighAngleLimit(double angle)
+static inline QUAD_TYPE thighAngleLimit(QUAD_TYPE angle)
 {
   if(angle < 0.f){
     angle = 0.f;
@@ -22,22 +22,22 @@ static inline double thighAngleLimit(double angle)
   return angle;
 }
 
-static inline double shankAngleLimit(double angle)
+static inline QUAD_TYPE shankAngleLimit(QUAD_TYPE angle)
 {
   if(angle < 0.f){
     angle = 0.f;
-  } else if(angle > 120.f){
-    angle = 120.f;
+  } else if(angle > 150.f){
+    angle = 150.f;
   }
   return angle;
 }
 
-static inline double angleOffset(double angle, double offset)
+static inline QUAD_TYPE angleOffset(QUAD_TYPE angle, QUAD_TYPE offset)
 {
   return angle + offset;
 }
 
-static inline double angleMirror(int type, double angle)
+static inline QUAD_TYPE angleMirror(int type, QUAD_TYPE angle)
 {
   if(type == LEG_TYPE_LF || type == LEG_TYPE_LB){
     return LA(angle);
@@ -63,7 +63,7 @@ int leg_init(leg_t* leg, const leg_init_t* cfg)
   return 0;
 }
 
-int leg_set_angle(leg_t* leg, double thighAngle, double shankAngle, bool isInverse)
+int leg_set_angle(leg_t* leg, QUAD_TYPE thighAngle, QUAD_TYPE shankAngle, bool isInverse)
 {
   //* Kinematics *//
   //如果不是逆解角度
@@ -88,7 +88,7 @@ int leg_set_angle(leg_t* leg, double thighAngle, double shankAngle, bool isInver
   return 0;
 }
 
-int leg_set_coord(leg_t* leg, double x, double z)
+int leg_set_coord(leg_t* leg, QUAD_TYPE x, QUAD_TYPE z)
 {
   leg->data = inverse_kinematics(x, z);
   leg_set_angle(leg, leg->data.AS1, leg->data.AS2, true);
@@ -96,7 +96,7 @@ int leg_set_coord(leg_t* leg, double x, double z)
 }
 
 int leg_turn_absolute(
-  leg_t* leg, double thighAngle1, double thighAngle2, double shankAngle1, double shankAngle2, double ms)
+  leg_t* leg, QUAD_TYPE thighAngle1, QUAD_TYPE thighAngle2, QUAD_TYPE shankAngle1, QUAD_TYPE shankAngle2, QUAD_TYPE ms)
 {
   //? Invalid parameters ?//
   if(thighAngle1 == thighAngle2 && shankAngle1 == shankAngle2){
@@ -131,15 +131,15 @@ int leg_turn_absolute(
   return 0;
 }
 
-int leg_turn_relative(leg_t* leg, double thighAngle, double shankAngle, double ms)
+int leg_turn_relative(leg_t* leg, QUAD_TYPE thighAngle, QUAD_TYPE shankAngle, QUAD_TYPE ms)
 {
   //? Invalid parameters ?//
   if(thighAngle == 0 && shankAngle == 0){
     return 0;
   }
   //计算终点角度
-  double thighAngle_ = leg->data.AS1 + thighAngle;
-  double shankAngle_ = leg->data.AS2 + shankAngle;
+  QUAD_TYPE thighAngle_ = leg->data.AS1 + thighAngle;
+  QUAD_TYPE shankAngle_ = leg->data.AS2 + shankAngle;
 
   //* Kinematics *//
   //限制角度范围
@@ -163,7 +163,7 @@ int leg_turn_relative(leg_t* leg, double thighAngle, double shankAngle, double m
   return 0;
 }
 
-int leg_turn_target(leg_t* leg, double thighAngle, double shankAngle, double ms)
+int leg_turn_target(leg_t* leg, QUAD_TYPE thighAngle, QUAD_TYPE shankAngle, QUAD_TYPE ms)
 {
   //? Invalid parameters ?//
   if(thighAngle==leg->data.AS1 && shankAngle==leg->data.AS2){
@@ -192,7 +192,7 @@ int leg_turn_target(leg_t* leg, double thighAngle, double shankAngle, double ms)
   return 0;
 }
 
-int leg_move_abselute(leg_t* leg, double x1, double z1, double x2, double z2, double ms)
+int leg_move_abselute(leg_t* leg, QUAD_TYPE x1, QUAD_TYPE z1, QUAD_TYPE x2, QUAD_TYPE z2, QUAD_TYPE ms)
 {
   //? Invalid parameters ?//
   if(x1 == x2 && z1 == z2){
@@ -205,10 +205,10 @@ int leg_move_abselute(leg_t* leg, double x1, double z1, double x2, double z2, do
   leg->data = data2;
 
   //! Hardware !//
-  double thighAngle1 = data1.AS1;
-  double shankAngle1 = data1.AS2;
-  double thighAngle2 = data2.AS1;
-  double shankAngle2 = data2.AS2;
+  QUAD_TYPE thighAngle1 = data1.AS1;
+  QUAD_TYPE shankAngle1 = data1.AS2;
+  QUAD_TYPE thighAngle2 = data2.AS1;
+  QUAD_TYPE shankAngle2 = data2.AS2;
 
   if(leg->type==LEG_TYPE_LF || leg->type==LEG_TYPE_LB){
     thighAngle1 = LA(thighAngle1);
@@ -227,7 +227,7 @@ int leg_move_abselute(leg_t* leg, double x1, double z1, double x2, double z2, do
   return 0;
 }
 
-int leg_move_relative(leg_t* leg, double x, double z, double ms)
+int leg_move_relative(leg_t* leg, QUAD_TYPE x, QUAD_TYPE z, QUAD_TYPE ms)
 {
   //? Invalid parameters ?//
   if(x == 0 && z == 0){
@@ -241,8 +241,8 @@ int leg_move_relative(leg_t* leg, double x, double z, double ms)
 
   //! Hardware !//
   //运动学角度提取
-  double thighAngle = end.AS1;
-  double shankAngle = end.AS2;
+  QUAD_TYPE thighAngle = end.AS1;
+  QUAD_TYPE shankAngle = end.AS2;
   //角度偏移
   thighAngle = angleOffset(thighAngle, leg->thighServo.fOffset);
   shankAngle = angleOffset(shankAngle, leg->shankhServo.fOffset);
@@ -255,13 +255,13 @@ int leg_move_relative(leg_t* leg, double x, double z, double ms)
   return 0;
 }
 
-int leg_move_target(leg_t* leg, double x, double z, double ms)
+int leg_move_target(leg_t* leg, QUAD_TYPE x, QUAD_TYPE z, QUAD_TYPE ms)
 {
   //* Kinematics *//
   kinematics_data_t data = inverse_kinematics(x, z);
   leg->data = data;
-  double thighAngle = data.AS1;
-  double shankAngle = data.AS2;
+  QUAD_TYPE thighAngle = data.AS1;
+  QUAD_TYPE shankAngle = data.AS2;
 
   //! Hardware !//
   //角度偏移

@@ -1,44 +1,33 @@
 #include "kinematics.h"
 #include "elog.h"
+#include "quad_config.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
 
 #define TAG "Kinematics"
 
-
-
-static const double L1 = 80.0f;
-static const double L2 = 65.0f;
-static const double L3 = 20.0f;
-// static const double _L1 = 75.0f;
-// static const double L4 = 32.0f;
-static const double L5 = 81.54140052758476f; // sqrt(_L1 * _L1 + L4 * L4);
-static const double L8 = 15.0f;
-static const double L9 = 73.0f;
-// static const double R14 = PI / 2;
-static const double R15 = 0.4032814817188361f; // atan(L4 / _L1);
-
-double I1_XZ_to_L7(double X, double Z) {
+QUAD_TYPE I1_XZ_to_L7(QUAD_TYPE X, QUAD_TYPE Z) {
 	return sqrt(pow(X, 2) + pow(Z, 2));
 }
 
-double I2_L7_to_R17(double L7) {
+QUAD_TYPE I2_L7_to_R17(QUAD_TYPE L7) {
 	return acos((pow(L1, 2) + pow(L7, 2) - pow(L2, 2)) / (2 * L1 * L7));
 }
 
-double I3_L7_to_R12(double L7) {
-	double T = (pow(L1, 2) + pow(L2, 2) - pow(L7, 2)) / (2 * L1 * L2);
+QUAD_TYPE I3_L7_to_R12(QUAD_TYPE L7) {
+	QUAD_TYPE T = (pow(L1, 2) + pow(L2, 2) - pow(L7, 2)) / (2 * L1 * L2);
 	return acos(T);
 }
 
-double I4_XZ_to_RX7(double X, double Z) {
+QUAD_TYPE I4_XZ_to_RX7(QUAD_TYPE X, QUAD_TYPE Z) {
 
 	if (X ==0) {
 		return PI2_;
 	}
 
-	double K = Z / X;
+	QUAD_TYPE K = Z / X;
 	if (X >= 0 && Z >= 0) {
 		return atan(K);
 	} else if (X < 0 && Z >= 0) {
@@ -49,28 +38,28 @@ double I4_XZ_to_RX7(double X, double Z) {
 	return 0.0;
 }
 
-double I5_R17R7X_to_RS1(double R17, double R7X) {
+QUAD_TYPE I5_R17R7X_to_RS1(QUAD_TYPE R17, QUAD_TYPE R7X) {
 	return R7X - R17;
 }
 
-double I6_R12_to_R35(double R12) {
+QUAD_TYPE I6_R12_to_R35(QUAD_TYPE R12) {
 	return PI - R12 - R15;
 }
 
-double I7_R35_to_L6(double R35) {
-	double L6 = sqrt(pow(L3, 2) + pow(L5, 2) - 2 * L3 * L5 * cos(R35));
+QUAD_TYPE I7_R35_to_L6(QUAD_TYPE R35) {
+	QUAD_TYPE L6 = sqrt(pow(L3, 2) + pow(L5, 2) - 2 * L3 * L5 * cos(R35));
 	if (L6 > L8 + L9) {
 		fprintf(stderr, "Error: L6[%f] > L8 + L9[%f]\n", L6, L8 + L9);
 	}
 	return L6;
 }
 
-double I8_L6_to_RS2(double L6) {
-	double T = (L6 * L6 + L8 * L8 - L9 * L9) / (2 * L6 * L8);
+QUAD_TYPE I8_L6_to_RS2(QUAD_TYPE L6) {
+	QUAD_TYPE T = (L6 * L6 + L8 * L8 - L9 * L9) / (2 * L6 * L8);
 	return acos(T);
 }
 
-kinematics_data_t inverse_kinematics(double X, double Z) {
+kinematics_data_t inverse_kinematics(QUAD_TYPE X, QUAD_TYPE Z) {
 	kinematics_data_t data;
 	data.L7  = I1_XZ_to_L7(X, Z);
 	data.R17 = I2_L7_to_R17(data.L7);
@@ -88,11 +77,11 @@ kinematics_data_t inverse_kinematics(double X, double Z) {
 	return data;
 }
 
-double F1_RS2_to_L6(double RS2) {
-    double _a = 1;
-    double _b = -2 * L8 * cos(RS2);
-    double _c = pow(L8, 2) - pow(L9, 2);
-    double D = pow(_b, 2) - 4 * _a * _c;
+QUAD_TYPE F1_RS2_to_L6(QUAD_TYPE RS2) {
+    QUAD_TYPE _a = 1;
+    QUAD_TYPE _b = -2 * L8 * cos(RS2);
+    QUAD_TYPE _c = pow(L8, 2) - pow(L9, 2);
+    QUAD_TYPE D = pow(_b, 2) - 4 * _a * _c;
     if (D < 0) {
         fprintf(stderr, "Error: Discriminant is negative.\n");
         return 0;
@@ -100,33 +89,33 @@ double F1_RS2_to_L6(double RS2) {
     return (-_b + sqrt(D)) / (2 * _a);
 }
 
-double F2_L6_to_R35(double L6) {
-    double T = (pow(L3, 2) + pow(L5, 2) - pow(L6, 2)) / (2 * L3 * L5);
+QUAD_TYPE F2_L6_to_R35(QUAD_TYPE L6) {
+    QUAD_TYPE T = (pow(L3, 2) + pow(L5, 2) - pow(L6, 2)) / (2 * L3 * L5);
     return acos(T);
 }
 
-double F3_R15R35_to_R13(double R15, double R35) {
+QUAD_TYPE F3_R15R35_to_R13(QUAD_TYPE R15, QUAD_TYPE R35) {
     return R15 + R35;
 }
 
-double F4_R13_to_R12(double R13) {
+QUAD_TYPE F4_R13_to_R12(QUAD_TYPE R13) {
     return PI - R13;
 }
 
-double F5_R12_to_L7(double R12) {
+QUAD_TYPE F5_R12_to_L7(QUAD_TYPE R12) {
     return sqrt(pow(L1, 2) + pow(L2, 2) - 2 * L1 * L2 * cos(R12));
 }
 
-double F6_L7_to_R17(double L7) {
-    double T = (pow(L1, 2) + pow(L7, 2) - pow(L2, 2)) / (2 * L1 * L7);
+QUAD_TYPE F6_L7_to_R17(QUAD_TYPE L7) {
+    QUAD_TYPE T = (pow(L1, 2) + pow(L7, 2) - pow(L2, 2)) / (2 * L1 * L7);
     return acos(T);
 }
 
-double F7_RS1R17_to_R7X(double RS1, double R17) {
+QUAD_TYPE F7_RS1R17_to_R7X(QUAD_TYPE RS1, QUAD_TYPE R17) {
     return RS1 + R17;
 }
 
-void F8_L7R7X_to_xz(double L7, double R7X, double *X, double *Z) {
+void F8_L7R7X_to_xz(QUAD_TYPE L7, QUAD_TYPE R7X, QUAD_TYPE *X, QUAD_TYPE *Z) {
     *X = L7 * cos(R7X);
     *Z = L7 * sin(R7X);
 
@@ -138,7 +127,7 @@ void F8_L7R7X_to_xz(double L7, double R7X, double *X, double *Z) {
     }
 }
 
-kinematics_data_t forward_kinematics(double AS1, double AS2) {
+kinematics_data_t forward_kinematics(QUAD_TYPE AS1, QUAD_TYPE AS2) {
     kinematics_data_t data = {0};
     if (AS2 > 120) {
         fprintf(stderr, "Error: AS2 > 120\n");
@@ -166,7 +155,7 @@ kinematics_data_t forward_kinematics(double AS1, double AS2) {
     return data;
 }
 
-void logComparison(bool eq, const char* tag, double val1, double val2) {
+void logComparison(bool eq, const char* tag, QUAD_TYPE val1, QUAD_TYPE val2) {
 	if (eq) {
 		elog_d(TAG,"| %5s | %20.10f | %20.10f | %20.10f |", tag, val1, val2, fabs(val1 - val2));
 	} else {
@@ -176,9 +165,9 @@ void logComparison(bool eq, const char* tag, double val1, double val2) {
 
 bool dataCompare(const kinematics_data_t* d1, const kinematics_data_t* d2) {
 	
-	const double angle_error = 0.001;
-	const double radian_error = DEG_TO_RAD(angle_error);
-	const double length_error = 0.001;
+	const QUAD_TYPE angle_error = 0.001;
+	const QUAD_TYPE radian_error = DEG_TO_RAD(angle_error);
+	const QUAD_TYPE length_error = 0.001;
 
 	bool AS1_eq = fabs(d1->AS1 - d2->AS1) < angle_error;
 	bool AS2_eq = fabs(d1->AS2 - d2->AS2) < angle_error;

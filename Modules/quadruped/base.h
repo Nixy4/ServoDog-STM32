@@ -1,15 +1,17 @@
 #pragma once
 
+#define QUAD_TYPE double
+
 typedef struct
 {
-  double thigh;
-  double shank;
+  QUAD_TYPE thigh;
+  QUAD_TYPE shank;
 } angle_t;
 
 typedef struct
 {
-  double x;
-  double z;
+  QUAD_TYPE x;
+  QUAD_TYPE z;
 } coord_t;
 
 #define PI   3.141592653589793f

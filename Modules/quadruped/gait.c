@@ -6,12 +6,12 @@ int gait_equation(gait_t* g)
 {
   gait_data_t data = {0};
 
-  double T, Kx, Kz, x_swing,z_swing, x_support,z_support;
-  double t = g->t;
-  double period = g->peried;
-  double swingTime = g->swingTime;
-  double swingWidth = g->swingWidth;
-  double swingHeight = g->swingHeight;
+  QUAD_TYPE T, Kx, Kz, x_swing,z_swing, x_support,z_support;
+  QUAD_TYPE t = g->t;
+  QUAD_TYPE period = g->peried;
+  QUAD_TYPE swingTime = g->swingTime;
+  QUAD_TYPE swingWidth = g->swingWidth;
+  QUAD_TYPE swingHeight = g->swingHeight;
   
   //* 计算 *//
   if( t <= swingTime ) 
