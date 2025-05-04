@@ -13,7 +13,7 @@ static const char* TAG = "SERVO";
 #define ANGULAR_VELOCITY_MAX 600.f
 #define ANGULAR_VELOCITY_MIN 1.f
 
-servo_t* servo_create(uint8_t id, easing_calc_fn calc, QUAD_TYPE offset)
+servo_t* servo_create(uint8_t id, easing_calc_fn calc, quad_float offset)
 {  
   servo_t* e = (servo_t*)malloc(sizeof(servo_t));
 
@@ -34,7 +34,7 @@ servo_t* servo_create(uint8_t id, easing_calc_fn calc, QUAD_TYPE offset)
   return e;
 }
 
-int servo_init(servo_t* s, uint8_t id, easing_calc_fn calc, QUAD_TYPE offset)
+int servo_init(servo_t* s, uint8_t id, easing_calc_fn calc, quad_float offset)
 {
   if(s == NULL) {
     elog_e(TAG, "servo is null");
@@ -53,7 +53,7 @@ int servo_init(servo_t* s, uint8_t id, easing_calc_fn calc, QUAD_TYPE offset)
   return 0;
 }
 
-void servo_turn_absolute(servo_t* s, QUAD_TYPE start, QUAD_TYPE stop, QUAD_TYPE ms)
+void servo_turn_absolute(servo_t* s, quad_float start, quad_float stop, quad_float ms)
 {
   //参数预处理, 数值限幅
   start = start < 0.f ? 0.f : start;
@@ -68,25 +68,25 @@ void servo_turn_absolute(servo_t* s, QUAD_TYPE start, QUAD_TYPE stop, QUAD_TYPE 
   s->fStart   = start;
   s->fStop    = stop;
   s->fDelta   = stop  - start;
-  QUAD_TYPE ms_min = fabs( s->fDelta )*SERVO_MS_PER_DEGREE;
+  quad_float ms_min = fabs( s->fDelta )*SERVO_MS_PER_DEGREE;
   ms    = ms < ms_min ? ms_min : ms;
   s->uMs      = (uint32_t)(ms+0.5f);
   s->uMsIndex = 0;
   s->fStep    = 0.f;
 }
 
-void servo_turn_relative(servo_t* s, QUAD_TYPE distance, QUAD_TYPE ms)
+void servo_turn_relative(servo_t* s, quad_float distance, quad_float ms)
 {
-  QUAD_TYPE stop = s->fCurr + distance;
+  quad_float stop = s->fCurr + distance;
   servo_turn_absolute(s, s->fCurr, stop, ms);
 }
 
-void servo_turn_target(servo_t* s, QUAD_TYPE target, QUAD_TYPE ms)
+void servo_turn_target(servo_t* s, quad_float target, quad_float ms)
 {
   servo_turn_absolute(s, s->fCurr, target, ms);
 }
 
-void servo_turn_absolute_block(servo_t* s, QUAD_TYPE start, QUAD_TYPE stop, QUAD_TYPE ms)
+void servo_turn_absolute_block(servo_t* s, quad_float start, quad_float stop, quad_float ms)
 {
   servo_turn_absolute(s, start, stop, ms);
   while(servo_turn_update(s) != 0) {
@@ -94,7 +94,7 @@ void servo_turn_absolute_block(servo_t* s, QUAD_TYPE start, QUAD_TYPE stop, QUAD
   }
 }
 
-void servo_turn_relative_block(servo_t* s, QUAD_TYPE distance, QUAD_TYPE ms)
+void servo_turn_relative_block(servo_t* s, quad_float distance, quad_float ms)
 {
   servo_turn_relative(s, distance, ms);
   while(servo_turn_update(s) != 0) {
@@ -102,7 +102,7 @@ void servo_turn_relative_block(servo_t* s, QUAD_TYPE distance, QUAD_TYPE ms)
   }
 }
 
-void servo_turn_target_block(servo_t* s, QUAD_TYPE target, QUAD_TYPE ms)
+void servo_turn_target_block(servo_t* s, quad_float target, quad_float ms)
 {
   servo_turn_target(s, target, ms);
   while(servo_turn_update(s) != 0) {
@@ -134,7 +134,7 @@ int servo_turn_update(servo_t* s)
     s->fCurr = s->fStop;
   } else {
     //不是最后1ms
-    s->fStep = (QUAD_TYPE)(s->uMsIndex-1) / (QUAD_TYPE)(s->uMs-1);
+    s->fStep = (quad_float)(s->uMsIndex-1) / (quad_float)(s->uMs-1);
     // s->fStep = __aeabi_ul2f(s->uMsIndex-1) / __aeabi_ul2f(s->uMs-1); //!
     s->fCurr = s->fStart + s->fDelta * s->lpfnCalc(s->fStep);
   }
@@ -156,7 +156,7 @@ void servo_set_calc(servo_t* s, easing_calc_fn calc)
   s->lpfnCalc = calc;
 }
 
-void servo_set_angle(servo_t* s, QUAD_TYPE angle, bool auto_delay)
+void servo_set_angle(servo_t* s, quad_float angle, bool auto_delay)
 {
   if(s == NULL) {
     elog_e(TAG, "servo is null");
@@ -173,7 +173,7 @@ void servo_set_angle(servo_t* s, QUAD_TYPE angle, bool auto_delay)
   pca9685_set_angle(s->id, s->fCurr);
 
   if(auto_delay) {
-    QUAD_TYPE delay = angle * SERVO_MS_PER_DEGREE + 0.5f;
+    quad_float delay = angle * SERVO_MS_PER_DEGREE + 0.5f;
     HAL_Delay((uint32_t)delay);
   }
 }

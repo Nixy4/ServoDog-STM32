@@ -66,20 +66,13 @@ static void MX_USART3_UART_Init(void);
 /* USER CODE BEGIN 0 */
 #include <stdio.h>
 #include <string.h>
-#include "stdlib.h"
-#include "math.h"
-#include "pca9685.h"
-#include "easing.h"
-#include "elog.h"
-#include "cJSON.h"
-#include "hal_hw_uart_printf.h"
-#include "servo.h"
-#include "leg.h"
-#include "kinematics.h"
-#include "gait.h"
-#include "quad_config.h"
 
-static const char* TAG = "MAIN";
+#include "hal_hw_uart_printf.h"
+#include "elog.h"
+#include "quad.h"
+#include "walk.h"
+
+#define TAG "Main"
 
 void elog_init_default()
 {
@@ -92,363 +85,6 @@ void elog_init_default()
   elog_set_fmt(ELOG_LVL_VERBOSE,  ELOG_FMT_FUNC|ELOG_FMT_LVL|ELOG_FMT_TAG|ELOG_FMT_TIME);
   elog_set_filter_lvl(ELOG_LVL_DEBUG);
   elog_start();
-}
-
-leg_t lf,lb,rf,rb;
-
-void leg_special_point_test(leg_t* leg)
-{
-  leg_set_coord(leg,x_min.X,x_min.Z);
-  HAL_Delay(1000);
-  leg_set_coord(leg,x_max.X,x_max.Z);
-  HAL_Delay(1000);
-  leg_set_coord(leg,z_min.X,z_min.Z);
-  HAL_Delay(1000);
-  leg_set_coord(leg,z_max.X,z_max.Z);
-  HAL_Delay(1000);
-  leg_set_coord(leg,start.X,start.Z);
-  HAL_Delay(1000);
-  leg_set_coord(leg,end.X,end.Z);
-  HAL_Delay(1000);
-}
-
-void legs_special_point_test()
-{
-  leg_special_point_test(&rf);
-  leg_special_point_test(&rb);
-  leg_special_point_test(&lf);
-  leg_special_point_test(&lb);
-}
-
-void legs_init()
-{
-  pca9685_set_freq(50);
-  leg_init(&rf,&rf_cfg);
-  leg_init(&rb,&rb_cfg);
-  leg_init(&lf,&lf_cfg);
-  leg_init(&lb,&lb_cfg); 
-  HAL_Delay(1000);
-}
-
-void legs_reset()
-{
-  leg_set_angle(&rf,0,0,false);
-  leg_set_angle(&rb,0,0,false);
-  leg_set_angle(&lf,0,0,false);
-  leg_set_angle(&lb,0,0,false);
-}
-
-int legs_update()
-{
-  int flag ;
-  flag |= leg_update(&rf);
-  flag |= leg_update(&rb);
-  flag |= leg_update(&lf);
-  flag |= leg_update(&lb);
-  return flag;
-}
-
-void legs_update_block()
-{
-  int flag ;
-  do{
-    flag = 0;
-    flag |= leg_update(&rf);
-    flag |= leg_update(&rb);
-    flag |= leg_update(&lf);
-    flag |= leg_update(&lb);
-  } while(flag != 0);
-}
-
-void legs_move_block_x_min(double ms)
-{
-  leg_move_target(&rf, x_min.X, x_min.Z, ms);
-  leg_move_target(&rb, x_min.X, x_min.Z, ms);
-  leg_move_target(&lf, x_min.X, x_min.Z, ms);
-  leg_move_target(&lb, x_min.X, x_min.Z, ms);
-
-  int flag ;
-  do{
-    flag = 0;
-    flag |= leg_update(&rf);
-    flag |= leg_update(&rb);
-    flag |= leg_update(&lf);
-    flag |= leg_update(&lb);
-  } while(flag != 0);
-
-  HAL_Delay(ms);
-}
-
-void legs_move_block_x_max(double ms)
-{
-  leg_move_target(&rf, x_max.X, x_max.Z, ms);
-  leg_move_target(&rb, x_max.X, x_max.Z, ms);
-  leg_move_target(&lf, x_max.X, x_max.Z, ms);
-  leg_move_target(&lb, x_max.X, x_max.Z, ms);
-
-  int flag ;
-  do{
-    flag = 0;
-    flag |= leg_update(&rf);
-    flag |= leg_update(&rb);
-    flag |= leg_update(&lf);
-    flag |= leg_update(&lb);
-  } while(flag != 0);
-
-  HAL_Delay(ms);
-}
-
-void legs_move_block_z_min(double ms)
-{
-  leg_move_target(&rf, z_min.X, z_min.Z, ms);
-  leg_move_target(&rb, z_min.X, z_min.Z, ms);
-  leg_move_target(&lf, z_min.X, z_min.Z, ms);
-  leg_move_target(&lb, z_min.X, z_min.Z, ms);
-
-  int flag ;
-  do{
-    flag = 0;
-    flag |= leg_update(&rf);
-    flag |= leg_update(&rb);
-    flag |= leg_update(&lf);
-    flag |= leg_update(&lb);
-  } while(flag != 0);
-
-  HAL_Delay(ms);
-}
-
-void legs_move_block_z_max(double ms)
-{
-  leg_move_target(&rf, z_max.X, z_max.Z, ms);
-  leg_move_target(&rb, z_max.X, z_max.Z, ms);
-  leg_move_target(&lf, z_max.X, z_max.Z, ms);
-  leg_move_target(&lb, z_max.X, z_max.Z, ms);
-
-  int flag ;
-  do{
-    flag = 0;
-    flag |= leg_update(&rf);
-    flag |= leg_update(&rb);
-    flag |= leg_update(&lf);
-    flag |= leg_update(&lb);
-  } while(flag != 0);
-
-  HAL_Delay(ms);
-}
-
-void legs_move_block_start(double ms)
-{
-  leg_move_target(&rf, start.X, start.Z, ms);
-  leg_move_target(&rb, start.X, start.Z, ms);
-  leg_move_target(&lf, start.X, start.Z, ms);
-  leg_move_target(&lb, start.X, start.Z, ms);
-
-  int flag ;
-  do{
-    flag = 0;
-    flag |= leg_update(&rf);
-    flag |= leg_update(&rb);
-    flag |= leg_update(&lf);
-    flag |= leg_update(&lb);
-  } while(flag != 0);
-
-  HAL_Delay(ms);
-}
-
-void legs_move_block_x0_z_max(double ms)
-{
-  leg_move_target(&rf, x0_z_max.X, x0_z_max.Z, ms);
-  leg_move_target(&rb, x0_z_max.X, x0_z_max.Z, ms);
-  leg_move_target(&lf, x0_z_max.X, x0_z_max.Z, ms);
-  leg_move_target(&lb, x0_z_max.X, x0_z_max.Z, ms);
-
-  int flag ;
-  do{
-    flag = 0;
-    flag |= leg_update(&rf);
-    flag |= leg_update(&rb);
-    flag |= leg_update(&lf);
-    flag |= leg_update(&lb);
-  } while(flag != 0);
-
-  HAL_Delay(ms);
-}
-
-void motion_init()
-{
-  legs_init();
-  elog_i(TAG, "Dog Init Success");
-}
-
-void motion_stand0(double ms)
-{
-  legs_move_block_x0_z_max(ms);
-  elog_i(TAG, "Dog Stand !");
-}
-
-void motion_stand1(double ms)
-{
-  double X = -10;
-  double Z = 110;
-  leg_move_target(&rf, X, Z, ms);
-  leg_move_target(&rb, X, Z, ms);
-  leg_move_target(&lf, X, Z, ms);
-  leg_move_target(&lb, X, Z, ms);
-  int flag ;
-  do{
-    flag = 0;
-    flag |= leg_update(&rf);
-    flag |= leg_update(&rb);
-    flag |= leg_update(&lf);
-    flag |= leg_update(&lb);
-  } while(flag != 0);
-}
-
-void motion_fall0(double ms)
-{
-  legs_move_block_start(ms);
-  elog_i(TAG, "Dog Fall !");
-}
-
-void motion_fall1(double ms)
-{
-  double AS1 = 50;
-  double AS2 = 0;
-  leg_turn_target(&rf, AS1, AS2, ms);
-  leg_turn_target(&rb, AS1+5, AS2, ms);
-  leg_turn_target(&lf, AS1, AS2, ms);
-  leg_turn_target(&lb, AS1+5, AS2, ms);
-  int flag ;
-  do{
-    flag = 0;
-    flag |= leg_update(&rf);
-    flag |= leg_update(&rb);
-    flag |= leg_update(&lf);
-    flag |= leg_update(&lb);
-  } while(flag != 0);
-  HAL_Delay(ms);
-}
-
-void motion_squat0(double ms)
-{
-  leg_move_target(&rf, x0_z_max.X, x0_z_max.Z, ms);
-  leg_move_target(&rb, start.X, start.Z, ms);
-  leg_move_target(&lf, x0_z_max.X, x0_z_max.Z, ms);
-  leg_move_target(&lb, start.X, start.Z, ms);
-  int flag ;
-  do{
-    flag = 0;
-    flag |= leg_update(&rf);
-    flag |= leg_update(&rb);
-    flag |= leg_update(&lf);
-    flag |= leg_update(&lb);
-  } while(flag != 0);
-  HAL_Delay(ms);  
-  elog_i(TAG, "Dog Squat !");
-}
-
-void motion_squat1(double ms)
-{
-  double FAS1 = 30;
-  double FAS2 = 115;
-  double BAS1 = 40;
-  double BAS2 = 0;
-  leg_turn_target(&rf, FAS1, FAS2, ms);
-  leg_turn_target(&lf, FAS1, FAS2, ms);
-  leg_turn_target(&rb, BAS1, BAS2, ms);
-  leg_turn_target(&lb, BAS1, BAS2, ms);
-  int flag ;
-  do{
-    flag = 0;
-    flag |= leg_update(&rf);
-    flag |= leg_update(&rb);
-    flag |= leg_update(&lf);
-    flag |= leg_update(&lb);
-  } while(flag != 0);
-  HAL_Delay(ms);
-}
-
-void motion_bow0(double ms)
-{
-  //1.先恢复站立
-  motion_stand0(ms);
-  //2.前蹲
-  double FAS1= 30;
-  double FAS2= 30;
-  leg_turn_target(&rf, FAS1, FAS2, ms);
-  leg_turn_target(&lf, FAS1, FAS2, ms);
-  int flag ;
-  do{
-    flag = 0;
-    flag |= leg_update(&rf);
-    flag |= leg_update(&lf);
-  } while(flag != 0);
-  HAL_Delay(ms);
-  //3.恢复站立
-  motion_stand0(ms);
-  //4.前蹲
-  leg_turn_target(&rf, FAS1, FAS2, ms);
-  leg_turn_target(&lf, FAS1, FAS2, ms);
-  do{
-    flag = 0;
-    flag |= leg_update(&rf);
-    flag |= leg_update(&lf);
-  } while(flag != 0);
-  HAL_Delay(ms);
-  //5.恢复站立
-  motion_stand0(ms);
-}
-
-#define WALK_PERIOD       200.f
-#define WALK_SWING_DUTY   0.5f
-#define WALK_SWING_TIME   (WALK_PERIOD*WALK_SWING_DUTY)
-#define WALK_SWING_WIDTH  35.f
-#define WALK_SWING_HEIGHT 35.f
-#define WALK_X_BASE       WALK_SWING_WIDTH/2.f
-#define WALK_Z_BASE       110.f
-
-//TODO:Walk参数
-gait_t walk = 
-{
-  .peried = WALK_PERIOD,
-  .swingDuty = WALK_SWING_DUTY,
-  .swingTime = WALK_SWING_TIME,
-  .swingWidth = WALK_SWING_WIDTH,
-  .swingHeight = WALK_SWING_HEIGHT,
-  .x_base = WALK_X_BASE,
-  .z_base = WALK_Z_BASE,
-  .t_delta = 1,
-  .rfPtr = &rf,
-  .rbPtr = &rb,
-  .lfPtr = &lf,
-  .lbPtr = &lb,
-  .t = 0,
-};
-
-void walk0(double ms)
-{
-  leg_move_target(&rf, walk.x_base, walk.z_base, ms);
-  leg_move_target(&rb, walk.x_base, walk.z_base, ms);
-  leg_move_target(&lf, walk.x_base, walk.z_base, ms);
-  leg_move_target(&lb, walk.x_base, walk.z_base, ms);
-  legs_update_block();
-}
-
-void walk1(double ms)
-{
-  // leg_move_target(&rf, walk.x_base, walk.z_base, ms);
-  leg_move_target(&rb, walk.x_base, walk.z_base, ms);
-  // leg_move_target(&lf, walk.x_base, walk.z_base, ms);
-  leg_move_target(&lb, walk.x_base, walk.z_base, ms);
-  legs_update_block();
-}
-
-void walk2(int steps)
-{
-  for(int i = 0; i < steps; i++)
-  {
-    while(gait_update(&walk) != 0);
-  }
 }
 
 /* USER CODE END 0 */
@@ -487,11 +123,11 @@ int main(void)
   MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
   printf("MX Init Success\r\n");
-
   elog_init_default();
 
 //TODO:MAIN
-  motion_init();
+
+  quad_init();
 
   // servo_set_angle(&rf.thighServo, 0, false);
   // servo_set_angle(&rf.shankhServo, 0, false);
@@ -520,14 +156,16 @@ int main(void)
   // leg_set_angle(&lf, 90, 90, false);
   // leg_set_angle(&rb, 90, 90, false);
   // leg_set_angle(&lb, 90, 90, false);
+  
+  quad_fall1(500);
+  quad_stand0(500);
 
-  motion_stand0(500);
+  // walk_config(150, 0.5f, 35.f, 35.f, 110.f);
+  // walk(10);
 
-  walk0(1000);
-  walk2(10);
-
-  motion_stand0(500);
-  motion_fall0(500);
+  quad_stand0(500);
+  quad_fall1(500);
+  quad_fall0(500);
 
   /* USER CODE END 2 */
 

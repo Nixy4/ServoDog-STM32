@@ -5,14 +5,14 @@
 #include "base.h"
 #include "leg.h"
 
-extern const QUAD_TYPE L1;
-extern const QUAD_TYPE L2;
-extern const QUAD_TYPE L3;
-extern const QUAD_TYPE L5;
-extern const QUAD_TYPE R15;
+extern const quad_float L1;
+extern const quad_float L2;
+extern const quad_float L3;
+extern const quad_float L5;
+extern const quad_float R15;
 
-extern const QUAD_TYPE L8;
-extern const QUAD_TYPE L9;
+extern const quad_float L8;
+extern const quad_float L9;
 
 extern const leg_init_t rf_cfg;
 extern const leg_init_t lf_cfg;

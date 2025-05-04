@@ -9,32 +9,32 @@
 #include "kinematics.h"
 
 typedef struct {
-    QUAD_TYPE AS1, AS2;
-    QUAD_TYPE RS1, RS2;
-    QUAD_TYPE L6, L7;
-    QUAD_TYPE R12, R13, R17, R35, R7X;
-    QUAD_TYPE X, Z;
+    quad_float AS1, AS2;
+    quad_float RS1, RS2;
+    quad_float L6, L7;
+    quad_float R12, R13, R17, R35, R7X;
+    quad_float X, Z;
 } kinematics_data_t;
 
-QUAD_TYPE I1_XZ_to_L7(QUAD_TYPE X, QUAD_TYPE Z);
-QUAD_TYPE I2_L7_to_R17(QUAD_TYPE L7);
-QUAD_TYPE I3_L7_to_R12(QUAD_TYPE L7);
-QUAD_TYPE I4_XZ_to_RX7(QUAD_TYPE X, QUAD_TYPE Z);
-QUAD_TYPE I5_R17R7X_to_RS1(QUAD_TYPE R17, QUAD_TYPE R7X);
-QUAD_TYPE I6_R12_to_R35(QUAD_TYPE R12);
-QUAD_TYPE I7_R35_to_L6(QUAD_TYPE R35);
-QUAD_TYPE I8_L6_to_RS2(QUAD_TYPE L6);
-kinematics_data_t inverse_kinematics(QUAD_TYPE X, QUAD_TYPE Z);
+quad_float I1_XZ_to_L7(quad_float X, quad_float Z);
+quad_float I2_L7_to_R17(quad_float L7);
+quad_float I3_L7_to_R12(quad_float L7);
+quad_float I4_XZ_to_RX7(quad_float X, quad_float Z);
+quad_float I5_R17R7X_to_RS1(quad_float R17, quad_float R7X);
+quad_float I6_R12_to_R35(quad_float R12);
+quad_float I7_R35_to_L6(quad_float R35);
+quad_float I8_L6_to_RS2(quad_float L6);
+kinematics_data_t inverse_kinematics(quad_float X, quad_float Z);
 
-QUAD_TYPE F1_RS2_to_L6(QUAD_TYPE RS2);
-QUAD_TYPE F2_L6_to_R35(QUAD_TYPE L6);
-QUAD_TYPE F3_R15R35_to_R13(QUAD_TYPE R15, QUAD_TYPE R35);
-QUAD_TYPE F4_R13_to_R12(QUAD_TYPE R13);
-QUAD_TYPE F5_R12_to_L7(QUAD_TYPE R12);
-QUAD_TYPE F6_L7_to_R17(QUAD_TYPE L7);
-QUAD_TYPE F7_RS1R17_to_R7X(QUAD_TYPE RS1, QUAD_TYPE R17);
-void F8_L7R7X_to_xz(QUAD_TYPE L7, QUAD_TYPE R7X, QUAD_TYPE *X, QUAD_TYPE *Z);
-kinematics_data_t forward_kinematics(QUAD_TYPE AS1, QUAD_TYPE AS2);
+quad_float F1_RS2_to_L6(quad_float RS2);
+quad_float F2_L6_to_R35(quad_float L6);
+quad_float F3_R15R35_to_R13(quad_float R15, quad_float R35);
+quad_float F4_R13_to_R12(quad_float R13);
+quad_float F5_R12_to_L7(quad_float R12);
+quad_float F6_L7_to_R17(quad_float L7);
+quad_float F7_RS1R17_to_R7X(quad_float RS1, quad_float R17);
+void F8_L7R7X_to_xz(quad_float L7, quad_float R7X, quad_float *X, quad_float *Z);
+kinematics_data_t forward_kinematics(quad_float AS1, quad_float AS2);
 
 bool dataCompare(const kinematics_data_t* d1, const kinematics_data_t* d2);
 void dataElog(const char* data_tag, const kinematics_data_t* data);

@@ -23,6 +23,6 @@
 #define PCA9685_I2C_ADDR 0x80
 #define HAL_I2C_TRANSFER_TIMEOUT 100
 
-void pca9685_set_freq(QUAD_TYPE freq);
+void pca9685_set_freq(quad_float freq);
 void pca9685_set_pwm(uint8_t ledx, uint16_t on, uint16_t off);
-void pca9685_set_angle(uint8_t ledx, QUAD_TYPE angle);
+void pca9685_set_angle(uint8_t ledx, quad_float angle);

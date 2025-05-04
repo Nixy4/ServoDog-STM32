@@ -3,18 +3,18 @@
 
 #if QUADRUPED_NUMBER == 0
 //!大腿组
-const QUAD_TYPE L1 = 79.0f;
-// const QUAD_TYPE _L1 = 72.0f;
-// const QUAD_TYPE L1_ = 7.0f;
-const QUAD_TYPE L2 = 68.5f;
-const QUAD_TYPE L3 = 20.0f;
-// const QUAD_TYPE L4 = 32.0f;
-const QUAD_TYPE L5 = 78.7908624143688314f; // sqrt(_L1 * _L1 + L4 * L4);
-// const QUAD_TYPE R14 = PI / 2;
-const QUAD_TYPE R15 = 0.4182243295792291f; // atan(L4 / _L1);
+const quad_float L1 = 79.0f;
+// const quad_float _L1 = 72.0f;
+// const quad_float L1_ = 7.0f;
+const quad_float L2 = 68.5f;
+const quad_float L3 = 20.0f;
+// const quad_float L4 = 32.0f;
+const quad_float L5 = 78.7908624143688314f; // sqrt(_L1 * _L1 + L4 * L4);
+// const quad_float R14 = PI / 2;
+const quad_float R15 = 0.4182243295792291f; // atan(L4 / _L1);
 //!小腿组
-const QUAD_TYPE L8 = 12.0f;
-const QUAD_TYPE L9 = 77.0f;
+const quad_float L8 = 12.0f;
+const quad_float L9 = 77.0f;
 #define THIGH_GLOBAL_OFFSET -5 
 
 const leg_init_t rf_cfg = {
@@ -60,18 +60,18 @@ const leg_init_t lb_cfg = {
 #elif QUADRUPED_NUMBER == 1
 
 //!大腿组
-const QUAD_TYPE L1 = 79.0f;
-// const QUAD_TYPE _L1 = 72.0f;
-// const QUAD_TYPE L1_ = 7.0f;
-const QUAD_TYPE L2 = 68.5f;
-const QUAD_TYPE L3 = 20.0f;
-// const QUAD_TYPE L4 = 32.0f;
-const QUAD_TYPE L5 = 78.7908624143688314f; // sqrt(_L1 * _L1 + L4 * L4);
-const QUAD_TYPE R15 = 0.4182243295792291f; // atan(L4 / _L1);
-// const QUAD_TYPE R14 = PI / 2;
+const quad_float L1 = 79.0f;
+// const quad_float _L1 = 72.0f;
+// const quad_float L1_ = 7.0f;
+const quad_float L2 = 68.5f;
+const quad_float L3 = 20.0f;
+// const quad_float L4 = 32.0f;
+const quad_float L5 = 78.7908624143688314f; // sqrt(_L1 * _L1 + L4 * L4);
+const quad_float R15 = 0.4182243295792291f; // atan(L4 / _L1);
+// const quad_float R14 = PI / 2;
 //!小腿组
-const QUAD_TYPE L8 = 14.5000000000000000f;
-const QUAD_TYPE L9 = 77.0000000000000000f;
+const quad_float L8 = 14.5000000000000000f;
+const quad_float L9 = 77.0000000000000000f;
 
 #define THIGH_GLOBAL_OFFSET -2
 

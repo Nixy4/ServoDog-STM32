@@ -38,8 +38,8 @@ void kinematics_range_test()
   for(int AS1=0;AS1<181;AS1++) {
     for(int AS2=0;AS2<121;AS2++){
       data = inverse_kinematics(forward_x_values[AS1][AS2], forward_z_values[AS1][AS2]);
-      QUAD_TYPE x_diff = fabs(data.X - forward_x_values[AS1][AS2]);
-      QUAD_TYPE z_diff = fabs(data.Z - forward_z_values[AS1][AS2]);
+      quad_float x_diff = fabs(data.X - forward_x_values[AS1][AS2]);
+      quad_float z_diff = fabs(data.Z - forward_z_values[AS1][AS2]);
       if(x_diff > 0.1 || z_diff > 0.1) {
         elog_e(TAG, "x_diff: %f %f z_diff: %f %f", x_diff, forward_x_values[AS1][AS2], z_diff, forward_z_values[AS1][AS2]);
       }else {
