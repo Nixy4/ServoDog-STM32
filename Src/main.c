@@ -87,6 +87,7 @@ void elog_init_default()
   elog_start();
 }
 
+
 /* USER CODE END 0 */
 
 /**
@@ -157,14 +158,14 @@ int main(void)
   // leg_set_angle(&rb, 90, 90, false);
   // leg_set_angle(&lb, 90, 90, false);
   
-  quad_fall1(500);
+  // quad_fall1(500);
   quad_stand0(500);
 
-  // walk_config(150, 0.5f, 35.f, 35.f, 110.f);
-  // walk(10);
+  walk_config(150, 0.5f, 35.f, 35.f, 110.f);
+  walk(10);
 
   quad_stand0(500);
-  quad_fall1(500);
+  // quad_fall1(500);
   quad_fall0(500);
 
   /* USER CODE END 2 */
@@ -422,7 +423,31 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+void Software_UART_Send(GPIO_TypeDef *GPIOx, uint16_t TX_Pin, uint32_t baudRate, const char *data) {
+    uint32_t bitDelay = 1000000 / baudRate; // Calculate delay per bit in microseconds
+    uint32_t dataLen = strlen(data);
 
+    HAL_GPIO_WritePin(GPIOx, TX_Pin, GPIO_PIN_SET); // Idle state (HIGH)
+    HAL_Delay(1); // Ensure idle state
+
+    for (uint32_t i = 0; i < dataLen; i++) {
+        char byte = data[i];
+
+        // Start bit (LOW)
+        HAL_GPIO_WritePin(GPIOx, TX_Pin, GPIO_PIN_RESET);
+        HAL_Delay(bitDelay);
+
+        // Data bits (LSB first)
+        for (uint8_t bit = 0; bit < 8; bit++) {
+            HAL_GPIO_WritePin(GPIOx, TX_Pin, (byte & (1 << bit)) ? GPIO_PIN_SET : GPIO_PIN_RESET);
+            HAL_Delay(bitDelay);
+        }
+
+        // Stop bit (HIGH)
+        HAL_GPIO_WritePin(GPIOx, TX_Pin, GPIO_PIN_SET);
+        HAL_Delay(bitDelay);
+    }
+}
 /* USER CODE END 4 */
 
 /**
