@@ -1,179 +1,142 @@
-#include "stddef.h"
-#include "string.h"
-#include "stdlib.h"
-#include "pca9685.h"
-#include "easing.h"
-#include "servo.h"
-#include "elog.h"
-// #include "aeabi.h"
+#include "./define.h"
 
-static const char* TAG = "SERVO";
+#define I2C_ALLCALL_ADDR      (0xE0 >> 1)
 
-//angular velocity
-#define ANGULAR_VELOCITY_MAX 600.f
-#define ANGULAR_VELOCITY_MIN 1.f
+#define REG_MODE1             0x00
+#define REG_MODE1_ALLCALL_BIT 0x01 //使能PCA的广播地址响应
+#define REG_MODE1_SUB3_BIT    0x02 //使能PCA的子地址3响应
+#define REG_MODE1_SUB2_BIT    0x04 //使能PCA的子地址2响应
+#define REG_MODE1_SUB1_BIT    0x08 //使能PCA的子地址1响应
+#define REG_MODE1_SLEEP_BIT   0x10 //睡眠模式
+#define REG_MODE1_AUTOINC_BIT 0x20 //自动增加地址
+#define REG_MODE1_EXTCLK_BIT  0x40 //外部时钟
+#define REG_MODE1_RESTART_BIT 0x80 //重启功能
 
-servo_t* servo_create(uint8_t id, easing_calc_fn calc, quad_float offset)
-{  
-  servo_t* e = (servo_t*)malloc(sizeof(servo_t));
+#define REG_MODE2             0x01
+#define REG_MODE2_INVRT_BIT   0x10 //反转输出
+#define REG_MODE2_OCH_BIT     0x08 //输出驱动
+#define REG_MODE2_OUTDRV_BIT  0x04 //输出驱动
+#define REG_MODE2_OUTNE1_BIT  0x02 //输出驱动
+#define REG_MODE2_OUTNE0_BIT  0x01 //输出驱动
 
-  if (e == NULL) return NULL;
-  memset(e, 0, sizeof(servo_t));
+#define REG_LED_BASE          0x06                        // LED0~LED15 0x06~0x45
+#define REG_LEDX_BASE(x)      ( REG_LED_BASE + 4U * x )
+#define REG_LEDX_ON_L(x)      ( REG_LEDX_BASE(x) + 1U )
+#define REG_LEDX_ON_H(x)      ( REG_LEDX_BASE(x) + 2U )
+#define REG_LEDX_OFF_L(x)     ( REG_LEDX_BASE(x) + 3U )
+#define REG_LEDX_OFF_H(x)     ( REG_LEDX_BASE(x) + 4U )
 
-  e->id               = id;
-	e->lpfnCalc         = calc  ?  calc : _easing_calc_Linear;
-	e->fStart           = 0;
-	e->fStop            = 0;
-	e->fDelta           = 0;
-	e->uMs              = 0;
-	e->fStep            = 0;
-  e->uMsIndex         = 0;
-	e->fCurr            = 0;
-	e->fOffset          = offset;
+#define REG_PSC               0xFE
 
-  return e;
-}
+#define IS_LEDX(x)            ( (x) < 16U ) // >> bool
 
-int servo_init(servo_t* s, uint8_t id, easing_calc_fn calc, quad_float offset)
+#define ONL(x)                ( ((uint16_t)(x) & 0xFFU) ) // 0x00FF
+#define ONH(x)                ( ((uint16_t)(x) >> 8) )
+#define OFFL(x)               ( ((uint16_t)(x) & 0xFFU) )
+#define OFFH(x)               ( ((uint16_t)(x) >> 8) )
+
+#define ICLK                  25000000U // PCA内部 25MHz
+#define CNT_MAX               4096U
+
+extern I2C_HandleTypeDef hi2c2;
+
+static const char* TAG = "PCA9685";
+
+static void writereg(uint8_t reg, uint8_t val)
 {
-  if(s == NULL) {
-    elog_e(TAG, "servo is null");
-    return -1;
+  HAL_StatusTypeDef status;
+  uint8_t buf[2] = {reg, val};
+  status = HAL_I2C_Master_Transmit(&hi2c2, CONFIG_PCA9685_I2C_ADDR, buf, 2, CONFIG_PCA9685_I2C_TRANSFER_TIMEOUT);
+  if (status != HAL_OK) {
+    elog_e(TAG, "PCA9685 write reg failed, reg: 0x%02X, val: 0x%02X", reg, val);
   }
-  s->id               = id;
-  s->lpfnCalc         = calc  ?  calc : _easing_calc_Linear;
-  s->fStart           = 0;
-  s->fStop            = 0;
-  s->fDelta           = 0;
-  s->uMs              = 0;
-  s->fStep            = 0;
-  s->uMsIndex         = 0;
-  s->fCurr            = 0;
-  s->fOffset          = offset;
-  return 0;
+  elog_v(TAG, "write reg [%02X] = %02X", reg, val);
 }
 
-void servo_turn_absolute(servo_t* s, quad_float start, quad_float stop, quad_float ms)
+static uint8_t readreg(uint8_t reg)
 {
-  //参数预处理, 数值限幅
-  start = start < 0.f ? 0.f : start;
-  start = start > 180.f ? 180.f : start;
-  stop  = stop  < 0.f ? 0.f : stop;
-  stop  = stop  > 180.f ? 180.f : stop;
+  HAL_StatusTypeDef status;
+  uint8_t val = 0;
+  status = HAL_I2C_Master_Transmit(&hi2c2, CONFIG_PCA9685_I2C_ADDR, &reg, 1, CONFIG_PCA9685_I2C_TRANSFER_TIMEOUT);
+  if (status != HAL_OK) {
+    elog_e(TAG, "PCA9685 read reg failed, reg: 0x%02X", reg);
+  }
+  status = HAL_I2C_Master_Receive(&hi2c2, CONFIG_PCA9685_I2C_ADDR, &val, 1, CONFIG_PCA9685_I2C_TRANSFER_TIMEOUT);
+  if (status != HAL_OK) {
+    elog_e(TAG, "PCA9685 read reg failed, reg: 0x%02X", reg);
+  }
+  elog_v(TAG, "read reg [%02X] = %02X", reg, val);
+  return val;
+}
 
-  if(start == stop) {
+void pca9685_set_psc(uint8_t psc)
+{
+  uint8_t old, new;
+
+  //使能PCA的广播地址响应, 用于同时控制多个PCA9685
+  new = 0x00;
+  SET_BIT(new, REG_MODE1_ALLCALL_BIT);
+  writereg(REG_MODE1, new);
+
+  //读取旧的模式值
+  old = readreg(REG_MODE1); 
+  new = old; 
+
+  //设置新的模式值: 1.禁用重启  2.启用睡眠模式
+  CLEAR_BIT(new, REG_MODE1_RESTART_BIT); //禁用重启功能
+  SET_BIT(new, REG_MODE1_SLEEP_BIT);     //启用睡眠模式
+  writereg(REG_MODE1, new);
+
+  //设置预分频寄存器
+  writereg(REG_PSC, psc);//设置预分频寄存器
+  //恢复旧的模式值
+  writereg(REG_MODE1, old);
+  HAL_Delay(5);
+
+  //设置新的模式值: 1.重启  2.启用自动增加地址  3.启用广播地址响应
+  SET_BIT(old, REG_MODE1_RESTART_BIT|REG_MODE1_AUTOINC_BIT|REG_MODE1_ALLCALL_BIT);
+  writereg(REG_MODE1, old);
+}
+
+void pca9685_set_pwm(uint8_t ledx, uint16_t on, uint16_t off)
+{
+  uint8_t buf[5] = {REG_LEDX_BASE(ledx),ONL(on),ONH(on),OFFL(off),OFFH(off)};
+  HAL_I2C_Master_Transmit(&hi2c2, CONFIG_PCA9685_I2C_ADDR, buf, 5, CONFIG_PCA9685_I2C_TRANSFER_TIMEOUT);
+}
+
+void servo_set_freq(quad_fp freq)
+{
+  freq *= 0.98f; // 频率补偿, 使得实际频率接近设定频率
+  // 50Hz * 0.98 = 49Hz ; 25000000Hz / 49Hz ≈ 510204 tick/s; 510204 tick/s / 4096 tick ≈ 124.5 tick/s
+  // 50Hz * 0.92 = 46Hz ; 25000000Hz / 46Hz ≈ 543478 tick/s; 543478 tick/s / 4096 tick ≈ 132.8 tick/s
+  // 周期1 = 1 / (124.5-1) ≈ 8.09ms;
+  // 周期2 = 1 / (132.8-1) ≈ 7.59ms;
+  uint8_t psc = ( (uint8_t)( (quad_fp)(ICLK) / ( (quad_fp)CNT_MAX * freq ) ) ) - 1 ;
+  pca9685_set_psc(psc);
+}
+
+void servo_set_angle(quad_servo* servo, quad_fp angle)
+{
+  if (!IS_LEDX(servo->channel)) {
+    elog_e(TAG, "servo set angle failed, channel: %d", servo->channel);
     return;
   }
-  
-  s->fStart   = start;
-  s->fStop    = stop;
-  s->fDelta   = stop  - start;
-  quad_float ms_min = fabs( s->fDelta )*SERVO_MS_PER_DEGREE;
-  ms    = ms < ms_min ? ms_min : ms;
-  s->uMs      = (uint32_t)(ms+0.5f);
-  s->uMsIndex = 0;
-  s->fStep    = 0.f;
-}
 
-void servo_turn_relative(servo_t* s, quad_float distance, quad_float ms)
-{
-  quad_float stop = s->fCurr + distance;
-  servo_turn_absolute(s, s->fCurr, stop, ms);
-}
+  // 角度偏移
+  angle += servo->offset; 
 
-void servo_turn_target(servo_t* s, quad_float target, quad_float ms)
-{
-  servo_turn_absolute(s, s->fCurr, target, ms);
-}
-
-void servo_turn_absolute_block(servo_t* s, quad_float start, quad_float stop, quad_float ms)
-{
-  servo_turn_absolute(s, start, stop, ms);
-  while(servo_turn_update(s) != 0) {
-    HAL_Delay(1);
-  }
-}
-
-void servo_turn_relative_block(servo_t* s, quad_float distance, quad_float ms)
-{
-  servo_turn_relative(s, distance, ms);
-  while(servo_turn_update(s) != 0) {
-    HAL_Delay(1);
-  }
-}
-
-void servo_turn_target_block(servo_t* s, quad_float target, quad_float ms)
-{
-  servo_turn_target(s, target, ms);
-  while(servo_turn_update(s) != 0) {
-    HAL_Delay(1);
-  }
-}
-
-int servo_turn_update(servo_t* s)
-{
-  if(HAL_GetTick() == s->uLastTick) {
-    return 2;
+  // 角度限幅
+  if (angle < CONFIG_THIGH_SERVO_ANGLE_MIN) {
+    angle = CONFIG_THIGH_SERVO_ANGLE_MIN;
+  } else if (angle > CONFIG_THIGH_SERVO_ANGLE_MAX) {
+    angle = CONFIG_THIGH_SERVO_ANGLE_MAX;
   }
 
-  if(s->uMs == 0) {
-    return 0;
-  }
-
-  s->uMsIndex++;
-
-  if(s->uMsIndex > s->uMs) {
-    s->uMsIndex = 0;
-    s->uMs = 0;
-    return 0;
-  }
-  
-  if(s->uMsIndex == s->uMs) {
-    //最后1ms
-    s->fStep = 1.f;
-    s->fCurr = s->fStop;
-  } else {
-    //不是最后1ms
-    s->fStep = (quad_float)(s->uMsIndex-1) / (quad_float)(s->uMs-1);
-    // s->fStep = __aeabi_ul2f(s->uMsIndex-1) / __aeabi_ul2f(s->uMs-1); //!
-    s->fCurr = s->fStart + s->fDelta * s->lpfnCalc(s->fStep);
-  }
-  pca9685_set_angle(s->id, s->fCurr);
-  s->uLastTick = HAL_GetTick();
-  return 1;
-}
-
-void servo_set_calc(servo_t* s, easing_calc_fn calc)
-{
-  if(s == NULL) {
-    elog_e(TAG, "servo is null");
-    return;
-  }
-  if(calc == NULL) {
-    elog_e(TAG, "calc is null");
-    return;
-  }
-  s->lpfnCalc = calc;
-}
-
-void servo_set_angle(servo_t* s, quad_float angle, bool auto_delay)
-{
-  if(s == NULL) {
-    elog_e(TAG, "servo is null");
-    return;
-  }
-  if(angle < 0.f) {
-    angle = 0.f;
-  }
-  if(angle > 180.f) {
-    angle = 180.f;
-  }
-
-  s->fCurr = angle;
-  pca9685_set_angle(s->id, s->fCurr);
-
-  if(auto_delay) {
-    quad_float delay = angle * SERVO_MS_PER_DEGREE + 0.5f;
-    HAL_Delay((uint32_t)delay);
-  }
+  uint32_t off = 0;
+#if CONFIG_FLOAT_TYPE == 0
+  off = __aeabi_f2ulz(angle * 2.276f + 0.5f) + 102;
+#else
+  off = __aeabi_d2ulz(angle * 2.276 + 0.5) + 102;
+#endif
+  pca9685_set_pwm(servo->channel, 0, off);
 }

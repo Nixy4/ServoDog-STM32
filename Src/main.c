@@ -64,13 +64,10 @@ static void MX_USART3_UART_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-#include <stdio.h>
-#include <string.h>
 
-#include "hal_hw_uart_printf.h"
+#include "quadruped.h"
 #include "elog.h"
-#include "quad.h"
-#include "walk.h"
+#include "stdio.h"
 
 #define TAG "Main"
 
@@ -78,15 +75,14 @@ void elog_init_default()
 {
   elog_init();
   elog_set_fmt(ELOG_LVL_ASSERT,   ELOG_FMT_ALL);
-  elog_set_fmt(ELOG_LVL_ERROR,    ELOG_FMT_LVL|ELOG_FMT_TAG|ELOG_FMT_TIME);
-  elog_set_fmt(ELOG_LVL_WARN,     ELOG_FMT_LVL|ELOG_FMT_TAG|ELOG_FMT_TIME);
-  elog_set_fmt(ELOG_LVL_INFO,     ELOG_FMT_LVL|ELOG_FMT_TAG|ELOG_FMT_TIME);
-  elog_set_fmt(ELOG_LVL_DEBUG,    ELOG_FMT_LVL|ELOG_FMT_TAG|ELOG_FMT_TIME);
+  elog_set_fmt(ELOG_LVL_ERROR,    ELOG_FMT_FUNC|ELOG_FMT_LVL|ELOG_FMT_TAG|ELOG_FMT_TIME);
+  elog_set_fmt(ELOG_LVL_WARN,     ELOG_FMT_FUNC|ELOG_FMT_LVL|ELOG_FMT_TAG|ELOG_FMT_TIME);
+  elog_set_fmt(ELOG_LVL_INFO,     ELOG_FMT_FUNC|ELOG_FMT_LVL|ELOG_FMT_TAG|ELOG_FMT_TIME);
+  elog_set_fmt(ELOG_LVL_DEBUG,    ELOG_FMT_FUNC|ELOG_FMT_LVL|ELOG_FMT_TAG|ELOG_FMT_TIME);
   elog_set_fmt(ELOG_LVL_VERBOSE,  ELOG_FMT_FUNC|ELOG_FMT_LVL|ELOG_FMT_TAG|ELOG_FMT_TIME);
   elog_set_filter_lvl(ELOG_LVL_DEBUG);
   elog_start();
 }
-
 
 /* USER CODE END 0 */
 
@@ -125,48 +121,10 @@ int main(void)
   /* USER CODE BEGIN 2 */
   printf("MX Init Success\r\n");
   elog_init_default();
-
 //TODO:MAIN
 
-  quad_init();
-
-  // servo_set_angle(&rf.thighServo, 0, false);
-  // servo_set_angle(&rf.shankhServo, 0, false);
-  // servo_set_angle(&rb.thighServo, 0, false);
-  // servo_set_angle(&rb.shankhServo, 0, false);
-
-  // servo_set_angle(&lf.thighServo, 180, false);
-  // servo_set_angle(&lf.shankhServo, 180, false);
-  // servo_set_angle(&lb.thighServo, 180, false);
-  // servo_set_angle(&lb.shankhServo, 180, false);
-
-  // HAL_Delay(3000 );
-
-  // servo_set_angle(&rf.thighServo, 90, false);
-  // servo_set_angle(&rf.shankhServo, 90, false);
-  // servo_set_angle(&rb.thighServo, 90, false);
-  // servo_set_angle(&rb.shankhServo, 90, false);
-
-  // servo_set_angle(&lf.thighServo, 90, false);
-  // servo_set_angle(&lf.shankhServo, 90, false);
-  // servo_set_angle(&lb.thighServo, 90, false);
-  // servo_set_angle(&lb.shankhServo, 90, false);
-
-
-  // leg_set_angle(&rf, 90, 90, false);
-  // leg_set_angle(&lf, 90, 90, false);
-  // leg_set_angle(&rb, 90, 90, false);
-  // leg_set_angle(&lb, 90, 90, false);
-  
-  // quad_fall1(500);
-  quad_stand0(500);
-
-  walk_config(150, 0.5f, 35.f, 35.f, 110.f);
-  walk(10);
-
-  quad_stand0(500);
-  // quad_fall1(500);
-  quad_fall0(500);
+  kine_sptest();
+  kine_fptest();
 
   /* USER CODE END 2 */
 
@@ -423,31 +381,7 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-void Software_UART_Send(GPIO_TypeDef *GPIOx, uint16_t TX_Pin, uint32_t baudRate, const char *data) {
-    uint32_t bitDelay = 1000000 / baudRate; // Calculate delay per bit in microseconds
-    uint32_t dataLen = strlen(data);
 
-    HAL_GPIO_WritePin(GPIOx, TX_Pin, GPIO_PIN_SET); // Idle state (HIGH)
-    HAL_Delay(1); // Ensure idle state
-
-    for (uint32_t i = 0; i < dataLen; i++) {
-        char byte = data[i];
-
-        // Start bit (LOW)
-        HAL_GPIO_WritePin(GPIOx, TX_Pin, GPIO_PIN_RESET);
-        HAL_Delay(bitDelay);
-
-        // Data bits (LSB first)
-        for (uint8_t bit = 0; bit < 8; bit++) {
-            HAL_GPIO_WritePin(GPIOx, TX_Pin, (byte & (1 << bit)) ? GPIO_PIN_SET : GPIO_PIN_RESET);
-            HAL_Delay(bitDelay);
-        }
-
-        // Stop bit (HIGH)
-        HAL_GPIO_WritePin(GPIOx, TX_Pin, GPIO_PIN_SET);
-        HAL_Delay(bitDelay);
-    }
-}
 /* USER CODE END 4 */
 
 /**

@@ -1,5 +1,6 @@
-#include "kinematics.h"
-const kinematics_data_t x_min =
+#include "./define.h"
+
+const quad_kine ksp_x_min =
 {
 	.AS1 = 145.000000,
 	.AS2 = 120.000000,
@@ -15,7 +16,7 @@ const kinematics_data_t x_min =
 	.X = -115.077356,
 	.Z = -0.375894,
 };
-const kinematics_data_t x_max =
+const quad_kine ksp_x_max =
 {
 	.AS1 = 0.000000,
 	.AS2 = 120.000000,
@@ -31,7 +32,7 @@ const kinematics_data_t x_max =
 	.X = 94.050247,
 	.Z = 66.313574,
 };
-const kinematics_data_t z_min =
+const quad_kine ksp_z_min =
 {
 	.AS1 = 180.000000,
 	.AS2 = 101.000000,
@@ -47,7 +48,7 @@ const kinematics_data_t z_min =
 	.X = -79.299542,
 	.Z = -67.999340,
 };
-const kinematics_data_t z_max =
+const quad_kine ksp_z_max =
 {
 	.AS1 = 55.000000,
 	.AS2 = 120.000000,
@@ -63,7 +64,7 @@ const kinematics_data_t z_max =
 	.X = -0.375894,
 	.Z = 115.077356,
 };
-const kinematics_data_t start =
+const quad_kine ksp_start =
 {
 	.AS1 = 0.000000,
 	.AS2 = 0.000000,
@@ -79,7 +80,7 @@ const kinematics_data_t start =
 	.X = 21.330410,
 	.Z = 36.030797,
 };
-const kinematics_data_t end =
+const quad_kine ksp_end =
 {
 	.AS1 = 180.000000,
 	.AS2 = 120.000000,
@@ -95,7 +96,7 @@ const kinematics_data_t end =
 	.X = -94.050247,
 	.Z = -66.313574,
 };
-const kinematics_data_t x0_z_min =
+const quad_kine ksp_x0_z_min =
 {
 	.AS1 = 30.000000,
 	.AS2 = 0.000000,
@@ -111,7 +112,7 @@ const kinematics_data_t x0_z_min =
 	.X = 0.457278,
 	.Z = 41.868790,
 };
-const kinematics_data_t x0_z_max =
+const quad_kine ksp_x0_z_max =
 {
 	.AS1 = 55.000000,
 	.AS2 = 120.000000,

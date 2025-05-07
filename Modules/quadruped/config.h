@@ -1,0 +1,55 @@
+#pragma once
+
+#define CONFIG_FLOAT_TYPE    0
+#define CONFIG_CACULATE_TYPE 0
+
+#define CONFIG_PCA9685_I2C_ADDR             0x80
+#define CONFIG_PCA9685_I2C_TRANSFER_TIMEOUT 100
+
+#define CONFIG_THIGH_SERVO_ANGLE_MIN 0.f
+#define CONFIG_THIGH_SERVO_ANGLE_MAX 180.f
+
+#define CONFIG_SHANK_SERVO_ANGLE_MIN 0.f
+#define CONFIG_SHANK_SERVO_ANGLE_MAX 120.f
+
+/*w
+INFO: 已知常量
+INFO:       PI |               3.1415926535897931
+INFO:      HPI |               1.5707963267948966
+INFO:      DPI |               6.2831853071795862
+INFO:  radians |               0.0174532925199433
+INFO:  degrees |              57.2957795130823229
+INFO:       L1 |              79.0000000000000000
+INFO:      _L1 |              72.0000000000000000
+INFO:      L1_ |               7.0000000000000000
+INFO:       L2 |              68.0000000000000000
+INFO:       L3 |              20.0000000000000000
+INFO:       L4 |              32.0000000000000000
+INFO:       L5 |              78.7908624143688314
+INFO:       L8 |              14.5000000000000000
+INFO:       L9 |              77.0000000000000000
+INFO:      R14 |               1.5707963267948966 |              90.0000000000000000°
+INFO:      R15 |               0.4182243295792291 |              23.9624889745781822°
+*/
+
+//!PI
+#define CONFIG_PI               3.1415926535897931f
+#define CONFIG_HPI              1.5707963267948966f
+#define CONFIG_DPI              6.2831853071795862f
+#define CONFIG_DEGREE_TO_RADIAN 0.0174532925199433f
+#define CONFIG_RADIAN_TO_DEGREE 57.2957795130823229f
+//!大腿组
+#define CONFIG_L1               79.0f
+#define CONFIG_L2               68.5f
+#define CONFIG_L3               20.0f
+#define CONFIG_L5               78.7908624143688314f
+#define CONFIG_R15              0.4182243295792291f
+//!小腿组
+#define CONFIG_L8               14.5000000000000000f
+#define CONFIG_L9               77.0000000000000000f
+#define CONFIG_L6_MAX           CONFIG_L8+CONFIG_L9
+#define CONFIG_L6_MIN           68.7191549248772446f
+
+#define CONFIG_DEGREE_ERROR_RANGE 1.0f
+#define CONFIG_RADIAN_ERROR_RANGE CONFIG_DEGREE_ERROR_RANGE*CONFIG_DEGREE_TO_RADIAN
+#define CONFIG_LENGTH_ERROR_RANGE 1.0f

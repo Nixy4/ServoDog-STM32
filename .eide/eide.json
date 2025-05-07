@@ -305,7 +305,8 @@
             "c99-mode": true,
             "C_FLAGS": "--diag_suppress=1 --diag_suppress=1295",
             "CXX_FLAGS": "--diag_suppress=1 --diag_suppress=1295",
-            "warnings": "all-warnings"
+            "warnings": "all-warnings",
+            "enum-container-always-int": true
           },
           "asm-compiler": {},
           "linker": {
