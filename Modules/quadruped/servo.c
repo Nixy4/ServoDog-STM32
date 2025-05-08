@@ -121,22 +121,6 @@ void servo_set_angle(quad_servo* servo, quad_fp angle)
     elog_e(TAG, "servo set angle failed, channel: %d", servo->channel);
     return;
   }
-
-  // 角度偏移
-  angle += servo->offset; 
-
-  // 角度限幅
-  if (angle < CONFIG_THIGH_SERVO_ANGLE_MIN) {
-    angle = CONFIG_THIGH_SERVO_ANGLE_MIN;
-  } else if (angle > CONFIG_THIGH_SERVO_ANGLE_MAX) {
-    angle = CONFIG_THIGH_SERVO_ANGLE_MAX;
-  }
-
-  uint32_t off = 0;
-#if CONFIG_FLOAT_TYPE == 0
-  off = __aeabi_f2ulz(angle * 2.276f + 0.5f) + 102;
-#else
-  off = __aeabi_d2ulz(angle * 2.276 + 0.5) + 102;
-#endif
+  uint32_t off = (uint32_t)(angle * 2.276f + 0.5f) + 102;
   pca9685_set_pwm(servo->channel, 0, off);
 }

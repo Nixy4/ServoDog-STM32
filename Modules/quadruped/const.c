@@ -6,7 +6,6 @@ const quad_fp PI  = CONFIG_PI;
 const quad_fp HPI = CONFIG_HPI;
 const quad_fp DPI = CONFIG_DPI;
 
-
 //!大腿组
 const quad_fp L1  = CONFIG_L1;
 const quad_fp L2  = CONFIG_L2;
