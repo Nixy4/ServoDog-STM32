@@ -80,7 +80,7 @@ void elog_init_default()
   elog_set_fmt(ELOG_LVL_INFO,     ELOG_FMT_FUNC|ELOG_FMT_LVL|ELOG_FMT_TAG|ELOG_FMT_TIME);
   elog_set_fmt(ELOG_LVL_DEBUG,    ELOG_FMT_FUNC|ELOG_FMT_LVL|ELOG_FMT_TAG|ELOG_FMT_TIME);
   elog_set_fmt(ELOG_LVL_VERBOSE,  ELOG_FMT_FUNC|ELOG_FMT_LVL|ELOG_FMT_TAG|ELOG_FMT_TIME);
-  elog_set_filter_lvl(ELOG_LVL_VERBOSE);
+  elog_set_filter_lvl(ELOG_LVL_ASSERT);
   elog_start();
 }
 
@@ -114,11 +114,11 @@ quad_leg_cfg leg_cfg_rf =
   .type = LEG_RF,
   .thigh_servo_cfg = {
     .channel = 1,
-    .offset = CONFIG_RF_THIGH_OFFSET+CONFIG_GLOBLE_THIGH_OFFSET,
+    .offset = CONFIG_ANGLE_OFFSET_RF_THIGH+CONFIG_ANGLE_OFFSET_GLOBAL_THIGH,
   },
   .shank_servo_cfg = {
     .channel = 0,
-    .offset = CONFIG_RF_SHANK_OFFSET+CONFIG_GLOBLE_SHANK_OFFSET,
+    .offset = CONFIG_ANGLE_OFFSET_RF_SHANK+CONFIG_ANGLE_OFFSET_GLOBAL_SHANK,
   },
   .tacb_cfg = &tacb_cfg,
   .sacb_cfg = &sacb_cfg,
@@ -130,11 +130,11 @@ quad_leg_cfg leg_cfg_lf =
   .type = LEG_LF,
   .thigh_servo_cfg = {
     .channel = 3,
-    .offset = CONFIG_LF_THIGH_OFFSET+CONFIG_GLOBLE_THIGH_OFFSET,
+    .offset = CONFIG_ANGLE_OFFSET_LF_THIGH+CONFIG_ANGLE_OFFSET_GLOBAL_THIGH,
   },
   .shank_servo_cfg = {
     .channel = 2,
-    .offset = CONFIG_LF_SHANK_OFFSET+CONFIG_GLOBLE_SHANK_OFFSET,
+    .offset = CONFIG_ANGLE_OFFSET_LF_SHANK+CONFIG_ANGLE_OFFSET_GLOBAL_SHANK,
   },
   .tacb_cfg = &tacb_cfg,
   .sacb_cfg = &sacb_cfg,
@@ -146,11 +146,11 @@ quad_leg_cfg leg_cfg_rb =
   .type = LEG_RB,
   .thigh_servo_cfg = {
     .channel = 5,
-    .offset = CONFIG_RB_THIGH_OFFSET+CONFIG_GLOBLE_THIGH_OFFSET,
+    .offset = CONFIG_ANGLE_OFFSET_RB_THIGH+CONFIG_ANGLE_OFFSET_GLOBAL_THIGH,
   },
   .shank_servo_cfg = {
     .channel = 4,
-    .offset = CONFIG_RB_SHANK_OFFSET+CONFIG_GLOBLE_SHANK_OFFSET,
+    .offset = CONFIG_ANGLE_OFFSET_RB_SHANK+CONFIG_ANGLE_OFFSET_GLOBAL_SHANK,
   },
   .tacb_cfg = &tacb_cfg,
   .sacb_cfg = &sacb_cfg,
@@ -162,11 +162,11 @@ quad_leg_cfg leg_cfg_lb =
   .type = LEG_LB,
   .thigh_servo_cfg = {
     .channel = 7,
-    .offset = CONFIG_LB_THIGH_OFFSET+CONFIG_GLOBLE_THIGH_OFFSET,
+    .offset = CONFIG_ANGLE_OFFSET_LB_THIGH+CONFIG_ANGLE_OFFSET_GLOBAL_THIGH,
   },
   .shank_servo_cfg = {
     .channel = 6,
-    .offset = CONFIG_LB_SHANK_OFFSET+CONFIG_GLOBLE_SHANK_OFFSET,
+    .offset = CONFIG_ANGLE_OFFSET_LB_SHANK+CONFIG_ANGLE_OFFSET_GLOBAL_SHANK,
   },
   .tacb_cfg = &tacb_cfg,
   .sacb_cfg = &sacb_cfg,
@@ -209,8 +209,11 @@ int main(void)
   MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
   printf("MX Init Success\r\n");
-  // elog_init_default();
-
+  elog_init_default();
+  // elog_set_filter_lvl(ELOG_LVL_INFO);
+  // elog_set_filter_lvl(ELOG_LVL_DEBUG);
+  // elog_set_filter_lvl(ELOG_LVL_VERBOSE);
+  
 //TODO:MAIN
   servo_set_freq(50);
 
@@ -219,13 +222,40 @@ int main(void)
   leg_init(&leg_rb, leg_cfg_rb);
   leg_init(&leg_lb, leg_cfg_lb);
 
+  walk_init(35.f, 35.f, 0.5f);
+  sil_init(40.f, 0.5f);
+
   fixed_set_angle_zero();
-  HAL_Delay(1000);
+  // HAL_Delay(1000);
   // fixed_set_angle_mid();
   // HAL_Delay(1000);
-  // fixed_set_stand1();
-  // fixed_set_stand2(500);
-  fixed_set_stand3(500);
+  // fixed_stand_by_coord0();
+  HAL_Delay(100);
+  // fixed_stand_by_acb(500);
+  // fixed_stand_by_ccb(500);
+  // walk(150, 10);
+  sil(150, 10);
+  // sync_sil(150, 10);
+  // fixed_stand_by_acb(500);
+
+  // quad_coord p1 = {0, 90};
+  // quad_coord p2 = {0, 115};
+
+  // for(int i=0;i<5;++i)
+  // {
+  //   leg_ccb_target(&leg_rf, &leg_rf.ccb, p1, 500);
+  //   leg_ccb_target(&leg_lf, &leg_lf.ccb, p1, 500);
+  //   leg_ccb_target(&leg_rb, &leg_rb.ccb, p1, 500);
+  //   leg_ccb_target(&leg_lb, &leg_lb.ccb, p1, 500);
+  //   leg_ccb_update_all_block();
+  //   HAL_Delay(1000);
+  //   leg_ccb_target(&leg_rf, &leg_rf.ccb, p2, 500);
+  //   leg_ccb_target(&leg_lf, &leg_lf.ccb, p2, 500);
+  //   leg_ccb_target(&leg_rb, &leg_rb.ccb, p2, 500);
+  //   leg_ccb_target(&leg_lb, &leg_lb.ccb, p2, 500);
+  //   leg_ccb_update_all_block();
+  // }
+
 
   /* USER CODE END 2 */
 

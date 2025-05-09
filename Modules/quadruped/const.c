@@ -1,4 +1,4 @@
-#include "./define.h"
+#include "quadruped.h"
 
 #if CONFIG_CACULATE_TYPE == 0
 

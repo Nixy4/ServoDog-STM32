@@ -1,4 +1,4 @@
-#include "./define.h"
+#include "quadruped.h"
 
 static const quad_fp DH  = 1. / 22.;
 static const quad_fp D1  = 1. / 11.;

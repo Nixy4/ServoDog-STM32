@@ -1,4 +1,4 @@
-#include "./define.h"
+#include "quadruped.h"
 
 const quad_kine ksp_x_min =
 {

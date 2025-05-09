@@ -1,4 +1,4 @@
-#include "./define.h"
+#include "quadruped.h"
 
 #define TAG "Leg"
 
@@ -7,15 +7,14 @@ quad_leg leg_lf  = {.type=LEG_LF};
 quad_leg leg_rb  = {.type=LEG_RB};
 quad_leg leg_lb   = {.type=LEG_LB};
 
-static const char* get_leg_str(quad_types type)
+static inline const char* get_leg_str(quad_types type)
 {
-  switch(type)
-  {
-    case LEG_RF: return "RF";
-    case LEG_LF: return "LF";
-    case LEG_RB: return "RB";
-    case LEG_LB: return "LB";
-    default:       return "Unknown";
+  switch(type) {
+    case LEG_RF : return "RF";
+    case LEG_LF : return "LF";
+    case LEG_RB : return "RB";
+    case LEG_LB : return "LB";
+         default: return "Unknown";
   }
 }
 
@@ -89,7 +88,7 @@ void led_set_angle(quad_leg* leg, quad_fp thigh_angle, quad_fp shank_angle, bool
   thigh_angle = angle_offset(thigh_angle, leg->thigh_servo.offset);
   shank_angle = angle_offset(shank_angle, leg->shank_servo.offset);
 
-  elog_v(TAG, "leg_set_angle: %s after offset, thigh_angle: %.2f shank_angle: %.2f", 
+  elog_v(TAG, "leg_set_angle: %s after offset, thigh_angle: %5.3f shank_angle: %5.3f", 
     get_leg_str(leg->type), thigh_angle, shank_angle);
 
   thigh_angle = angle_limit_thigh(thigh_angle);
@@ -107,6 +106,28 @@ void led_set_angle(quad_leg* leg, quad_fp thigh_angle, quad_fp shank_angle, bool
 
 void leg_set_coord(quad_leg* leg, quad_fp X, quad_fp Z)
 {
+  switch(leg->type) {
+    case LEG_RF:
+      X += CONFIG_X_OFFSET_RF;
+      Z += CONFIG_Z_OFFSET_RF;
+      break;
+    case LEG_LF:
+      X += CONFIG_X_OFFSET_LF;
+      Z += CONFIG_Z_OFFSET_LF;
+      break;
+    case LEG_RB:
+      X += CONFIG_X_OFFSET_RB;
+      Z += CONFIG_Z_OFFSET_RB;
+      break;
+    case LEG_LB:
+      X += CONFIG_X_OFFSET_LB;
+      Z += CONFIG_Z_OFFSET_LB;
+      break;
+    default:
+      elog_e(TAG, "unknown leg type");
+      return;
+  }
+
   kine_inverse(&leg->kine, X, Z);
   
   quad_fp thigh_angle = leg->kine.AS1;
@@ -115,7 +136,7 @@ void leg_set_coord(quad_leg* leg, quad_fp X, quad_fp Z)
   thigh_angle = angle_offset(thigh_angle, leg->thigh_servo.offset);
   shank_angle = angle_offset(shank_angle, leg->shank_servo.offset);
 
-  elog_v(TAG, "leg_set_coord: %s after offset, thigh_angle: %.2f shank_angle: %.2f", 
+  elog_v(TAG, "leg_set_coord: %s after offset, thigh_angle: %5.3f shank_angle: %5.3f", 
     get_leg_str(leg->type), thigh_angle, shank_angle);
 
   thigh_angle = angle_limit_thigh(thigh_angle);
@@ -131,6 +152,8 @@ void leg_set_coord(quad_leg* leg, quad_fp X, quad_fp Z)
   servo_set_angle(&leg->shank_servo, shank_angle);
 }
 
+
+
 void leg_acb_abslute(quad_leg* leg, quad_acb* acb, quad_fp start, quad_fp end, uint32_t frame_count)
 {
   if(frame_count == 0)
@@ -141,7 +164,8 @@ void leg_acb_abslute(quad_leg* leg, quad_acb* acb, quad_fp start, quad_fp end, u
 
   if(start == end)
   {
-    elog_w(TAG, "lstart == end");
+    acb->frame.count = 0;
+    elog_w(TAG, "start == end");
     return;
   }
 
@@ -183,6 +207,7 @@ void leg_acb_relative(quad_leg* leg, quad_acb* acb, quad_fp delta, uint32_t fram
 
   if(delta == 0)
   {
+    acb->frame.count = 0;
     elog_w(TAG, "delta == 0");
     return;
   }
@@ -239,6 +264,7 @@ void leg_acb_target(quad_leg* leg, quad_acb* acb, quad_fp target, uint32_t frame
 
   if(target == *current_ptr)
   {
+    acb->frame.count = 0;
     elog_w(TAG, "target == current");
     return;
   }
@@ -257,80 +283,70 @@ bool leg_acb_update(quad_leg* leg, quad_acb* acb)
 {
   bool flag = false;
   quad_fp t = 0;
-  volatile quad_fp* current_ptr;
+  volatile quad_fp* ASX_ptr;
   quad_servo* servo_ptr;
   quad_fp angle;
 
-  if(acb->type == ACB_THIGH)
-  {
-    current_ptr = &leg->kine.AS1;
+  //! Angle Control Block
+  if(acb->frame.count == 0) { return false; }
+  if(acb->type == ACB_THIGH) {
+    //控制大腿舵机
+    ASX_ptr = &leg->kine.AS1;
     servo_ptr = &leg->thigh_servo;
-  }
-  else if(acb->type == ACB_SHANK)
-  {
-    current_ptr = &leg->kine.AS2;
+  } else if(acb->type == ACB_SHANK) {
+    //控制小腿舵机
+    ASX_ptr = &leg->kine.AS2;
     servo_ptr = &leg->shank_servo;
-  }
-  else
-  {
+  } else {
     elog_e(TAG, "unknown acb type");
     return false;
   }
-
-  if(acb->frame.interval > 0)
-  {
-    if(HAL_GetTick()-acb->frame.last_tick < acb->frame.interval) {
-      return true;
-    }
-  }
-
-  ++acb->frame.index;
-
-  if(acb->frame.index == acb->frame.count) //最后一帧
-  {
+  if(acb->frame.index == acb->frame.count) {
+    //最后一帧
     t = 1.0f;
-    *current_ptr = acb->end;
+    angle = acb->end;
     flag = false;
-  }
-  else
-  {
-    t = ((quad_fp)(acb->frame.index-1))/((quad_fp)(acb->frame.count-1));
-    *current_ptr = acb->start + acb->delta * acb->calc(t);
+  } else {
+    //非最后一帧
+    t = ((quad_fp)(acb->frame.index))/((quad_fp)(acb->frame.count));
+    angle = acb->start + acb->delta * acb->calc(t);
     flag = true;
   }
+  //更新kine数据
+  *ASX_ptr = angle;
 
-  angle = angle_offset(*current_ptr,servo_ptr->offset);
-
-  if(acb->type==ACB_THIGH)
-  {
+  //! Hardware
+  angle = angle_offset(angle, servo_ptr->offset);
+  if(acb->type==ACB_THIGH) {
     angle = angle_limit_thigh(angle);
-  }
-  else 
-  {
+  } else {
     angle = angle_limit_shank(angle);
   }
-
-  if(leg->type==LEG_LF || leg->type==LEG_LB)
-  {
+  if(leg->type==LEG_LF || leg->type==LEG_LB) {
     angle = angle_mirror(angle);
   }
-
   servo_set_angle(servo_ptr, angle);
 
-  if(acb->frame.interval > 0) 
-  {
-    acb->frame.last_tick = HAL_GetTick();
-  }
-
+  //! Angle Control Block
+  ++acb->frame.index;
   return flag;
 }
 
 void leg_acb_update_block(quad_leg* leg, quad_acb* acb)
 {
-  while(leg_acb_update(leg,acb));
+  bool flag = false;
+  volatile uint32_t last_tick = 0;
+  do {
+    if( HAL_GetTick()-last_tick > CONFIG_ACB_FRAME_INTERVAL0) {
+      flag = leg_acb_update(leg, acb);
+      last_tick = HAL_GetTick();
+    } else {
+      flag = true;
+    }
+  } while(flag);
 }
 
-bool legs_acb_update()
+bool leg_acb_update_all()
 {
   bool flag = false;
 
@@ -349,9 +365,18 @@ bool legs_acb_update()
   return flag;
 }
 
-void legs_acb_update_block()
+void leg_acb_update_all_block()
 {
-  while(legs_acb_update());
+  bool flag = false;
+  volatile uint32_t last_tick = 0;
+  do {
+    if( HAL_GetTick()-last_tick > CONFIG_ACB_FRAME_INTERVAL0) {
+      flag = leg_acb_update_all();
+      last_tick = HAL_GetTick();
+    } else {
+      flag = true;
+    }
+  } while(flag);
 }
 
 void leg_ccb_abslute(quad_leg* leg, quad_ccb* ccb, 
@@ -365,6 +390,7 @@ void leg_ccb_abslute(quad_leg* leg, quad_ccb* ccb,
 
   if(start.X == end.X && start.Z == end.Z)
   {
+    ccb->frame.count = 0;
     elog_w(TAG, "start == end");
     return;
   }
@@ -394,6 +420,7 @@ void leg_ccb_relative(quad_leg* leg, quad_ccb* ccb,
 
   if(delta.X == 0 && delta.Z == 0)
   {
+    ccb->frame.count = 0;
     elog_w(TAG, "delta == 0");
     return;
   }
@@ -423,6 +450,7 @@ void leg_ccb_target(quad_leg* leg, quad_ccb* ccb,
 
   if(target.X == leg->kine.X && target.Z == leg->kine.Z)
   {
+    ccb->frame.count = 0;
     elog_w(TAG, "target == current");
     return;
   }
@@ -445,39 +473,29 @@ bool leg_ccb_update(quad_leg* leg, quad_ccb* ccb)
 {
   bool flag = false;
   quad_fp t = 0;
-  
-  if(ccb->frame.interval > 0)
-  {
-    if(HAL_GetTick()-ccb->frame.last_tick < ccb->frame.interval) {
-      return true;
-    }
-  }
 
-  quad_coord current = (quad_coord) {leg->kine.X, leg->kine.Z};
+  //! Coord Control Block
+  if(ccb->frame.count == 0) {
+    return false;
+  }
+  quad_coord coord = (quad_coord) {leg->kine.X, leg->kine.Z};
   ++ccb->frame.index;
-
-  if(ccb->frame.index == ccb->frame.count) //最后一帧
-  {
+  if(ccb->frame.index == ccb->frame.count) {
+    //最后一帧 
     t = 1.0f;
-    current.X = ccb->end_x;
-    current.Z = ccb->end_z;
+    coord.X = ccb->end_x;
+    coord.Z = ccb->end_z;
     flag = false;
-  }
-  else
-  {
+  } else {
+    //非最后一帧
     t = ((quad_fp)(ccb->frame.index-1))/((quad_fp)(ccb->frame.count-1));
-    current.X = ccb->start_x + ccb->delta_x * ccb->calc_x(t);
-    current.Z = ccb->start_z + ccb->delta_z * ccb->calc_z(t);
+    coord.X = ccb->start_x + ccb->delta_x * ccb->calc_x(t);
+    coord.Z = ccb->start_z + ccb->delta_z * ccb->calc_z(t);
     flag = true;
   }
 
-  leg_set_coord(leg, current.X, current.Z);
-
-  if(ccb->frame.interval > 0) 
-  {
-    ccb->frame.last_tick = HAL_GetTick();
-  }
-
+  //! Hardware
+  leg_set_coord(leg, coord.X, coord.Z);
   return flag;
 }
 
@@ -486,7 +504,7 @@ void leg_ccb_update_block(quad_leg* leg, quad_ccb* ccb)
   while(leg_ccb_update(leg, ccb));
 }
 
-bool legs_ccb_update()
+bool leg_ccb_update_all()
 {
   bool flag = false;
 
@@ -498,7 +516,273 @@ bool legs_ccb_update()
   return flag;
 }
 
-void legs_ccb_update_block()
+void leg_ccb_update_all_block()
 {
-  while(legs_ccb_update());
+  while(leg_ccb_update_all());
+}
+
+//!sync section
+
+static uint32_t sync_frame_count = 0;
+static uint32_t sync_frame_index = 0;
+
+void sync_leg_set_angle(quad_agnle rfa, quad_agnle lfa, quad_agnle rba, quad_agnle lba)
+{
+  quad_fp angles[8];
+  angles[leg_rf.thigh_servo.channel] = rfa.AS1;
+  angles[leg_rf.shank_servo.channel] = rfa.AS2;
+  angles[leg_lf.thigh_servo.channel] = lfa.AS1;
+  angles[leg_lf.shank_servo.channel] = lfa.AS2;
+  angles[leg_rb.thigh_servo.channel] = rba.AS1;
+  angles[leg_rb.shank_servo.channel] = rba.AS2;
+  angles[leg_lb.thigh_servo.channel] = lba.AS1;
+  angles[leg_lb.shank_servo.channel] = lba.AS2;
+  sync_servo_set_angle(angles);
+}
+
+void sync_leg_set_coord(quad_coord rfc, quad_coord lfc, quad_coord rbc, quad_coord lbc)
+{
+  rfc.X += CONFIG_X_OFFSET_RF;
+  rfc.Z += CONFIG_Z_OFFSET_RF;
+  lfc.X += CONFIG_X_OFFSET_LF;
+  lfc.Z += CONFIG_Z_OFFSET_LF;
+  rbc.X += CONFIG_X_OFFSET_RB;
+  rbc.Z += CONFIG_Z_OFFSET_RB;
+  lbc.X += CONFIG_X_OFFSET_LB;
+  lbc.Z += CONFIG_Z_OFFSET_LB;
+
+  kine_inverse(&leg_rf.kine, rfc.X, rfc.Z);
+  kine_inverse(&leg_lf.kine, lfc.X, lfc.Z);
+  kine_inverse(&leg_rb.kine, rbc.X, rbc.Z);
+  kine_inverse(&leg_lb.kine, lbc.X, lbc.Z);
+
+  quad_fp thigh_angle_rf = leg_rf.kine.AS1;
+  quad_fp shank_angle_rf = leg_rf.kine.AS2;
+  quad_fp thigh_angle_lf = leg_lf.kine.AS1;
+  quad_fp shank_angle_lf = leg_lf.kine.AS2;
+  quad_fp thigh_angle_rb = leg_rb.kine.AS1;
+  quad_fp shank_angle_rb = leg_rb.kine.AS2;
+  quad_fp thigh_angle_lb = leg_lb.kine.AS1;
+  quad_fp shank_angle_lb = leg_lb.kine.AS2;
+
+  thigh_angle_rf = angle_offset(thigh_angle_rf, leg_rf.thigh_servo.offset);
+  shank_angle_rf = angle_offset(shank_angle_rf, leg_rf.shank_servo.offset);
+  thigh_angle_lf = angle_offset(thigh_angle_lf, leg_lf.thigh_servo.offset);
+  shank_angle_lf = angle_offset(shank_angle_lf, leg_lf.shank_servo.offset);
+  thigh_angle_rb = angle_offset(thigh_angle_rb, leg_rb.thigh_servo.offset);
+  shank_angle_rb = angle_offset(shank_angle_rb, leg_rb.shank_servo.offset);
+  thigh_angle_lb = angle_offset(thigh_angle_lb, leg_lb.thigh_servo.offset);
+  shank_angle_lb = angle_offset(shank_angle_lb, leg_lb.shank_servo.offset);
+  
+  thigh_angle_rf = angle_limit_thigh(thigh_angle_rf);
+  shank_angle_rf = angle_limit_shank(shank_angle_rf);
+  thigh_angle_lf = angle_limit_thigh(thigh_angle_lf);
+  shank_angle_lf = angle_limit_shank(shank_angle_lf);
+  thigh_angle_rb = angle_limit_thigh(thigh_angle_rb);
+  shank_angle_rb = angle_limit_shank(shank_angle_rb);
+  thigh_angle_lb = angle_limit_thigh(thigh_angle_lb);
+  shank_angle_lb = angle_limit_shank(shank_angle_lb);
+
+  thigh_angle_lf = angle_mirror(thigh_angle_lf);
+  shank_angle_lf = angle_mirror(shank_angle_lf);
+  thigh_angle_lb = angle_mirror(thigh_angle_lb);
+  shank_angle_lb = angle_mirror(shank_angle_lb);
+
+  quad_fp angles[8];
+
+  angles[leg_rf.thigh_servo.channel] = thigh_angle_rf;
+  angles[leg_rf.shank_servo.channel] = shank_angle_rf;
+  angles[leg_lf.thigh_servo.channel] = thigh_angle_lf;
+  angles[leg_lf.shank_servo.channel] = shank_angle_lf;
+  angles[leg_rb.thigh_servo.channel] = thigh_angle_rb;
+  angles[leg_rb.shank_servo.channel] = shank_angle_rb;
+  angles[leg_lb.thigh_servo.channel] = thigh_angle_lb;
+  angles[leg_lb.shank_servo.channel] = shank_angle_lb;
+
+  sync_servo_set_angle(angles);
+}
+
+void sync_leg_acb_start(uint32_t frame_count)
+{
+  if(frame_count == 0)
+  {
+    elog_w(TAG, "frame_count is 0");
+    return;
+  }
+  sync_frame_count = frame_count;
+  sync_frame_index = 0;
+}
+
+bool sync_leg_acb_update()
+{
+  bool flag = false;
+  quad_fp t = 0;
+  quad_fp angles[8];
+
+  if(sync_frame_count == 0) { return false; }
+
+  if(sync_frame_index == sync_frame_count) {
+    //最后一帧
+    t = 1.0f;
+    angles[leg_rf.thigh_servo.channel] = leg_rf.tacb.end;
+    angles[leg_rf.shank_servo.channel] = leg_rf.sacb.end;
+    angles[leg_lf.thigh_servo.channel] = leg_lf.tacb.end;
+    angles[leg_lf.shank_servo.channel] = leg_lf.sacb.end;
+    angles[leg_rb.thigh_servo.channel] = leg_rb.tacb.end;
+    angles[leg_rb.shank_servo.channel] = leg_rb.sacb.end;
+    angles[leg_lb.thigh_servo.channel] = leg_lb.tacb.end;
+    angles[leg_lb.shank_servo.channel] = leg_lb.sacb.end;
+    flag = false;
+  } else {
+    //非最后一帧
+    t = ((quad_fp)(sync_frame_index))/((quad_fp)(sync_frame_count));
+    angles[leg_rf.thigh_servo.channel] = leg_rf.tacb.start + leg_rf.tacb.delta * leg_rf.tacb.calc(t);
+    angles[leg_rf.shank_servo.channel] = leg_rf.sacb.start + leg_rf.sacb.delta * leg_rf.sacb.calc(t);
+    angles[leg_lf.thigh_servo.channel] = leg_lf.tacb.start + leg_lf.tacb.delta * leg_lf.tacb.calc(t);
+    angles[leg_lf.shank_servo.channel] = leg_lf.sacb.start + leg_lf.sacb.delta * leg_lf.sacb.calc(t);
+    angles[leg_rb.thigh_servo.channel] = leg_rb.tacb.start + leg_rb.tacb.delta * leg_rb.tacb.calc(t);
+    angles[leg_rb.shank_servo.channel] = leg_rb.sacb.start + leg_rb.sacb.delta * leg_rb.sacb.calc(t);
+    angles[leg_lb.thigh_servo.channel] = leg_lb.tacb.start + leg_lb.tacb.delta * leg_lb.tacb.calc(t);
+    angles[leg_lb.shank_servo.channel] = leg_lb.sacb.start + leg_lb.sacb.delta * leg_lb.sacb.calc(t);
+    flag = true;
+  }
+
+  //! Hardware
+  angles[leg_rf.thigh_servo.channel] = angle_offset(angles[leg_rf.thigh_servo.channel], leg_rf.thigh_servo.offset);
+  angles[leg_rf.shank_servo.channel] = angle_offset(angles[leg_rf.shank_servo.channel], leg_rf.shank_servo.offset);
+  angles[leg_lf.thigh_servo.channel] = angle_offset(angles[leg_lf.thigh_servo.channel], leg_lf.thigh_servo.offset);
+  angles[leg_lf.shank_servo.channel] = angle_offset(angles[leg_lf.shank_servo.channel], leg_lf.shank_servo.offset);
+  angles[leg_rb.thigh_servo.channel] = angle_offset(angles[leg_rb.thigh_servo.channel], leg_rb.thigh_servo.offset);
+  angles[leg_rb.shank_servo.channel] = angle_offset(angles[leg_rb.shank_servo.channel], leg_rb.shank_servo.offset);
+  angles[leg_lb.thigh_servo.channel] = angle_offset(angles[leg_lb.thigh_servo.channel], leg_lb.thigh_servo.offset);
+  angles[leg_lb.shank_servo.channel] = angle_offset(angles[leg_lb.shank_servo.channel], leg_lb.shank_servo.offset);
+  
+  angles[leg_rf.thigh_servo.channel] = angle_limit_thigh(angles[leg_rf.thigh_servo.channel]);
+  angles[leg_rf.shank_servo.channel] = angle_limit_shank(angles[leg_rf.shank_servo.channel]);
+  angles[leg_lf.thigh_servo.channel] = angle_limit_thigh(angles[leg_lf.thigh_servo.channel]);
+  angles[leg_lf.shank_servo.channel] = angle_limit_shank(angles[leg_lf.shank_servo.channel]);
+  angles[leg_rb.thigh_servo.channel] = angle_limit_thigh(angles[leg_rb.thigh_servo.channel]);
+  angles[leg_rb.shank_servo.channel] = angle_limit_shank(angles[leg_rb.shank_servo.channel]);
+  angles[leg_lb.thigh_servo.channel] = angle_limit_thigh(angles[leg_lb.thigh_servo.channel]);
+  angles[leg_lb.shank_servo.channel] = angle_limit_shank(angles[leg_lb.shank_servo.channel]);
+
+  angles[leg_lf.thigh_servo.channel] = angle_mirror(angles[leg_lf.thigh_servo.channel]);
+  angles[leg_lf.shank_servo.channel] = angle_mirror(angles[leg_lf.shank_servo.channel]);
+  angles[leg_lb.thigh_servo.channel] = angle_mirror(angles[leg_lb.thigh_servo.channel]);
+  angles[leg_lb.shank_servo.channel] = angle_mirror(angles[leg_lb.shank_servo.channel]);
+  sync_servo_set_angle(angles);
+  ++sync_frame_index;
+  return flag;
+}
+
+void sync_leg_acb_updata_block()
+{
+  bool flag = false;
+#if CONFIG_ACB_FRAME_INTERVAL_MODE==0
+  volatile uint32_t last_tick = 0;
+#endif
+  do {
+  #if CONFIG_ACB_FRAME_INTERVAL_MODE==0
+    if( HAL_GetTick()-last_tick > CONFIG_ACB_FRAME_INTERVAL0) {
+      flag = sync_leg_acb_update();
+      last_tick = HAL_GetTick();
+  #elif CONFIG_ACB_FRAME_INTERVAL_MODE==1
+    flag = sync_leg_acb_update();
+    delay_ms(CONFIG_ACB_FRAME_INTERVAL1);
+  #elif CONFIG_ACB_FRAME_INTERVAL_MODE==2
+    flag = sync_leg_acb_update();
+    delay_us(CONFIG_ACB_FRAME_INTERVAL2);
+  #else
+    flag = sync_leg_acb_update();
+  #endif
+    } else {
+      flag = true;
+    }
+  } while(flag);
+}
+
+void sync_leg_acb_stop()
+{
+  sync_frame_count = 0;
+  sync_frame_index = 0;
+}
+
+void sync_leg_ccb_start(uint32_t frame_count)
+{
+  if(frame_count == 0)
+  {
+    elog_w(TAG, "frame_count is 0");
+    return;
+  }
+  sync_frame_count = frame_count;
+  sync_frame_index = 0;
+}
+
+bool sync_leg_ccb_update()
+{
+  bool flag = false;
+  quad_fp t = 0;
+  quad_coord rfc, lfc, rbc, lbc;
+
+  if(sync_frame_count == 0) { return false; }
+
+  if(sync_frame_index == sync_frame_count) {
+    //最后一帧
+    t = 1.0f;
+    rfc.X = leg_rf.ccb.end_x;
+    rfc.Z = leg_rf.ccb.end_z;
+    lfc.X = leg_lf.ccb.end_x;
+    lfc.Z = leg_lf.ccb.end_z;
+    rbc.X = leg_rb.ccb.end_x;
+    rbc.Z = leg_rb.ccb.end_z;
+    lbc.X = leg_lb.ccb.end_x;
+    lbc.Z = leg_lb.ccb.end_z;
+    flag = false;
+  } else {
+    //非最后一帧
+    t = ((quad_fp)(sync_frame_index))/((quad_fp)(sync_frame_count));
+    rfc.X = leg_rf.ccb.start_x + leg_rf.ccb.delta_x * leg_rf.ccb.calc_x(t);
+    rfc.Z = leg_rf.ccb.start_z + leg_rf.ccb.delta_z * leg_rf.ccb.calc_z(t);
+    lfc.X = leg_lf.ccb.start_x + leg_lf.ccb.delta_x * leg_lf.ccb.calc_x(t);
+    lfc.Z = leg_lf.ccb.start_z + leg_lf.ccb.delta_z * leg_lf.ccb.calc_z(t);
+    rbc.X = leg_rb.ccb.start_x + leg_rb.ccb.delta_x * leg_rb.ccb.calc_x(t);
+    rbc.Z = leg_rb.ccb.start_z + leg_rb.ccb.delta_z * leg_rb.ccb.calc_z(t);
+    lbc.X = leg_lb.ccb.start_x + leg_lb.ccb.delta_x * leg_lb.ccb.calc_x(t);
+    lbc.Z = leg_lb.ccb.start_z + leg_lb.ccb.delta_z * leg_lb.ccb.calc_z(t);
+    flag = true;
+  }
+  ++sync_frame_index;
+  //! Hardware
+  sync_leg_set_coord(rfc, lfc, rbc, lbc);
+
+  elog_e(TAG, "fc:%5u fi:%5u t:%5.3f [rf:%5.3f %5.3f] [lf:%5.3f %5.3f] [rb:%5.3f %5.3f] [lb:%5.3f %5.3f]", 
+    sync_frame_count, sync_frame_index, t,
+    rfc.X, rfc.Z, lfc.X, lfc.Z, rbc.X, rbc.Z, lbc.X, lbc.Z);
+  return flag;
+}
+
+void sync_leg_ccb_update_block()
+{
+  elog_d(TAG,"start");
+  bool flag = false;
+#if CONFIG_ACB_FRAME_INTERVAL_MODE==0
+  volatile uint32_t last_tick = 0;
+#endif
+  do {
+  #if CONFIG_ACB_FRAME_INTERVAL_MODE==0
+    if( HAL_GetTick()-last_tick > CONFIG_ACB_FRAME_INTERVAL0) {
+      flag = sync_leg_ccb_update();
+      last_tick = HAL_GetTick();
+    }
+  #elif CONFIG_ACB_FRAME_INTERVAL_MODE==1
+    flag = sync_leg_ccb_update();
+    delay_ms(CONFIG_ACB_FRAME_INTERVAL1);
+  #elif CONFIG_ACB_FRAME_INTERVAL_MODE==2
+    flag = sync_leg_ccb_update();
+    delay_us(CONFIG_ACB_FRAME_INTERVAL2);
+  #else
+    flag = sync_leg_ccb_update();
+  #endif
+  } while(flag);
+  elog_d(TAG,"end");
 }

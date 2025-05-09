@@ -1,4 +1,4 @@
-#include "./define.h"
+#include "quadruped.h"
 
 #define TAG "Kine"
 

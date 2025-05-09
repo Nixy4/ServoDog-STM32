@@ -29,6 +29,7 @@
 #include <elog.h>
 
 #include "stm32f4xx_hal.h"
+
 extern UART_HandleTypeDef huart3;
 
 /**
@@ -37,6 +38,7 @@ extern UART_HandleTypeDef huart3;
  * @return result
  */
 ElogErrCode elog_port_init(void) {
+    
     ElogErrCode result = ELOG_NO_ERR;
 
     /* add your code here */

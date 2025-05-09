@@ -1,4 +1,4 @@
-#include "./define.h"
+#include "quadruped.h"
 
 const quad_coord kfp[181][121] = {
 	{ //AS1 = 0

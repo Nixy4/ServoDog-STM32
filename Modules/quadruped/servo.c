@@ -1,4 +1,4 @@
-#include "./define.h"
+#include "quadruped.h"
 
 #define I2C_ALLCALL_ADDR      (0xE0 >> 1)
 
@@ -117,6 +117,7 @@ void servo_set_freq(quad_fp freq)
 
 void servo_set_angle(quad_servo* servo, quad_fp angle)
 {
+  elog_v(TAG,"channel: %d, angle: %.2f", servo->channel, angle);
   if (!IS_LEDX(servo->channel)) {
     elog_e(TAG, "servo set angle failed, channel: %d", servo->channel);
     return;
@@ -124,3 +125,24 @@ void servo_set_angle(quad_servo* servo, quad_fp angle)
   uint32_t off = (uint32_t)(angle * 2.276f + 0.5f) + 102;
   pca9685_set_pwm(servo->channel, 0, off);
 }
+
+void sync_servo_set_angle( quad_fp angles[8] )
+{
+  uint32_t off[8];
+  for (uint8_t i = 0; i < 8; i++) {
+    off[i] = (uint32_t)(angles[i] * 2.276f + 0.5f) + 102;
+  }
+  uint8_t buf[8][5];
+  for (uint8_t i = 0; i < 8; i++) {
+    buf[i][0] = REG_LEDX_BASE(i);
+    buf[i][1] = ONL(0);
+    buf[i][2] = ONH(0);
+    buf[i][3] = OFFL(off[i]);
+    buf[i][4] = OFFH(off[i]);
+  }
+  HAL_StatusTypeDef status = HAL_I2C_Master_Transmit(&hi2c2, CONFIG_PCA9685_I2C_ADDR, (uint8_t*)buf, 5*8, CONFIG_PCA9685_I2C_TRANSFER_TIMEOUT);
+  if (status != HAL_OK) {
+    elog_e(TAG, "sync servo set angle failed");
+  }
+}
+  
