@@ -1,6 +1,6 @@
 #include "quadruped.h"
 
-const quad_coord kfp[181][121] = {
+const quad_coord kf[181][121] = {
 	{ //AS1 = 0
 		{21.330410,36.030797}, //AS2 = 0
 		{21.337036,36.041401}, //AS2 = 1

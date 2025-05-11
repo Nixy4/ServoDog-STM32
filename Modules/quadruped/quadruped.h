@@ -1,10 +1,16 @@
 #pragma once
 
-#include "config.h"
+//! 设备参数配置
+#include "quad_config.h"
+//! HAL
 #include "stm32f4xx_hal.h"
+//! BSP
+#include "key.h"
+//! Middleware
 #include "elog.h"
+//! C STD
+#include "string.h"
 #include "math.h"
-#include "aeabi.h"
 
 #if CONFIG_FLOAT_TYPE == 0
   typedef float quad_fp;
@@ -12,25 +18,45 @@
   typedef double quad_fp;
 #endif
 
-#if CONFIG_CACULATE_TYPE == 0
-  quad_fp radians(quad_fp degree);
-  quad_fp degrees(quad_fp radian);
-#else
-  #define radians(degree) ((degree) * CONFIG_DEGREE_TO_RADIAN)
-  #define degrees(radian) ((radian) * CONFIG_RADIAN_TO_DEGREE)
-#endif
-
-typedef struct quad_servo
+typedef enum leg_index 
 {
-  uint8_t channel;
-  quad_fp offset;
-} quad_servo, quad_servo_cfg;
+  LEG_START = 0U,
+  LEG_RF = LEG_START,
+  LEG_LF,
+  LEG_RB,
+  LEG_LB,
+  LEG_END = LEG_LB,
+  LEG_COUNT,
+} leg_index;
 
-typedef struct quad_agnle
+typedef enum servo_index
 {
-  quad_fp AS1;
-  quad_fp AS2;
-} quad_agnle;
+  SERVO_START = 0U,
+  SERVO_RF_T = SERVO_START,
+  SERVO_RF_S,
+  SERVO_LF_T,
+  SERVO_LF_S,
+  SERVO_RB_T,
+  SERVO_RB_S,
+  SERVO_LB_T,
+  SERVO_LB_S,
+  SERVO_END = SERVO_LB_S,
+  SERVO_COUNT,
+} servo_index;
+
+typedef enum fcb_mode
+{
+  FCB_MODE_NONE = 0U,
+  FCB_MODE_TICK,
+  FCB_MODE_MS,
+  FCB_MODE_US,
+} fcb_mode;
+
+typedef struct quad_angle
+{
+  quad_fp thigh;
+  quad_fp shank;
+} quad_angle;
 
 typedef struct quad_coord
 {
@@ -49,104 +75,48 @@ typedef volatile struct quad_kine
   quad_fp X,Z;
 } quad_kine;
 
-typedef enum quad_types 
+typedef struct quad_fcb_ctrlblock
 {
-  LEG_RF = 0,
-  LEG_LF,
-  LEG_RB,
-  LEG_LB,
-  ACB_THIGH,
-  ACB_SHANK,
-} quad_types;
-
-typedef struct quad_frame
-{
-  uint32_t count;
+  fcb_mode mode;
   uint32_t interval;
 
+  uint32_t count;
   volatile uint32_t index;
-  volatile uint32_t elapsed_tick;
   volatile uint32_t last_tick;
-
-} quad_frame;
+} quad_fcb;
 
 typedef struct quad_angle_ctrlblock
 {
-  quad_types type;
-
   quad_fp (*calc)(quad_fp i);
-  quad_frame frame;
-
   quad_fp start;
   quad_fp end;
   quad_fp delta;
-
+  quad_fp current;
 } quad_acb;
 
 typedef struct quad_coord_ctrlblock
 {
   quad_fp (*calc_x)(quad_fp i);
   quad_fp (*calc_z)(quad_fp i);
-  quad_frame frame;
-
   quad_fp start_x;
   quad_fp start_z;
   quad_fp end_x;
   quad_fp end_z;
   quad_fp delta_x;
   quad_fp delta_z;
-
+  quad_fp current_x;
+  quad_fp current_z;
 } quad_ccb;
 
-typedef struct quad_leg
-{
-  uint32_t is_init;
-
-  quad_types type;
-
-  quad_servo thigh_servo;
-  quad_servo shank_servo;
-
-  quad_kine kine;
-
-  quad_acb tacb;
-  quad_acb sacb;
-
-  quad_ccb ccb;
-
-} quad_leg;
-
-typedef struct quad_frame_cfg
-{
-  uint32_t interval;
-} quad_frame_cfg;
-
-typedef struct quad_acb_cfg
-{
-  quad_fp (*calc)(quad_fp);
-  quad_frame_cfg frame_cfg;
-} quad_acb_cfg;
-
-typedef struct quad_ccb_cfg
-{
-  quad_fp (*calc_x)(quad_fp);
-  quad_fp (*calc_z)(quad_fp);
-  quad_frame_cfg frame_cfg;
-} quad_ccb_cfg;
-
-typedef struct quad_leg_cfg
-{
-  quad_types type;
-
-  quad_servo_cfg thigh_servo_cfg;
-  quad_servo_cfg shank_servo_cfg;
-
-  quad_acb_cfg* tacb_cfg;
-  quad_acb_cfg* sacb_cfg;
-
-  quad_ccb_cfg* ccb_cfg;
-
-} quad_leg_cfg;
+#if CONFIG_CONST_TYPE == 0
+  quad_fp radians(quad_fp degree);
+  quad_fp degrees(quad_fp radian);
+  quad_coord coord_mapping(quad_coord c, quad_coord base);
+#else
+  #define radians(degree) ((degree) * CONFIG_DEGREE_TO_RADIAN)
+  #define degrees(radian) ((radian) * CONFIG_RADIAN_TO_DEGREE)
+  #define coord_mapping(c, base) ((quad_coord){-(c).X+(base).X,-(c).Z+(base).Z,})
+#endif
 
 void delay_ns(uint32_t ns);
 void delay_us(uint32_t us);
@@ -194,109 +164,192 @@ quad_fp _easing_calc_InBounce(const quad_fp t);     // back 衰减反弹
 quad_fp _easing_calc_OutBounce(const quad_fp t);
 quad_fp _easing_calc_InOutBounce(const quad_fp t);
 
-void servo_set_freq(quad_fp freq);
-void servo_set_angle(quad_servo* servo, quad_fp angle);
+//! Frame Control Block
+void fcb_init(quad_fcb* fcb, fcb_mode mode, uint32_t interval);
+void fcb_start(quad_fcb* frame, uint32_t count);
+void fcb_next(quad_fcb* fcb);
+bool fcb_skip(quad_fcb* fcb);
+bool fcb_complete(quad_fcb* frame);
+bool fcb_median(quad_fcb* fcb);
+bool fcb_last(quad_fcb* frame);
+quad_fp fcb_percentage(quad_fcb* fcb);
+uint32_t fcb_current(quad_fcb* fcb);
+uint32_t fcb_count(quad_fcb* fcb);
 
-void kine_elog_d(quad_kine* kine);
-bool kine_compare(const quad_kine* kine1, const quad_kine* kine2);
+//! Kinematics
 void kine_forward(quad_kine* kine, quad_fp AS1, quad_fp AS2);
 void kine_inverse(quad_kine* kine, quad_fp X, quad_fp Z);
+void kine_elog_d(quad_kine* kine);
+bool kine_compare(const quad_kine* kine1, const quad_kine* kine2);
 void kine_sptest(void);
 void kine_fptest(void);
 
-void leg_init(quad_leg* leg, quad_leg_cfg cfg);
-void led_set_angle(quad_leg* leg, quad_fp thigh_angle, quad_fp shank_angle, bool fowward);
-void leg_set_coord(quad_leg* leg, quad_fp X, quad_fp Z);
+//! Servo Control
+//* Misc
+quad_fp servo_angle_mirror(quad_fp angle);
+quad_fp servo_angle_offset(quad_fp angle, quad_fp offset);
+quad_fp servo_angle_limit_thigh(quad_fp angle);
+quad_fp servo_angle_limit_shank(quad_fp angle);
+//* Set
+void servo_set_freq(quad_fp freq);
+void servo_set_angle(servo_index channel, quad_fp angle);
+void servo_set_angle_sync(quad_fp angles[SERVO_COUNT]);
 
-void leg_acb_abslute(quad_leg* leg, quad_acb* acb, quad_fp start, quad_fp end, uint32_t frame_count);
-void leg_acb_relative(quad_leg* leg, quad_acb* acb, quad_fp delta, uint32_t frame_count);
-void leg_acb_target(quad_leg* leg, quad_acb* acb, quad_fp target, uint32_t frame_count);
-bool leg_acb_update(quad_leg* leg, quad_acb* acb);
-void leg_acb_update_block(quad_leg* leg, quad_acb* acb);
-bool leg_acb_update_all(void);
-void leg_acb_update_all_block(void);
+//! Leg Control
+//* Misc
+quad_coord leg_coord_offset(leg_index leg, quad_coord coord);
 
-void leg_ccb_abslute(quad_leg* leg, quad_ccb* ccb, quad_coord start, quad_coord end, uint32_t frame_count);
-void leg_ccb_relative(quad_leg* leg, quad_ccb* ccb, quad_coord delta, uint32_t frame_count);
-void leg_ccb_target(quad_leg* leg, quad_ccb* ccb, quad_coord target, uint32_t frame_count);
-bool leg_ccb_update(quad_leg* leg, quad_ccb* ccb);
-void leg_ccb_update_block(quad_leg* leg, quad_ccb* ccb);
-bool leg_ccb_update_all(void);
-void leg_ccb_update_all_block(void);
+//* Set
+void leg_set_angle(leg_index leg, quad_fp angle_thigh, quad_fp angle_shank, bool kine_update);
+void leg_set_coord(leg_index leg, quad_coord coord); //! Coord offset
 
-void sync_servo_set_angle(quad_fp angles[8]);
+//* Angle Control Block
+void leg_acb_init(servo_index index, quad_fp (*calc)(quad_fp));
 
-void sync_leg_set_angle(quad_agnle rfa, quad_agnle lfa, quad_agnle rba, quad_agnle lba);
-void sync_leg_set_coord(quad_coord rfc, quad_coord lfc, quad_coord rbc, quad_coord lbc);
+bool leg_acb_update(servo_index index, bool kine_update);
+void leg_acb_absolute(servo_index index, quad_fp start, quad_fp end, uint32_t fcb_count);
+void leg_acb_relative(servo_index index, quad_fp delta, uint32_t fcb_count);
+void leg_acb_target(servo_index index, quad_fp target, uint32_t fcb_count);
 
-void sync_leg_acb_start(uint32_t frame_count);
-bool sync_leg_acb_update();
-void sync_leg_acb_updata_block();
+void leg_acb_update_blocking(servo_index index, bool kine_update);
+void leg_acb_absolute_blocking(servo_index index, quad_fp start, quad_fp end, uint32_t fcb_count);
+void leg_acb_relative_blocking(servo_index index, quad_fp delta, uint32_t fcb_count);
+void leg_acb_target_blocking(servo_index index, quad_fp target, uint32_t fcb_count);
 
-void sync_leg_ccb_start(uint32_t frame_count);
-bool sync_leg_ccb_update();
-void sync_leg_ccb_update_block();
+//* Coord Control Block
+void leg_ccb_init(leg_index index, quad_fp (*calc_x)(quad_fp), quad_fp (*calc_z)(quad_fp));
+bool leg_ccb_update(leg_index index);   //! Coord Offset
+void leg_ccb_absolute(leg_index index, quad_coord start, quad_coord end, uint32_t fcb_count);
+void leg_ccb_relative(leg_index index, quad_coord delta, uint32_t fcb_count);
+void leg_ccb_target(leg_index index, quad_coord target, uint32_t fcb_count);
+void leg_ccb_update_blocking(leg_index index);  //! Coord Offset
+void leg_ccb_absolute_blocking(leg_index index, quad_coord start, quad_coord end, uint32_t fcb_count);
+void leg_ccb_relative_blocking(leg_index index, quad_coord delta, uint32_t fcb_count);
+void leg_ccb_target_blocking(leg_index index, quad_coord target, uint32_t fcb_count);
 
-void fixed_set_angle_zero(void);
-void fixed_set_angle_mid(void);
+//! Leg Sync Control
+//* Leg Set
+void leg_sync_set_angle(quad_fp angle_thigh, quad_fp angle_shank, bool kine_update);
+void leg_sync_set_coord(quad_coord coord); //! Coord Offset
+void leg_sync_set_angle2(quad_fp angles[SERVO_COUNT], bool kine_update);
+void leg_sync_set_coord2(quad_coord coords[LEG_COUNT]); //! Coord Offset
 
-void fixed_stand_by_coord0(void);
-void fixed_stand_by_coord1(void);
-void fixed_stand_by_acb(uint32_t frame_count);
-void fixed_stand_by_ccb(uint32_t frame_count);
+//* Angle Control Block
+void leg_sync_acb_init(quad_fp (*calc)(quad_fp));
+void leg_sync_acb_init2(quad_fp (*calc[SERVO_COUNT])(quad_fp));
 
-void walk_init(quad_fp swing_width, quad_fp swing_height, quad_fp swing_duty);
-void walk(uint32_t frame_count, uint32_t steps);
+bool leg_sync_acb_update(bool kine_update);
+void leg_sync_acb_absolute(quad_fp start, quad_fp end, uint32_t fcb_count);
+void leg_sync_acb_absolute2(quad_fp start[SERVO_COUNT], quad_fp end[SERVO_COUNT], uint32_t fcb_count);
+void leg_sync_acb_relative(quad_fp delta, uint32_t fcb_count);
+void leg_sync_acb_relative2(quad_fp delta[SERVO_COUNT], uint32_t fcb_count);
+void leg_sync_acb_target(quad_fp target, uint32_t fcb_count);
+void leg_sync_acb_target2(quad_fp target[SERVO_COUNT], uint32_t fcb_count);
 
-void sil_init(quad_fp swing_height, quad_fp swing_duty);
-void sil(uint32_t frame_count, uint32_t times);
-void sync_sil(uint32_t frame_count, uint32_t times);
+void leg_sync_acb_update_blocking(bool kine_update);
+void leg_sync_acb_absolute_blocking(quad_fp start, quad_fp end, uint32_t fcb_count);
+void leg_sync_acb_absolute2_blocking(quad_fp start[SERVO_COUNT], quad_fp end[SERVO_COUNT], uint32_t fcb_count);
+void leg_sync_acb_relative_blocking(quad_fp delta, uint32_t fcb_count);
+void leg_sync_acb_relative2_blocking(quad_fp delta[SERVO_COUNT], uint32_t fcb_count);
+void leg_sync_acb_target_blocking(quad_fp target, uint32_t fcb_count);
+void leg_sync_acb_target2_blocking(quad_fp target[SERVO_COUNT], uint32_t fcb_count);
 
-//! 四条腿
-extern quad_leg leg_rf;
-extern quad_leg leg_lf;
-extern quad_leg leg_rb;
-extern quad_leg leg_lb;
+//* Coord Control Block
+void leg_sync_ccb_init(quad_fp (*calc_x)(quad_fp), quad_fp (*calc_z)(quad_fp));
+void leg_sync_ccb_init2(quad_fp (*calc_x[LEG_COUNT])(quad_fp), quad_fp (*calc_z[LEG_COUNT])(quad_fp));
 
-#if CONFIG_CACULATE_TYPE == 0
-  //!PI
+bool leg_sync_ccb_update(void); //! Coord Offset
+void leg_sync_ccb_absolute(quad_coord start, quad_coord end, uint32_t fcb_count);
+void leg_sync_ccb_absolute2(quad_coord start[LEG_COUNT], quad_coord end[LEG_COUNT], uint32_t fcb_count);
+void leg_sync_ccb_relative(quad_coord delta, uint32_t fcb_count);
+void leg_sync_ccb_relative2(quad_coord delta[LEG_COUNT], uint32_t fcb_count);
+void leg_sync_ccb_target(quad_coord target, uint32_t fcb_count);
+void leg_sync_ccb_target2(quad_coord target[LEG_COUNT], uint32_t fcb_count);
+
+void leg_sync_ccb_update_blocking(void);
+void leg_sync_ccb_absolute_blocking(quad_coord start, quad_coord end, uint32_t fcb_count);
+void leg_sync_ccb_absolute2_blocking(quad_coord start[LEG_COUNT], quad_coord end[LEG_COUNT], uint32_t fcb_count);
+void leg_sync_ccb_relative_blocking(quad_coord delta, uint32_t fcb_count);
+void leg_sync_ccb_relative2_blocking(quad_coord delta[LEG_COUNT], uint32_t fcb_count);
+void leg_sync_ccb_target_blocking(quad_coord target, uint32_t fcb_count);
+void leg_sync_ccb_target2_blocking(quad_coord target[LEG_COUNT], uint32_t fcb_count);
+
+//! Quadruped Control
+//* Base
+void quad_init(void);
+//* Fixed
+void quad_fixed_stand0(void);
+void quad_fixed_fall0(void);
+//* Trot
+void quad_tort_init(
+    quad_fp swing_width, quad_fp swing_height, quad_fp cuf_off_percentage, quad_coord base, fcb_mode mode, uint32_t frame_count, uint32_t frame_interval);
+void quad_tort(uint32_t step_count);
+//* Step In Place
+void quad_sip_init(
+  quad_fp swing_height, quad_fp cuf_off_percentage, quad_coord base, fcb_mode mode, uint32_t frame_count, uint32_t frame_interval);
+void quad_sip(uint32_t step_count);
+void quad_sip2(uint32_t step_count, uint32_t frame_count);
+void quad_sip3(uint32_t step_count);
+
+//!常量 v_const.c
+#if CONFIG_CONST_TYPE == 0
+  //PI
   extern const quad_fp PI;
   extern const quad_fp DPI;
   extern const quad_fp HPI;
-  //!大腿组
+  //大腿组
   extern const quad_fp L1;
   extern const quad_fp L2;
   extern const quad_fp L3;
   extern const quad_fp L5;
   extern const quad_fp R15;
-  //!小腿组
+  //小腿组
   extern const quad_fp L8;
   extern const quad_fp L9;
 #else
-  //!PI
+  //PI
   #define PI  CONFIG_PI
   #define DPI CONFIG_DPI
   #define HPI CONFIG_HPI
-  //!大腿组
+  //大腿组
   #define L1  CONFIG_L1
   #define L2  CONFIG_L2
   #define L3  CONFIG_L3
   #define L5  CONFIG_L5
   #define R15 CONFIG_R15
-  //!小腿组
+  //小腿组
   #define L8  CONFIG_L8
   #define L9  CONFIG_L9
 #endif
 
-//!特殊点
-extern const quad_kine ksp_x_min;
-extern const quad_kine ksp_x_max;
-extern const quad_kine ksp_z_min;
-extern const quad_kine ksp_z_max;
-extern const quad_kine ksp_x0_z_min;
-extern const quad_kine ksp_x0_z_max;
-extern const quad_kine ksp_start;
-extern const quad_kine ksp_end;
+//!核心变量全局 v_kernel.c
+extern quad_kine _kine[LEG_COUNT];
 
-//!运动学前向点
-extern const quad_coord kfp[181][121];
+extern quad_fcb _acb_fcb[SERVO_COUNT];
+extern quad_fcb _ccb_fcb[LEG_COUNT];
+extern quad_acb _acb[SERVO_COUNT];
+extern quad_ccb _ccb[LEG_COUNT];
+
+extern quad_fcb _sync_acb_fcb;
+extern quad_fcb _sync_ccb_fcb;
+extern quad_acb _sync_acb;
+extern quad_ccb _sync_ccb;
+
+//!运动学特殊点 v_kine_sp.c
+extern const quad_kine kfs_x_min;
+extern const quad_kine kfs_x_max;
+extern const quad_kine kfs_z_min;
+extern const quad_kine kfs_z_max;
+extern const quad_kine kfs_x0_z_min;
+extern const quad_kine kfs_x0_z_max;
+extern const quad_kine kfs_start;
+extern const quad_kine kfs_end;
+
+//!运动学前向点 v_kine_fp.c
+extern const quad_coord kf[181][121];
+
+//!用户特殊坐标 v_user_sc.c
+extern const quad_coord cc_stand0;
+extern const quad_coord cc_stand1;
+extern const quad_coord cc_start;
+extern const quad_coord cc_end;

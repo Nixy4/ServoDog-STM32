@@ -27,10 +27,14 @@ void key_init()
 }
 
 #if KEY_IRQ_MODE
-static volatile key_value_t key_value = KEY_UNKNOWN;
+static volatile key_value_t key_value = KEY_NONE;
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
+  static volatile uint32_t last_tick = 0;
+  if(HAL_GetTick() - last_tick < 200) {
+    return;
+  }
   if(GPIO_Pin == KEY_UP_PIN) {
     key_value = KEY_UP;
   } else if(GPIO_Pin == KEY_DOWN_PIN) {
@@ -42,15 +46,18 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
   } else if(GPIO_Pin == KEY_CENTER_PIN) {
     key_value = KEY_CENTER;
   } else {
-    key_value = KEY_UNKNOWN;
+    key_value = KEY_NONE;
   }
+  last_tick = HAL_GetTick();
 }
 #endif
 
 key_value_t key_read()
 {
 #if KEY_IRQ_MODE
-  return key_value;
+  key_value_t temp = key_value;
+  key_value = KEY_NONE;
+  return temp;
 #else
   if(HAL_GPIO_ReadPin(KEY_X_PROT, KEY_UP_PIN) == GPIO_PIN_RESET) {
     return KEY_UP;
@@ -63,7 +70,16 @@ key_value_t key_read()
   } else if(HAL_GPIO_ReadPin(KEY_X_PROT, KEY_CENTER_PIN) == GPIO_PIN_RESET) {
     return KEY_CENTER;
   } else {
-    return KEY_UNKNOWN;
+    return KEY_NONE;
   }
 #endif
+}
+
+key_value_t key_read_blocking()
+{
+  key_value_t key = KEY_NONE;
+  while(key == KEY_NONE) {
+    key = key_read();
+  }
+  return key;
 }

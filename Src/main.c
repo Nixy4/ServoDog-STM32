@@ -65,6 +65,7 @@ static void MX_USART3_UART_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
+#include "key.h"
 #include "quadruped.h"
 #include "elog.h"
 #include "stdio.h"
@@ -83,95 +84,6 @@ void elog_init_default()
   elog_set_filter_lvl(ELOG_LVL_ASSERT);
   elog_start();
 }
-
-quad_acb_cfg tacb_cfg = 
-{
-  .calc = _easing_calc_Linear,
-  .frame_cfg = {
-    .interval = 0,
-  },
-};
-
-quad_acb_cfg sacb_cfg = 
-{
-  .calc = _easing_calc_Linear,
-  .frame_cfg = {
-    .interval = 0,
-  },
-};
-
-quad_ccb_cfg ccb_cfg = 
-{
-  .calc_x = _easing_calc_Linear,
-  .calc_z = _easing_calc_Linear,
-  .frame_cfg = {
-    .interval = 0,
-  },
-};
-
-quad_leg_cfg leg_cfg_rf = 
-{
-  .type = LEG_RF,
-  .thigh_servo_cfg = {
-    .channel = 1,
-    .offset = CONFIG_ANGLE_OFFSET_RF_THIGH+CONFIG_ANGLE_OFFSET_GLOBAL_THIGH,
-  },
-  .shank_servo_cfg = {
-    .channel = 0,
-    .offset = CONFIG_ANGLE_OFFSET_RF_SHANK+CONFIG_ANGLE_OFFSET_GLOBAL_SHANK,
-  },
-  .tacb_cfg = &tacb_cfg,
-  .sacb_cfg = &sacb_cfg,
-  .ccb_cfg  = &ccb_cfg,
-};
-
-quad_leg_cfg leg_cfg_lf = 
-{
-  .type = LEG_LF,
-  .thigh_servo_cfg = {
-    .channel = 3,
-    .offset = CONFIG_ANGLE_OFFSET_LF_THIGH+CONFIG_ANGLE_OFFSET_GLOBAL_THIGH,
-  },
-  .shank_servo_cfg = {
-    .channel = 2,
-    .offset = CONFIG_ANGLE_OFFSET_LF_SHANK+CONFIG_ANGLE_OFFSET_GLOBAL_SHANK,
-  },
-  .tacb_cfg = &tacb_cfg,
-  .sacb_cfg = &sacb_cfg,
-  .ccb_cfg  = &ccb_cfg,
-};
-
-quad_leg_cfg leg_cfg_rb = 
-{
-  .type = LEG_RB,
-  .thigh_servo_cfg = {
-    .channel = 5,
-    .offset = CONFIG_ANGLE_OFFSET_RB_THIGH+CONFIG_ANGLE_OFFSET_GLOBAL_THIGH,
-  },
-  .shank_servo_cfg = {
-    .channel = 4,
-    .offset = CONFIG_ANGLE_OFFSET_RB_SHANK+CONFIG_ANGLE_OFFSET_GLOBAL_SHANK,
-  },
-  .tacb_cfg = &tacb_cfg,
-  .sacb_cfg = &sacb_cfg,
-  .ccb_cfg  = &ccb_cfg,
-};
-
-quad_leg_cfg leg_cfg_lb = 
-{
-  .type = LEG_LB,
-  .thigh_servo_cfg = {
-    .channel = 7,
-    .offset = CONFIG_ANGLE_OFFSET_LB_THIGH+CONFIG_ANGLE_OFFSET_GLOBAL_THIGH,
-  },
-  .shank_servo_cfg = {
-    .channel = 6,
-    .offset = CONFIG_ANGLE_OFFSET_LB_SHANK+CONFIG_ANGLE_OFFSET_GLOBAL_SHANK,
-  },
-  .tacb_cfg = &tacb_cfg,
-  .sacb_cfg = &sacb_cfg,
-  .ccb_cfg  = &ccb_cfg,
-};
 
 /* USER CODE END 0 */
 
@@ -210,59 +122,68 @@ int main(void)
   /* USER CODE BEGIN 2 */
   printf("MX Init Success\r\n");
   elog_init_default();
-  // elog_set_filter_lvl(ELOG_LVL_INFO);
+  elog_set_filter_lvl(ELOG_LVL_INFO);
   // elog_set_filter_lvl(ELOG_LVL_DEBUG);
   // elog_set_filter_lvl(ELOG_LVL_VERBOSE);
   
 //TODO:MAIN
-  servo_set_freq(50);
-
-  leg_init(&leg_rf, leg_cfg_rf);
-  leg_init(&leg_lf, leg_cfg_lf);
-  leg_init(&leg_rb, leg_cfg_rb);
-  leg_init(&leg_lb, leg_cfg_lb);
-
-  walk_init(35.f, 35.f, 0.5f);
-  sil_init(40.f, 0.5f);
-
-  fixed_set_angle_zero();
-  // HAL_Delay(1000);
-  // fixed_set_angle_mid();
-  // HAL_Delay(1000);
-  // fixed_stand_by_coord0();
-  HAL_Delay(100);
-  // fixed_stand_by_acb(500);
-  // fixed_stand_by_ccb(500);
-  // walk(150, 10);
-  sil(150, 10);
-  // sync_sil(150, 10);
-  // fixed_stand_by_acb(500);
-
-  // quad_coord p1 = {0, 90};
-  // quad_coord p2 = {0, 115};
-
-  // for(int i=0;i<5;++i)
-  // {
-  //   leg_ccb_target(&leg_rf, &leg_rf.ccb, p1, 500);
-  //   leg_ccb_target(&leg_lf, &leg_lf.ccb, p1, 500);
-  //   leg_ccb_target(&leg_rb, &leg_rb.ccb, p1, 500);
-  //   leg_ccb_target(&leg_lb, &leg_lb.ccb, p1, 500);
-  //   leg_ccb_update_all_block();
-  //   HAL_Delay(1000);
-  //   leg_ccb_target(&leg_rf, &leg_rf.ccb, p2, 500);
-  //   leg_ccb_target(&leg_lf, &leg_lf.ccb, p2, 500);
-  //   leg_ccb_target(&leg_rb, &leg_rb.ccb, p2, 500);
-  //   leg_ccb_target(&leg_lb, &leg_lb.ccb, p2, 500);
-  //   leg_ccb_update_all_block();
-  // }
-
-
+  key_init();
+  quad_init();
+  quad_sip_init(30.0f, 0.5f, cc_stand0, FCB_MODE_TICK, 150, 2);
+  quad_tort_init(30.0f, 30.0f, 0.5f, (quad_coord){0, 110}, FCB_MODE_TICK, 150, 1);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+    key_value_t key1 = key_read_blocking();
+    key_value_t key2 = key_read_blocking();
+    switch(key1)
+    {
+      case KEY_UP:
+        switch(key2)
+        {
+          case KEY_UP:
+            elog_i(TAG, "KEY_UP + KEY_UP");
+            quad_tort(10);
+            break;
+        }
+        break;
+      case KEY_DOWN:
+        break;
+      case KEY_LEFT:
+        break;
+      case KEY_RIGHT:
+        break;
+      case KEY_CENTER:
+        switch(key2)
+        {
+          case KEY_UP:
+            elog_i(TAG, "KEY_CENTER + KEY_UP");
+            quad_fixed_stand0();
+            break;
+          case KEY_DOWN:
+            elog_i(TAG, "KEY_CENTER + KEY_DOWN");
+            quad_fixed_fall0();
+            break;
+          case KEY_LEFT:
+            elog_i(TAG, "KEY_CENTER + KEY_LEFT");
+            quad_sip(10);
+            break;
+          case KEY_RIGHT:
+            elog_i(TAG, "KEY_CENTER + KEY_RIGHT");
+            quad_sip3(10);
+            break;
+          case KEY_CENTER:
+            elog_i(TAG, "KEY_CENTER + KEY_CENTER");
+            quad_sip2(10,40);
+            break;
+        }
+        break;
+      default:
+        break;
+    }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -460,8 +381,6 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOH_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
-  __HAL_RCC_GPIOC_CLK_ENABLE();
-  __HAL_RCC_GPIOD_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOE, GPIO_PIN_5, GPIO_PIN_RESET);
@@ -480,8 +399,8 @@ static void MX_GPIO_Init(void)
                            PF9 */
   GPIO_InitStruct.Pin = GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7|GPIO_PIN_8
                           |GPIO_PIN_9;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOF, &GPIO_InitStruct);
 
   /*Configure GPIO pins : PA0 PA1 PA2 */
@@ -491,21 +410,9 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : PC10 PC11 */
-  GPIO_InitStruct.Pin = GPIO_PIN_10|GPIO_PIN_11;
-  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-  GPIO_InitStruct.Alternate = GPIO_AF8_UART4;
-  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : PD6 */
-  GPIO_InitStruct.Pin = GPIO_PIN_6;
-  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-  GPIO_InitStruct.Alternate = GPIO_AF7_USART2;
-  HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+  /* EXTI interrupt init*/
+  HAL_NVIC_SetPriority(EXTI9_5_IRQn, 5, 0);
+  HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
 
   /* USER CODE BEGIN MX_GPIO_Init_2 */
   /* USER CODE END MX_GPIO_Init_2 */

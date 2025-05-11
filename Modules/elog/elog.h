@@ -142,6 +142,10 @@ extern "C" {
     #else
         #define elog_verbose(tag, ...)
     #endif /* ELOG_OUTPUT_LVL == ELOG_LVL_VERBOSE */
+
+    #define elog_temp(tag, ...) \
+            elog_output(ELOG_LVL_WARN, tag, ELOG_OUTPUT_DIR, ELOG_OUTPUT_FUNC, ELOG_OUTPUT_LINE, __VA_ARGS__)
+
 #endif /* ELOG_OUTPUT_ENABLE */
 
 /* all formats index */
@@ -228,6 +232,7 @@ void elog_hexdump(const char *name, uint8_t width, const void *buf, uint16_t siz
 #define elog_i(tag, ...)     elog_info(tag, __VA_ARGS__)
 #define elog_d(tag, ...)     elog_debug(tag, __VA_ARGS__)
 #define elog_v(tag, ...)     elog_verbose(tag, __VA_ARGS__)
+#define elog_t(tag, ...)     elog_temp(tag, __VA_ARGS__)
 
 /**
  * log API short definition

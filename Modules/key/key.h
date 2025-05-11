@@ -21,8 +21,8 @@
 
 typedef enum
 {
-  KEY_UNKNOWN = -1,
-  KEY_UP = 0,
+  KEY_NONE = 0,
+  KEY_UP ,
   KEY_DOWN,
   KEY_LEFT,
   KEY_RIGHT,
@@ -32,3 +32,4 @@ typedef enum
 
 void key_init(void);
 key_value_t key_read(void);
+key_value_t key_read_blocking();

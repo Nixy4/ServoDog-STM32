@@ -31,20 +31,20 @@ static void kine_compare_elog(bool eq, const char* tag, quad_fp val1, quad_fp va
 
 bool kine_compare(const quad_kine* kine1, const quad_kine* kine2)
 {
-  bool AS1_eq = fabs(kine1->AS1 - kine2->AS1) <= CONFIG_DEGREE_ERROR_RANGE;
-  bool AS2_eq = fabs(kine1->AS2 - kine2->AS2) <= CONFIG_DEGREE_ERROR_RANGE;
-  bool X_eq   = fabs(kine1->X - kine2->X) <= CONFIG_LENGTH_ERROR_RANGE;
-  bool Z_eq   = fabs(kine1->Z - kine2->Z) <= CONFIG_LENGTH_ERROR_RANGE;
+  bool AS1_eq = fabs(kine1->AS1 - kine2->AS1) <= CONFIG_KINE_DEGREE_ERROR_RANGE;
+  bool AS2_eq = fabs(kine1->AS2 - kine2->AS2) <= CONFIG_KINE_DEGREE_ERROR_RANGE;
+  bool X_eq   = fabs(kine1->X - kine2->X) <= CONFIG_KINE_LENGTH_ERROR_RANGE;
+  bool Z_eq   = fabs(kine1->Z - kine2->Z) <= CONFIG_KINE_LENGTH_ERROR_RANGE;
 
-  bool RS1_eq = fabs(kine1->RS1 - kine2->RS1) <= CONFIG_RADIAN_ERROR_RANGE;
-  bool RS2_eq = fabs(kine1->RS2 - kine2->RS2) <= CONFIG_RADIAN_ERROR_RANGE;
-  bool L6_eq  = fabs(kine1->L6 - kine2->L6) <= CONFIG_LENGTH_ERROR_RANGE;
-  bool L7_eq  = fabs(kine1->L7 - kine2->L7) <= CONFIG_LENGTH_ERROR_RANGE;
-  bool R12_eq = fabs(kine1->R12 - kine2->R12) <= CONFIG_RADIAN_ERROR_RANGE;
-  bool R13_eq = fabs(kine1->R13 - kine2->R13) <= CONFIG_RADIAN_ERROR_RANGE;
-  bool R17_eq = fabs(kine1->R17 - kine2->R17) <= CONFIG_RADIAN_ERROR_RANGE;
-  bool R35_eq = fabs(kine1->R35 - kine2->R35) <= CONFIG_RADIAN_ERROR_RANGE;
-  bool R7X_eq = fabs(kine1->R7X - kine2->R7X) <= CONFIG_RADIAN_ERROR_RANGE;
+  bool RS1_eq = fabs(kine1->RS1 - kine2->RS1) <= CONFIG_KINE_RADIAN_ERROR_RANGE;
+  bool RS2_eq = fabs(kine1->RS2 - kine2->RS2) <= CONFIG_KINE_RADIAN_ERROR_RANGE;
+  bool L6_eq  = fabs(kine1->L6 - kine2->L6) <= CONFIG_KINE_LENGTH_ERROR_RANGE;
+  bool L7_eq  = fabs(kine1->L7 - kine2->L7) <= CONFIG_KINE_LENGTH_ERROR_RANGE;
+  bool R12_eq = fabs(kine1->R12 - kine2->R12) <= CONFIG_KINE_RADIAN_ERROR_RANGE;
+  bool R13_eq = fabs(kine1->R13 - kine2->R13) <= CONFIG_KINE_RADIAN_ERROR_RANGE;
+  bool R17_eq = fabs(kine1->R17 - kine2->R17) <= CONFIG_KINE_RADIAN_ERROR_RANGE;
+  bool R35_eq = fabs(kine1->R35 - kine2->R35) <= CONFIG_KINE_RADIAN_ERROR_RANGE;
+  bool R7X_eq = fabs(kine1->R7X - kine2->R7X) <= CONFIG_KINE_RADIAN_ERROR_RANGE;
 
   bool ALL_eq = AS1_eq && AS2_eq && X_eq && Z_eq &&
                RS1_eq && RS2_eq && L6_eq && L7_eq &&
@@ -79,24 +79,6 @@ void kine_forward(quad_kine* kine, quad_fp AS1, quad_fp AS2)
   quad_fp R7X;
   quad_fp X,Z;
   quad_fp T,_a,_b,_c,_d;
-
-  // 角度检测
-  // if(AS1 < CONFIG_THIGH_SERVO_ANGLE_MIN)
-  // {
-  //   elog_w(TAG, "AS1 < CONFIG_THIGH_SERVO_ANGLE_MIN");
-  // }
-  // else if(AS1 > CONFIG_THIGH_SERVO_ANGLE_MAX)
-  // {
-  //   elog_w(TAG, "AS1 > CONFIG_THIGH_SERVO_ANGLE_MAX");
-  // }
-  // if(AS2 < CONFIG_SHANK_SERVO_ANGLE_MIN)
-  // {
-  //   elog_w(TAG, "AS2 < CONFIG_SHANK_SERVO_ANGLE_MIN");
-  // }
-  // else if(AS2 > CONFIG_SHANK_SERVO_ANGLE_MAX)
-  // {
-  //   elog_w(TAG, "AS2 > CONFIG_SHANK_SERVO_ANGLE_MAX");
-  // }
 
   //角度转换
   RS1 = radians(AS1);
@@ -223,17 +205,6 @@ void kine_inverse(quad_kine* kine, quad_fp X, quad_fp Z)
   AS1 = degrees(RS1);
   AS2 = degrees(RS2);
 
-  // if (AS1 < CONFIG_THIGH_SERVO_ANGLE_MIN) {
-  //   elog_w(TAG, "AS1 < CONFIG_THIGH_SERVO_ANGLE_MIN");
-  // } else if (AS1 > CONFIG_THIGH_SERVO_ANGLE_MAX) {
-  //   elog_w(TAG, "AS1 > CONFIG_THIGH_SERVO_ANGLE_MAX");
-  // }
-  // if (AS2 < CONFIG_SHANK_SERVO_ANGLE_MIN) {
-  //   elog_w(TAG, "AS2 < CONFIG_SHANK_SERVO_ANGLE_MIN");
-  // } else if (AS2 > CONFIG_SHANK_SERVO_ANGLE_MAX) {
-  //   elog_w(TAG, "AS2 > CONFIG_SHANK_SERVO_ANGLE_MAX");
-  // }
-
   kine->AS1 = AS1;
   kine->AS2 = AS2;
   kine->RS1 = RS1;
@@ -252,68 +223,68 @@ void kine_inverse(quad_kine* kine, quad_fp X, quad_fp Z)
 void kine_sptest()
 {
   quad_kine kine = {0};
-  kine_forward(&kine, ksp_x_min.AS1, ksp_x_min.AS2);
-  elog_i(TAG, "kine_forward : ksp_x_min");
-  kine_compare(&kine, &ksp_x_min);
-  elog_i(TAG, "kine_forward : ksp_x_max");
-  kine_forward(&kine, ksp_x_max.AS1, ksp_x_max.AS2);
-  kine_compare(&kine, &ksp_x_max);
-  elog_i(TAG, "kine_forward : ksp_z_min");
-  kine_forward(&kine, ksp_z_min.AS1, ksp_z_min.AS2);
-  kine_compare(&kine, &ksp_z_min);
-  elog_i(TAG, "kine_forward : ksp_z_max");
-  kine_forward(&kine, ksp_z_max.AS1, ksp_z_max.AS2);
-  kine_compare(&kine, &ksp_z_max);
-  elog_i(TAG, "kine_forward : ksp_x0_z_min");
-  kine_forward(&kine, ksp_x0_z_min.AS1, ksp_x0_z_min.AS2);
-  kine_compare(&kine, &ksp_x0_z_min);
-  elog_i(TAG, "kine_forward : ksp_x0_z_max");
-  kine_forward(&kine, ksp_x0_z_max.AS1, ksp_x0_z_max.AS2);
-  kine_compare(&kine, &ksp_x0_z_max);
-  elog_i(TAG, "kine_forward : ksp_start");
-  kine_forward(&kine, ksp_start.AS1, ksp_start.AS2);
-  kine_compare(&kine, &ksp_start);
-  elog_i(TAG, "kine_forward : ksp_end");
-  kine_forward(&kine, ksp_end.AS1, ksp_end.AS2);
-  kine_compare(&kine, &ksp_end);
+  kine_forward(&kine, kfs_x_min.AS1, kfs_x_min.AS2);
+  elog_i(TAG, "kine_forward : kfs_x_min");
+  kine_compare(&kine, &kfs_x_min);
+  elog_i(TAG, "kine_forward : kfs_x_max");
+  kine_forward(&kine, kfs_x_max.AS1, kfs_x_max.AS2);
+  kine_compare(&kine, &kfs_x_max);
+  elog_i(TAG, "kine_forward : kfs_z_min");
+  kine_forward(&kine, kfs_z_min.AS1, kfs_z_min.AS2);
+  kine_compare(&kine, &kfs_z_min);
+  elog_i(TAG, "kine_forward : kfs_z_max");
+  kine_forward(&kine, kfs_z_max.AS1, kfs_z_max.AS2);
+  kine_compare(&kine, &kfs_z_max);
+  elog_i(TAG, "kine_forward : kfs_x0_z_min");
+  kine_forward(&kine, kfs_x0_z_min.AS1, kfs_x0_z_min.AS2);
+  kine_compare(&kine, &kfs_x0_z_min);
+  elog_i(TAG, "kine_forward : kfs_x0_z_max");
+  kine_forward(&kine, kfs_x0_z_max.AS1, kfs_x0_z_max.AS2);
+  kine_compare(&kine, &kfs_x0_z_max);
+  elog_i(TAG, "kine_forward : kfs_start");
+  kine_forward(&kine, kfs_start.AS1, kfs_start.AS2);
+  kine_compare(&kine, &kfs_start);
+  elog_i(TAG, "kine_forward : kfs_end");
+  kine_forward(&kine, kfs_end.AS1, kfs_end.AS2);
+  kine_compare(&kine, &kfs_end);
 
-  elog_i(TAG, "kine_inverse : ksp_x_min");
-  kine_inverse(&kine, ksp_x_min.X, ksp_x_min.Z);
-  kine_compare(&kine, &ksp_x_min);
-  elog_i(TAG, "kine_inverse : ksp_x_max");
-  kine_inverse(&kine, ksp_x_max.X, ksp_x_max.Z);
-  kine_compare(&kine, &ksp_x_max);
-  elog_i(TAG, "kine_inverse : ksp_z_min");
-  kine_inverse(&kine, ksp_z_min.X, ksp_z_min.Z);
-  kine_compare(&kine, &ksp_z_min);
-  elog_i(TAG, "kine_inverse : ksp_z_max");
-  kine_inverse(&kine, ksp_z_max.X, ksp_z_max.Z);
-  kine_compare(&kine, &ksp_z_max);
-  elog_i(TAG, "kine_inverse : ksp_x0_z_min");
-  kine_inverse(&kine, ksp_x0_z_min.X, ksp_x0_z_min.Z);
-  kine_compare(&kine, &ksp_x0_z_min);
-  elog_i(TAG, "kine_inverse : ksp_x0_z_max");
-  kine_inverse(&kine, ksp_x0_z_max.X, ksp_x0_z_max.Z);
-  kine_compare(&kine, &ksp_x0_z_max);
-  elog_i(TAG, "kine_inverse : ksp_start");
-  kine_inverse(&kine, ksp_start.X, ksp_start.Z);
-  kine_compare(&kine, &ksp_start);
-  elog_i(TAG, "kine_inverse : ksp_end");
-  kine_inverse(&kine, ksp_end.X, ksp_end.Z);
-  kine_compare(&kine, &ksp_end);
+  elog_i(TAG, "kine_inverse : kfs_x_min");
+  kine_inverse(&kine, kfs_x_min.X, kfs_x_min.Z);
+  kine_compare(&kine, &kfs_x_min);
+  elog_i(TAG, "kine_inverse : kfs_x_max");
+  kine_inverse(&kine, kfs_x_max.X, kfs_x_max.Z);
+  kine_compare(&kine, &kfs_x_max);
+  elog_i(TAG, "kine_inverse : kfs_z_min");
+  kine_inverse(&kine, kfs_z_min.X, kfs_z_min.Z);
+  kine_compare(&kine, &kfs_z_min);
+  elog_i(TAG, "kine_inverse : kfs_z_max");
+  kine_inverse(&kine, kfs_z_max.X, kfs_z_max.Z);
+  kine_compare(&kine, &kfs_z_max);
+  elog_i(TAG, "kine_inverse : kfs_x0_z_min");
+  kine_inverse(&kine, kfs_x0_z_min.X, kfs_x0_z_min.Z);
+  kine_compare(&kine, &kfs_x0_z_min);
+  elog_i(TAG, "kine_inverse : kfs_x0_z_max");
+  kine_inverse(&kine, kfs_x0_z_max.X, kfs_x0_z_max.Z);
+  kine_compare(&kine, &kfs_x0_z_max);
+  elog_i(TAG, "kine_inverse : kfs_start");
+  kine_inverse(&kine, kfs_start.X, kfs_start.Z);
+  kine_compare(&kine, &kfs_start);
+  elog_i(TAG, "kine_inverse : kfs_end");
+  kine_inverse(&kine, kfs_end.X, kfs_end.Z);
+  kine_compare(&kine, &kfs_end);
 }
 
 void kine_fptest()
 {
-  for(uint32_t AS1 = CONFIG_THIGH_SERVO_ANGLE_MIN; AS1 < CONFIG_THIGH_SERVO_ANGLE_MAX+1; AS1 += 1)
+  for(uint32_t AS1 = CONFIG_SERVO_LIMIT_MIN_T; AS1 < CONFIG_SERVO_LIMIT_MAX_T+1; AS1 += 1)
   {
-    for(uint32_t AS2 = CONFIG_SHANK_SERVO_ANGLE_MIN; AS2 < CONFIG_SHANK_SERVO_ANGLE_MAX+1; AS2 += 1)
+    for(uint32_t AS2 = CONFIG_SERVO_LIMIT_MIN_S; AS2 < CONFIG_SERVO_LIMIT_MAX_S+1; AS2 += 1)
     {
       quad_kine forward = {0};
       quad_kine inverse = {0};
       elog_i(TAG, "kine_forward : AS1 = %u, AS2 = %u", AS1, AS2);
       kine_forward(&forward, (quad_fp)AS1, (quad_fp)AS2);
-      kine_inverse(&inverse, kfp[AS1][AS2].X, kfp[AS1][AS2].Z);
+      kine_inverse(&inverse, kf[AS1][AS2].X, kf[AS1][AS2].Z);
       kine_compare(&forward, &inverse);
     }
   }

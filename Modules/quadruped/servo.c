@@ -1,5 +1,8 @@
 #include "quadruped.h"
 
+#define TAG "Servo"
+
+//! PCA9685
 #define I2C_ALLCALL_ADDR      (0xE0 >> 1)
 
 #define REG_MODE1             0x00
@@ -28,8 +31,6 @@
 
 #define REG_PSC               0xFE
 
-#define IS_LEDX(x)            ( (x) < 16U ) // >> bool
-
 #define ONL(x)                ( ((uint16_t)(x) & 0xFFU) ) // 0x00FF
 #define ONH(x)                ( ((uint16_t)(x) >> 8) )
 #define OFFL(x)               ( ((uint16_t)(x) & 0xFFU) )
@@ -40,28 +41,26 @@
 
 extern I2C_HandleTypeDef hi2c2;
 
-static const char* TAG = "PCA9685";
-
-static void writereg(uint8_t reg, uint8_t val)
+static void pca9685_write_reg(uint8_t reg, uint8_t val)
 {
   HAL_StatusTypeDef status;
   uint8_t buf[2] = {reg, val};
-  status = HAL_I2C_Master_Transmit(&hi2c2, CONFIG_PCA9685_I2C_ADDR, buf, 2, CONFIG_PCA9685_I2C_TRANSFER_TIMEOUT);
+  status = HAL_I2C_Master_Transmit(&hi2c2, CONFIG_PCA9685_I2C_ADDR, buf, 2, CONFIG_PCA9685_I2C_TIMEOUT);
   if (status != HAL_OK) {
     elog_e(TAG, "PCA9685 write reg failed, reg: 0x%02X, val: 0x%02X", reg, val);
   }
   elog_v(TAG, "write reg [%02X] = %02X", reg, val);
 }
-
-static uint8_t readreg(uint8_t reg)
+ 
+static uint8_t pca9685_read_reg(uint8_t reg)
 {
   HAL_StatusTypeDef status;
   uint8_t val = 0;
-  status = HAL_I2C_Master_Transmit(&hi2c2, CONFIG_PCA9685_I2C_ADDR, &reg, 1, CONFIG_PCA9685_I2C_TRANSFER_TIMEOUT);
+  status = HAL_I2C_Master_Transmit(&hi2c2, CONFIG_PCA9685_I2C_ADDR, &reg, 1, CONFIG_PCA9685_I2C_TIMEOUT);
   if (status != HAL_OK) {
     elog_e(TAG, "PCA9685 read reg failed, reg: 0x%02X", reg);
   }
-  status = HAL_I2C_Master_Receive(&hi2c2, CONFIG_PCA9685_I2C_ADDR, &val, 1, CONFIG_PCA9685_I2C_TRANSFER_TIMEOUT);
+  status = HAL_I2C_Master_Receive(&hi2c2, CONFIG_PCA9685_I2C_ADDR, &val, 1, CONFIG_PCA9685_I2C_TIMEOUT);
   if (status != HAL_OK) {
     elog_e(TAG, "PCA9685 read reg failed, reg: 0x%02X", reg);
   }
@@ -69,80 +68,121 @@ static uint8_t readreg(uint8_t reg)
   return val;
 }
 
-void pca9685_set_psc(uint8_t psc)
+static inline void pca9685_set_psc(uint8_t psc)
 {
   uint8_t old, new;
 
   //使能PCA的广播地址响应, 用于同时控制多个PCA9685
   new = 0x00;
   SET_BIT(new, REG_MODE1_ALLCALL_BIT);
-  writereg(REG_MODE1, new);
+  pca9685_write_reg(REG_MODE1, new);
 
   //读取旧的模式值
-  old = readreg(REG_MODE1); 
+  old = pca9685_read_reg(REG_MODE1); 
   new = old; 
 
   //设置新的模式值: 1.禁用重启  2.启用睡眠模式
   CLEAR_BIT(new, REG_MODE1_RESTART_BIT); //禁用重启功能
   SET_BIT(new, REG_MODE1_SLEEP_BIT);     //启用睡眠模式
-  writereg(REG_MODE1, new);
+  pca9685_write_reg(REG_MODE1, new);
 
   //设置预分频寄存器
-  writereg(REG_PSC, psc);//设置预分频寄存器
+  pca9685_write_reg(REG_PSC, psc);//设置预分频寄存器
   //恢复旧的模式值
-  writereg(REG_MODE1, old);
+  pca9685_write_reg(REG_MODE1, old);
   HAL_Delay(5);
 
   //设置新的模式值: 1.重启  2.启用自动增加地址  3.启用广播地址响应
   SET_BIT(old, REG_MODE1_RESTART_BIT|REG_MODE1_AUTOINC_BIT|REG_MODE1_ALLCALL_BIT);
-  writereg(REG_MODE1, old);
+  pca9685_write_reg(REG_MODE1, old);
 }
 
-void pca9685_set_pwm(uint8_t ledx, uint16_t on, uint16_t off)
-{
-  uint8_t buf[5] = {REG_LEDX_BASE(ledx),ONL(on),ONH(on),OFFL(off),OFFH(off)};
-  HAL_I2C_Master_Transmit(&hi2c2, CONFIG_PCA9685_I2C_ADDR, buf, 5, CONFIG_PCA9685_I2C_TRANSFER_TIMEOUT);
-}
+// void pca9685_set_pwm(uint8_t ledx, uint16_t on, uint16_t off)
+// {
+//   uint8_t buf[5] = {REG_LEDX_BASE(ledx),ONL(on),ONH(on),OFFL(off),OFFH(off)};
+//   HAL_I2C_Master_Transmit(&hi2c2, CONFIG_PCA9685_I2C_ADDR, buf, 5, CONFIG_PCA9685_I2C_TIMEOUT);
+// }
 
+//! Servo
 void servo_set_freq(quad_fp freq)
 {
-  freq *= 0.98f; // 频率补偿, 使得实际频率接近设定频率
-  // 50Hz * 0.98 = 49Hz ; 25000000Hz / 49Hz ≈ 510204 tick/s; 510204 tick/s / 4096 tick ≈ 124.5 tick/s
-  // 50Hz * 0.92 = 46Hz ; 25000000Hz / 46Hz ≈ 543478 tick/s; 543478 tick/s / 4096 tick ≈ 132.8 tick/s
-  // 周期1 = 1 / (124.5-1) ≈ 8.09ms;
-  // 周期2 = 1 / (132.8-1) ≈ 7.59ms;
+  freq *= 0.98f;
   uint8_t psc = ( (uint8_t)( (quad_fp)(ICLK) / ( (quad_fp)CNT_MAX * freq ) ) ) - 1 ;
   pca9685_set_psc(psc);
 }
 
-void servo_set_angle(quad_servo* servo, quad_fp angle)
+void servo_set_angle(servo_index index, quad_fp angle)
 {
-  elog_v(TAG,"channel: %d, angle: %.2f", servo->channel, angle);
-  if (!IS_LEDX(servo->channel)) {
-    elog_e(TAG, "servo set angle failed, channel: %d", servo->channel);
+  if (index > SERVO_END) {
+    elog_e(TAG,"index %1u:%10.f°", index, angle);
     return;
+  }else{
+    elog_v(TAG,"index %1u:%10.f°", index, angle);
   }
-  uint32_t off = (uint32_t)(angle * 2.276f + 0.5f) + 102;
-  pca9685_set_pwm(servo->channel, 0, off);
+
+  uint16_t off = (uint16_t)(angle * 2.276f + 0.5f) + 102;
+  uint8_t buf[5] = {REG_LEDX_BASE((uint8_t)index), ONL(0), ONH(0), OFFL(off), OFFH(off)};
+  HAL_StatusTypeDef status = HAL_I2C_Master_Transmit(
+    &hi2c2, CONFIG_PCA9685_I2C_ADDR, buf, sizeof(buf), CONFIG_PCA9685_I2C_TIMEOUT);
+
+  if (status != HAL_OK) {
+    elog_e(TAG, "hal i2c transmit error");
+  }
 }
 
-void sync_servo_set_angle( quad_fp angles[8] )
+void servo_set_angle_sync(quad_fp angles[SERVO_COUNT])
 {
-  uint32_t off[8];
-  for (uint8_t i = 0; i < 8; i++) {
+  elog_v(TAG,"|0:%10.f|1:%10.f|2:%10.f|3:%10.f|4:%10.f|5:%10.f|6:%10.f|7:%10.f|", 
+    angles[0], angles[1], angles[2], angles[3], angles[4], angles[5], angles[6], angles[7]);
+
+  uint16_t off[8] = {0};
+  uint8_t buf[8*4+1] = {REG_LED_BASE};
+
+  for (uint32_t i = 0; i < 8; i++) {
     off[i] = (uint32_t)(angles[i] * 2.276f + 0.5f) + 102;
   }
-  uint8_t buf[8][5];
-  for (uint8_t i = 0; i < 8; i++) {
-    buf[i][0] = REG_LEDX_BASE(i);
-    buf[i][1] = ONL(0);
-    buf[i][2] = ONH(0);
-    buf[i][3] = OFFL(off[i]);
-    buf[i][4] = OFFH(off[i]);
+  
+  for (uint32_t i = 0; i < SERVO_COUNT; i++) {
+    buf[i*4+1] = ONL(0);
+    buf[i*4+2] = ONH(0);
+    buf[i*4+3] = OFFL(off[i]);
+    buf[i*4+4] = OFFH(off[i]);
   }
-  HAL_StatusTypeDef status = HAL_I2C_Master_Transmit(&hi2c2, CONFIG_PCA9685_I2C_ADDR, (uint8_t*)buf, 5*8, CONFIG_PCA9685_I2C_TRANSFER_TIMEOUT);
+
+  HAL_StatusTypeDef status = HAL_I2C_Master_Transmit(
+    &hi2c2, CONFIG_PCA9685_I2C_ADDR, buf, sizeof(buf), CONFIG_PCA9685_I2C_TIMEOUT);
   if (status != HAL_OK) {
-    elog_e(TAG, "sync servo set angle failed");
+    elog_e(TAG, "hal i2c transmit error");
   }
+}
+
+inline quad_fp servo_angle_mirror(quad_fp angle)
+{
+  return 180.f - angle;
+}
+
+inline quad_fp servo_angle_offset(quad_fp angle, quad_fp offset)
+{
+  return angle + offset;
+}
+
+inline quad_fp servo_angle_limit_thigh(quad_fp angle)
+{
+  if(angle > CONFIG_SERVO_LIMIT_MAX_T) {
+    return CONFIG_SERVO_LIMIT_MAX_T;
+  } else if(angle < CONFIG_SERVO_LIMIT_MIN_T) {
+    return CONFIG_SERVO_LIMIT_MIN_T;
+  }
+  return angle;
+}
+
+inline quad_fp servo_angle_limit_shank(quad_fp angle)
+{
+  if(angle > CONFIG_SERVO_LIMIT_MAX_S) {
+    return CONFIG_SERVO_LIMIT_MAX_S;
+  } else if(angle < CONFIG_SERVO_LIMIT_MIN_S) {
+    return CONFIG_SERVO_LIMIT_MIN_S;
+  }
+  return angle;
 }
   

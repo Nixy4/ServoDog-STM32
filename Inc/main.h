@@ -59,6 +59,10 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define wireless_uart_tx_Pin GPIO_PIN_10
+#define wireless_uart_tx_GPIO_Port GPIOB
+#define wireless_uart_rx_Pin GPIO_PIN_11
+#define wireless_uart_rx_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 

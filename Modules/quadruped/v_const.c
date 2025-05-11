@@ -1,6 +1,6 @@
 #include "quadruped.h"
 
-#if CONFIG_CACULATE_TYPE == 0
+#if CONFIG_CONST_TYPE == 0
 
 const quad_fp PI  = CONFIG_PI;
 const quad_fp HPI = CONFIG_HPI;
