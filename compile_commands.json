@@ -1,0 +1,152 @@
+[
+{
+  "directory": "D:/VSC/ServoDog-STM32-o4",
+  "command": "C:\\Users\\Nixya\\.eide\\tools\\gcc_arm\\bin\\arm-none-eabi-gcc.exe -DDEBUG -DSTM32F407xx -DUSE_HAL_DRIVER -ID:/VSC/ServoDog-STM32-o4/Inc -ID:/VSC/ServoDog-STM32-o4/Drivers/STM32F4xx_HAL_Driver/Inc -ID:/VSC/ServoDog-STM32-o4/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -ID:/VSC/ServoDog-STM32-o4/Drivers/CMSIS/Device/ST/STM32F4xx/Include -ID:/VSC/ServoDog-STM32-o4/Drivers/CMSIS/Include  -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard  -Wall -Wextra -Wpedantic -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -o CMakeFiles\\ServoDog-STM32-o0.dir\\Src\\main.c.obj -c D:\\VSC\\ServoDog-STM32-o4\\Src\\main.c",
+  "file": "D:\\VSC\\ServoDog-STM32-o4\\Src\\main.c",
+  "output": "CMakeFiles\\ServoDog-STM32-o0.dir\\Src\\main.c.obj"
+},
+{
+  "directory": "D:/VSC/ServoDog-STM32-o4",
+  "command": "C:\\Users\\Nixya\\.eide\\tools\\gcc_arm\\bin\\arm-none-eabi-gcc.exe -DDEBUG -DSTM32F407xx -DUSE_HAL_DRIVER -ID:/VSC/ServoDog-STM32-o4/Inc -ID:/VSC/ServoDog-STM32-o4/Drivers/STM32F4xx_HAL_Driver/Inc -ID:/VSC/ServoDog-STM32-o4/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -ID:/VSC/ServoDog-STM32-o4/Drivers/CMSIS/Device/ST/STM32F4xx/Include -ID:/VSC/ServoDog-STM32-o4/Drivers/CMSIS/Include  -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard  -Wall -Wextra -Wpedantic -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -o CMakeFiles\\ServoDog-STM32-o0.dir\\Src\\stm32f4xx_it.c.obj -c D:\\VSC\\ServoDog-STM32-o4\\Src\\stm32f4xx_it.c",
+  "file": "D:\\VSC\\ServoDog-STM32-o4\\Src\\stm32f4xx_it.c",
+  "output": "CMakeFiles\\ServoDog-STM32-o0.dir\\Src\\stm32f4xx_it.c.obj"
+},
+{
+  "directory": "D:/VSC/ServoDog-STM32-o4",
+  "command": "C:\\Users\\Nixya\\.eide\\tools\\gcc_arm\\bin\\arm-none-eabi-gcc.exe -DDEBUG -DSTM32F407xx -DUSE_HAL_DRIVER -ID:/VSC/ServoDog-STM32-o4/Inc -ID:/VSC/ServoDog-STM32-o4/Drivers/STM32F4xx_HAL_Driver/Inc -ID:/VSC/ServoDog-STM32-o4/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -ID:/VSC/ServoDog-STM32-o4/Drivers/CMSIS/Device/ST/STM32F4xx/Include -ID:/VSC/ServoDog-STM32-o4/Drivers/CMSIS/Include  -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard  -Wall -Wextra -Wpedantic -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -o CMakeFiles\\ServoDog-STM32-o0.dir\\Src\\stm32f4xx_hal_msp.c.obj -c D:\\VSC\\ServoDog-STM32-o4\\Src\\stm32f4xx_hal_msp.c",
+  "file": "D:\\VSC\\ServoDog-STM32-o4\\Src\\stm32f4xx_hal_msp.c",
+  "output": "CMakeFiles\\ServoDog-STM32-o0.dir\\Src\\stm32f4xx_hal_msp.c.obj"
+},
+{
+  "directory": "D:/VSC/ServoDog-STM32-o4",
+  "command": "C:\\Users\\Nixya\\.eide\\tools\\gcc_arm\\bin\\arm-none-eabi-gcc.exe -DDEBUG -DSTM32F407xx -DUSE_HAL_DRIVER -ID:/VSC/ServoDog-STM32-o4/Inc -ID:/VSC/ServoDog-STM32-o4/Drivers/STM32F4xx_HAL_Driver/Inc -ID:/VSC/ServoDog-STM32-o4/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -ID:/VSC/ServoDog-STM32-o4/Drivers/CMSIS/Device/ST/STM32F4xx/Include -ID:/VSC/ServoDog-STM32-o4/Drivers/CMSIS/Include  -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard  -Wall -Wextra -Wpedantic -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -o CMakeFiles\\ServoDog-STM32-o0.dir\\Src\\sysmem.c.obj -c D:\\VSC\\ServoDog-STM32-o4\\Src\\sysmem.c",
+  "file": "D:\\VSC\\ServoDog-STM32-o4\\Src\\sysmem.c",
+  "output": "CMakeFiles\\ServoDog-STM32-o0.dir\\Src\\sysmem.c.obj"
+},
+{
+  "directory": "D:/VSC/ServoDog-STM32-o4",
+  "command": "C:\\Users\\Nixya\\.eide\\tools\\gcc_arm\\bin\\arm-none-eabi-gcc.exe -DDEBUG -DSTM32F407xx -DUSE_HAL_DRIVER -ID:/VSC/ServoDog-STM32-o4/Inc -ID:/VSC/ServoDog-STM32-o4/Drivers/STM32F4xx_HAL_Driver/Inc -ID:/VSC/ServoDog-STM32-o4/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -ID:/VSC/ServoDog-STM32-o4/Drivers/CMSIS/Device/ST/STM32F4xx/Include -ID:/VSC/ServoDog-STM32-o4/Drivers/CMSIS/Include  -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard  -Wall -Wextra -Wpedantic -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -o CMakeFiles\\ServoDog-STM32-o0.dir\\Src\\syscalls.c.obj -c D:\\VSC\\ServoDog-STM32-o4\\Src\\syscalls.c",
+  "file": "D:\\VSC\\ServoDog-STM32-o4\\Src\\syscalls.c",
+  "output": "CMakeFiles\\ServoDog-STM32-o0.dir\\Src\\syscalls.c.obj"
+},
+{
+  "directory": "D:/VSC/ServoDog-STM32-o4",
+  "command": "C:\\Users\\Nixya\\.eide\\tools\\gcc_arm\\bin\\arm-none-eabi-gcc.exe -DDEBUG -DSTM32F407xx -DUSE_HAL_DRIVER -ID:/VSC/ServoDog-STM32-o4/Inc -ID:/VSC/ServoDog-STM32-o4/Drivers/STM32F4xx_HAL_Driver/Inc -ID:/VSC/ServoDog-STM32-o4/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -ID:/VSC/ServoDog-STM32-o4/Drivers/CMSIS/Device/ST/STM32F4xx/Include -ID:/VSC/ServoDog-STM32-o4/Drivers/CMSIS/Include  -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard  -x assembler-with-cpp -MMD -MP -g -o CMakeFiles\\ServoDog-STM32-o0.dir\\startup_stm32f407xx.s.obj -c D:\\VSC\\ServoDog-STM32-o4\\startup_stm32f407xx.s",
+  "file": "D:\\VSC\\ServoDog-STM32-o4\\startup_stm32f407xx.s",
+  "output": "CMakeFiles\\ServoDog-STM32-o0.dir\\startup_stm32f407xx.s.obj"
+},
+{
+  "directory": "D:/VSC/ServoDog-STM32-o4",
+  "command": "C:\\Users\\Nixya\\.eide\\tools\\gcc_arm\\bin\\arm-none-eabi-gcc.exe -DDEBUG -DSTM32F407xx -DUSE_HAL_DRIVER -ID:/VSC/ServoDog-STM32-o4/Inc -ID:/VSC/ServoDog-STM32-o4/Drivers/STM32F4xx_HAL_Driver/Inc -ID:/VSC/ServoDog-STM32-o4/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -ID:/VSC/ServoDog-STM32-o4/Drivers/CMSIS/Device/ST/STM32F4xx/Include -ID:/VSC/ServoDog-STM32-o4/Drivers/CMSIS/Include  -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard  -Wall -Wextra -Wpedantic -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -o cmake\\stm32cubemx\\CMakeFiles\\STM32_Drivers.dir\\__\\__\\Src\\system_stm32f4xx.c.obj -c D:\\VSC\\ServoDog-STM32-o4\\Src\\system_stm32f4xx.c",
+  "file": "D:\\VSC\\ServoDog-STM32-o4\\Src\\system_stm32f4xx.c",
+  "output": "cmake\\stm32cubemx\\CMakeFiles\\STM32_Drivers.dir\\__\\__\\Src\\system_stm32f4xx.c.obj"
+},
+{
+  "directory": "D:/VSC/ServoDog-STM32-o4",
+  "command": "C:\\Users\\Nixya\\.eide\\tools\\gcc_arm\\bin\\arm-none-eabi-gcc.exe -DDEBUG -DSTM32F407xx -DUSE_HAL_DRIVER -ID:/VSC/ServoDog-STM32-o4/Inc -ID:/VSC/ServoDog-STM32-o4/Drivers/STM32F4xx_HAL_Driver/Inc -ID:/VSC/ServoDog-STM32-o4/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -ID:/VSC/ServoDog-STM32-o4/Drivers/CMSIS/Device/ST/STM32F4xx/Include -ID:/VSC/ServoDog-STM32-o4/Drivers/CMSIS/Include  -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard  -Wall -Wextra -Wpedantic -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -o cmake\\stm32cubemx\\CMakeFiles\\STM32_Drivers.dir\\__\\__\\Drivers\\STM32F4xx_HAL_Driver\\Src\\stm32f4xx_hal_i2c.c.obj -c D:\\VSC\\ServoDog-STM32-o4\\Drivers\\STM32F4xx_HAL_Driver\\Src\\stm32f4xx_hal_i2c.c",
+  "file": "D:\\VSC\\ServoDog-STM32-o4\\Drivers\\STM32F4xx_HAL_Driver\\Src\\stm32f4xx_hal_i2c.c",
+  "output": "cmake\\stm32cubemx\\CMakeFiles\\STM32_Drivers.dir\\__\\__\\Drivers\\STM32F4xx_HAL_Driver\\Src\\stm32f4xx_hal_i2c.c.obj"
+},
+{
+  "directory": "D:/VSC/ServoDog-STM32-o4",
+  "command": "C:\\Users\\Nixya\\.eide\\tools\\gcc_arm\\bin\\arm-none-eabi-gcc.exe -DDEBUG -DSTM32F407xx -DUSE_HAL_DRIVER -ID:/VSC/ServoDog-STM32-o4/Inc -ID:/VSC/ServoDog-STM32-o4/Drivers/STM32F4xx_HAL_Driver/Inc -ID:/VSC/ServoDog-STM32-o4/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -ID:/VSC/ServoDog-STM32-o4/Drivers/CMSIS/Device/ST/STM32F4xx/Include -ID:/VSC/ServoDog-STM32-o4/Drivers/CMSIS/Include  -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard  -Wall -Wextra -Wpedantic -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -o cmake\\stm32cubemx\\CMakeFiles\\STM32_Drivers.dir\\__\\__\\Drivers\\STM32F4xx_HAL_Driver\\Src\\stm32f4xx_hal_i2c_ex.c.obj -c D:\\VSC\\ServoDog-STM32-o4\\Drivers\\STM32F4xx_HAL_Driver\\Src\\stm32f4xx_hal_i2c_ex.c",
+  "file": "D:\\VSC\\ServoDog-STM32-o4\\Drivers\\STM32F4xx_HAL_Driver\\Src\\stm32f4xx_hal_i2c_ex.c",
+  "output": "cmake\\stm32cubemx\\CMakeFiles\\STM32_Drivers.dir\\__\\__\\Drivers\\STM32F4xx_HAL_Driver\\Src\\stm32f4xx_hal_i2c_ex.c.obj"
+},
+{
+  "directory": "D:/VSC/ServoDog-STM32-o4",
+  "command": "C:\\Users\\Nixya\\.eide\\tools\\gcc_arm\\bin\\arm-none-eabi-gcc.exe -DDEBUG -DSTM32F407xx -DUSE_HAL_DRIVER -ID:/VSC/ServoDog-STM32-o4/Inc -ID:/VSC/ServoDog-STM32-o4/Drivers/STM32F4xx_HAL_Driver/Inc -ID:/VSC/ServoDog-STM32-o4/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -ID:/VSC/ServoDog-STM32-o4/Drivers/CMSIS/Device/ST/STM32F4xx/Include -ID:/VSC/ServoDog-STM32-o4/Drivers/CMSIS/Include  -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard  -Wall -Wextra -Wpedantic -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -o cmake\\stm32cubemx\\CMakeFiles\\STM32_Drivers.dir\\__\\__\\Drivers\\STM32F4xx_HAL_Driver\\Src\\stm32f4xx_hal_rcc.c.obj -c D:\\VSC\\ServoDog-STM32-o4\\Drivers\\STM32F4xx_HAL_Driver\\Src\\stm32f4xx_hal_rcc.c",
+  "file": "D:\\VSC\\ServoDog-STM32-o4\\Drivers\\STM32F4xx_HAL_Driver\\Src\\stm32f4xx_hal_rcc.c",
+  "output": "cmake\\stm32cubemx\\CMakeFiles\\STM32_Drivers.dir\\__\\__\\Drivers\\STM32F4xx_HAL_Driver\\Src\\stm32f4xx_hal_rcc.c.obj"
+},
+{
+  "directory": "D:/VSC/ServoDog-STM32-o4",
+  "command": "C:\\Users\\Nixya\\.eide\\tools\\gcc_arm\\bin\\arm-none-eabi-gcc.exe -DDEBUG -DSTM32F407xx -DUSE_HAL_DRIVER -ID:/VSC/ServoDog-STM32-o4/Inc -ID:/VSC/ServoDog-STM32-o4/Drivers/STM32F4xx_HAL_Driver/Inc -ID:/VSC/ServoDog-STM32-o4/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -ID:/VSC/ServoDog-STM32-o4/Drivers/CMSIS/Device/ST/STM32F4xx/Include -ID:/VSC/ServoDog-STM32-o4/Drivers/CMSIS/Include  -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard  -Wall -Wextra -Wpedantic -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -o cmake\\stm32cubemx\\CMakeFiles\\STM32_Drivers.dir\\__\\__\\Drivers\\STM32F4xx_HAL_Driver\\Src\\stm32f4xx_hal_rcc_ex.c.obj -c D:\\VSC\\ServoDog-STM32-o4\\Drivers\\STM32F4xx_HAL_Driver\\Src\\stm32f4xx_hal_rcc_ex.c",
+  "file": "D:\\VSC\\ServoDog-STM32-o4\\Drivers\\STM32F4xx_HAL_Driver\\Src\\stm32f4xx_hal_rcc_ex.c",
+  "output": "cmake\\stm32cubemx\\CMakeFiles\\STM32_Drivers.dir\\__\\__\\Drivers\\STM32F4xx_HAL_Driver\\Src\\stm32f4xx_hal_rcc_ex.c.obj"
+},
+{
+  "directory": "D:/VSC/ServoDog-STM32-o4",
+  "command": "C:\\Users\\Nixya\\.eide\\tools\\gcc_arm\\bin\\arm-none-eabi-gcc.exe -DDEBUG -DSTM32F407xx -DUSE_HAL_DRIVER -ID:/VSC/ServoDog-STM32-o4/Inc -ID:/VSC/ServoDog-STM32-o4/Drivers/STM32F4xx_HAL_Driver/Inc -ID:/VSC/ServoDog-STM32-o4/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -ID:/VSC/ServoDog-STM32-o4/Drivers/CMSIS/Device/ST/STM32F4xx/Include -ID:/VSC/ServoDog-STM32-o4/Drivers/CMSIS/Include  -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard  -Wall -Wextra -Wpedantic -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -o cmake\\stm32cubemx\\CMakeFiles\\STM32_Drivers.dir\\__\\__\\Drivers\\STM32F4xx_HAL_Driver\\Src\\stm32f4xx_hal_flash.c.obj -c D:\\VSC\\ServoDog-STM32-o4\\Drivers\\STM32F4xx_HAL_Driver\\Src\\stm32f4xx_hal_flash.c",
+  "file": "D:\\VSC\\ServoDog-STM32-o4\\Drivers\\STM32F4xx_HAL_Driver\\Src\\stm32f4xx_hal_flash.c",
+  "output": "cmake\\stm32cubemx\\CMakeFiles\\STM32_Drivers.dir\\__\\__\\Drivers\\STM32F4xx_HAL_Driver\\Src\\stm32f4xx_hal_flash.c.obj"
+},
+{
+  "directory": "D:/VSC/ServoDog-STM32-o4",
+  "command": "C:\\Users\\Nixya\\.eide\\tools\\gcc_arm\\bin\\arm-none-eabi-gcc.exe -DDEBUG -DSTM32F407xx -DUSE_HAL_DRIVER -ID:/VSC/ServoDog-STM32-o4/Inc -ID:/VSC/ServoDog-STM32-o4/Drivers/STM32F4xx_HAL_Driver/Inc -ID:/VSC/ServoDog-STM32-o4/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -ID:/VSC/ServoDog-STM32-o4/Drivers/CMSIS/Device/ST/STM32F4xx/Include -ID:/VSC/ServoDog-STM32-o4/Drivers/CMSIS/Include  -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard  -Wall -Wextra -Wpedantic -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -o cmake\\stm32cubemx\\CMakeFiles\\STM32_Drivers.dir\\__\\__\\Drivers\\STM32F4xx_HAL_Driver\\Src\\stm32f4xx_hal_flash_ex.c.obj -c D:\\VSC\\ServoDog-STM32-o4\\Drivers\\STM32F4xx_HAL_Driver\\Src\\stm32f4xx_hal_flash_ex.c",
+  "file": "D:\\VSC\\ServoDog-STM32-o4\\Drivers\\STM32F4xx_HAL_Driver\\Src\\stm32f4xx_hal_flash_ex.c",
+  "output": "cmake\\stm32cubemx\\CMakeFiles\\STM32_Drivers.dir\\__\\__\\Drivers\\STM32F4xx_HAL_Driver\\Src\\stm32f4xx_hal_flash_ex.c.obj"
+},
+{
+  "directory": "D:/VSC/ServoDog-STM32-o4",
+  "command": "C:\\Users\\Nixya\\.eide\\tools\\gcc_arm\\bin\\arm-none-eabi-gcc.exe -DDEBUG -DSTM32F407xx -DUSE_HAL_DRIVER -ID:/VSC/ServoDog-STM32-o4/Inc -ID:/VSC/ServoDog-STM32-o4/Drivers/STM32F4xx_HAL_Driver/Inc -ID:/VSC/ServoDog-STM32-o4/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -ID:/VSC/ServoDog-STM32-o4/Drivers/CMSIS/Device/ST/STM32F4xx/Include -ID:/VSC/ServoDog-STM32-o4/Drivers/CMSIS/Include  -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard  -Wall -Wextra -Wpedantic -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -o cmake\\stm32cubemx\\CMakeFiles\\STM32_Drivers.dir\\__\\__\\Drivers\\STM32F4xx_HAL_Driver\\Src\\stm32f4xx_hal_flash_ramfunc.c.obj -c D:\\VSC\\ServoDog-STM32-o4\\Drivers\\STM32F4xx_HAL_Driver\\Src\\stm32f4xx_hal_flash_ramfunc.c",
+  "file": "D:\\VSC\\ServoDog-STM32-o4\\Drivers\\STM32F4xx_HAL_Driver\\Src\\stm32f4xx_hal_flash_ramfunc.c",
+  "output": "cmake\\stm32cubemx\\CMakeFiles\\STM32_Drivers.dir\\__\\__\\Drivers\\STM32F4xx_HAL_Driver\\Src\\stm32f4xx_hal_flash_ramfunc.c.obj"
+},
+{
+  "directory": "D:/VSC/ServoDog-STM32-o4",
+  "command": "C:\\Users\\Nixya\\.eide\\tools\\gcc_arm\\bin\\arm-none-eabi-gcc.exe -DDEBUG -DSTM32F407xx -DUSE_HAL_DRIVER -ID:/VSC/ServoDog-STM32-o4/Inc -ID:/VSC/ServoDog-STM32-o4/Drivers/STM32F4xx_HAL_Driver/Inc -ID:/VSC/ServoDog-STM32-o4/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -ID:/VSC/ServoDog-STM32-o4/Drivers/CMSIS/Device/ST/STM32F4xx/Include -ID:/VSC/ServoDog-STM32-o4/Drivers/CMSIS/Include  -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard  -Wall -Wextra -Wpedantic -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -o cmake\\stm32cubemx\\CMakeFiles\\STM32_Drivers.dir\\__\\__\\Drivers\\STM32F4xx_HAL_Driver\\Src\\stm32f4xx_hal_gpio.c.obj -c D:\\VSC\\ServoDog-STM32-o4\\Drivers\\STM32F4xx_HAL_Driver\\Src\\stm32f4xx_hal_gpio.c",
+  "file": "D:\\VSC\\ServoDog-STM32-o4\\Drivers\\STM32F4xx_HAL_Driver\\Src\\stm32f4xx_hal_gpio.c",
+  "output": "cmake\\stm32cubemx\\CMakeFiles\\STM32_Drivers.dir\\__\\__\\Drivers\\STM32F4xx_HAL_Driver\\Src\\stm32f4xx_hal_gpio.c.obj"
+},
+{
+  "directory": "D:/VSC/ServoDog-STM32-o4",
+  "command": "C:\\Users\\Nixya\\.eide\\tools\\gcc_arm\\bin\\arm-none-eabi-gcc.exe -DDEBUG -DSTM32F407xx -DUSE_HAL_DRIVER -ID:/VSC/ServoDog-STM32-o4/Inc -ID:/VSC/ServoDog-STM32-o4/Drivers/STM32F4xx_HAL_Driver/Inc -ID:/VSC/ServoDog-STM32-o4/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -ID:/VSC/ServoDog-STM32-o4/Drivers/CMSIS/Device/ST/STM32F4xx/Include -ID:/VSC/ServoDog-STM32-o4/Drivers/CMSIS/Include  -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard  -Wall -Wextra -Wpedantic -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -o cmake\\stm32cubemx\\CMakeFiles\\STM32_Drivers.dir\\__\\__\\Drivers\\STM32F4xx_HAL_Driver\\Src\\stm32f4xx_hal_dma_ex.c.obj -c D:\\VSC\\ServoDog-STM32-o4\\Drivers\\STM32F4xx_HAL_Driver\\Src\\stm32f4xx_hal_dma_ex.c",
+  "file": "D:\\VSC\\ServoDog-STM32-o4\\Drivers\\STM32F4xx_HAL_Driver\\Src\\stm32f4xx_hal_dma_ex.c",
+  "output": "cmake\\stm32cubemx\\CMakeFiles\\STM32_Drivers.dir\\__\\__\\Drivers\\STM32F4xx_HAL_Driver\\Src\\stm32f4xx_hal_dma_ex.c.obj"
+},
+{
+  "directory": "D:/VSC/ServoDog-STM32-o4",
+  "command": "C:\\Users\\Nixya\\.eide\\tools\\gcc_arm\\bin\\arm-none-eabi-gcc.exe -DDEBUG -DSTM32F407xx -DUSE_HAL_DRIVER -ID:/VSC/ServoDog-STM32-o4/Inc -ID:/VSC/ServoDog-STM32-o4/Drivers/STM32F4xx_HAL_Driver/Inc -ID:/VSC/ServoDog-STM32-o4/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -ID:/VSC/ServoDog-STM32-o4/Drivers/CMSIS/Device/ST/STM32F4xx/Include -ID:/VSC/ServoDog-STM32-o4/Drivers/CMSIS/Include  -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard  -Wall -Wextra -Wpedantic -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -o cmake\\stm32cubemx\\CMakeFiles\\STM32_Drivers.dir\\__\\__\\Drivers\\STM32F4xx_HAL_Driver\\Src\\stm32f4xx_hal_dma.c.obj -c D:\\VSC\\ServoDog-STM32-o4\\Drivers\\STM32F4xx_HAL_Driver\\Src\\stm32f4xx_hal_dma.c",
+  "file": "D:\\VSC\\ServoDog-STM32-o4\\Drivers\\STM32F4xx_HAL_Driver\\Src\\stm32f4xx_hal_dma.c",
+  "output": "cmake\\stm32cubemx\\CMakeFiles\\STM32_Drivers.dir\\__\\__\\Drivers\\STM32F4xx_HAL_Driver\\Src\\stm32f4xx_hal_dma.c.obj"
+},
+{
+  "directory": "D:/VSC/ServoDog-STM32-o4",
+  "command": "C:\\Users\\Nixya\\.eide\\tools\\gcc_arm\\bin\\arm-none-eabi-gcc.exe -DDEBUG -DSTM32F407xx -DUSE_HAL_DRIVER -ID:/VSC/ServoDog-STM32-o4/Inc -ID:/VSC/ServoDog-STM32-o4/Drivers/STM32F4xx_HAL_Driver/Inc -ID:/VSC/ServoDog-STM32-o4/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -ID:/VSC/ServoDog-STM32-o4/Drivers/CMSIS/Device/ST/STM32F4xx/Include -ID:/VSC/ServoDog-STM32-o4/Drivers/CMSIS/Include  -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard  -Wall -Wextra -Wpedantic -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -o cmake\\stm32cubemx\\CMakeFiles\\STM32_Drivers.dir\\__\\__\\Drivers\\STM32F4xx_HAL_Driver\\Src\\stm32f4xx_hal_pwr.c.obj -c D:\\VSC\\ServoDog-STM32-o4\\Drivers\\STM32F4xx_HAL_Driver\\Src\\stm32f4xx_hal_pwr.c",
+  "file": "D:\\VSC\\ServoDog-STM32-o4\\Drivers\\STM32F4xx_HAL_Driver\\Src\\stm32f4xx_hal_pwr.c",
+  "output": "cmake\\stm32cubemx\\CMakeFiles\\STM32_Drivers.dir\\__\\__\\Drivers\\STM32F4xx_HAL_Driver\\Src\\stm32f4xx_hal_pwr.c.obj"
+},
+{
+  "directory": "D:/VSC/ServoDog-STM32-o4",
+  "command": "C:\\Users\\Nixya\\.eide\\tools\\gcc_arm\\bin\\arm-none-eabi-gcc.exe -DDEBUG -DSTM32F407xx -DUSE_HAL_DRIVER -ID:/VSC/ServoDog-STM32-o4/Inc -ID:/VSC/ServoDog-STM32-o4/Drivers/STM32F4xx_HAL_Driver/Inc -ID:/VSC/ServoDog-STM32-o4/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -ID:/VSC/ServoDog-STM32-o4/Drivers/CMSIS/Device/ST/STM32F4xx/Include -ID:/VSC/ServoDog-STM32-o4/Drivers/CMSIS/Include  -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard  -Wall -Wextra -Wpedantic -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -o cmake\\stm32cubemx\\CMakeFiles\\STM32_Drivers.dir\\__\\__\\Drivers\\STM32F4xx_HAL_Driver\\Src\\stm32f4xx_hal_pwr_ex.c.obj -c D:\\VSC\\ServoDog-STM32-o4\\Drivers\\STM32F4xx_HAL_Driver\\Src\\stm32f4xx_hal_pwr_ex.c",
+  "file": "D:\\VSC\\ServoDog-STM32-o4\\Drivers\\STM32F4xx_HAL_Driver\\Src\\stm32f4xx_hal_pwr_ex.c",
+  "output": "cmake\\stm32cubemx\\CMakeFiles\\STM32_Drivers.dir\\__\\__\\Drivers\\STM32F4xx_HAL_Driver\\Src\\stm32f4xx_hal_pwr_ex.c.obj"
+},
+{
+  "directory": "D:/VSC/ServoDog-STM32-o4",
+  "command": "C:\\Users\\Nixya\\.eide\\tools\\gcc_arm\\bin\\arm-none-eabi-gcc.exe -DDEBUG -DSTM32F407xx -DUSE_HAL_DRIVER -ID:/VSC/ServoDog-STM32-o4/Inc -ID:/VSC/ServoDog-STM32-o4/Drivers/STM32F4xx_HAL_Driver/Inc -ID:/VSC/ServoDog-STM32-o4/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -ID:/VSC/ServoDog-STM32-o4/Drivers/CMSIS/Device/ST/STM32F4xx/Include -ID:/VSC/ServoDog-STM32-o4/Drivers/CMSIS/Include  -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard  -Wall -Wextra -Wpedantic -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -o cmake\\stm32cubemx\\CMakeFiles\\STM32_Drivers.dir\\__\\__\\Drivers\\STM32F4xx_HAL_Driver\\Src\\stm32f4xx_hal_cortex.c.obj -c D:\\VSC\\ServoDog-STM32-o4\\Drivers\\STM32F4xx_HAL_Driver\\Src\\stm32f4xx_hal_cortex.c",
+  "file": "D:\\VSC\\ServoDog-STM32-o4\\Drivers\\STM32F4xx_HAL_Driver\\Src\\stm32f4xx_hal_cortex.c",
+  "output": "cmake\\stm32cubemx\\CMakeFiles\\STM32_Drivers.dir\\__\\__\\Drivers\\STM32F4xx_HAL_Driver\\Src\\stm32f4xx_hal_cortex.c.obj"
+},
+{
+  "directory": "D:/VSC/ServoDog-STM32-o4",
+  "command": "C:\\Users\\Nixya\\.eide\\tools\\gcc_arm\\bin\\arm-none-eabi-gcc.exe -DDEBUG -DSTM32F407xx -DUSE_HAL_DRIVER -ID:/VSC/ServoDog-STM32-o4/Inc -ID:/VSC/ServoDog-STM32-o4/Drivers/STM32F4xx_HAL_Driver/Inc -ID:/VSC/ServoDog-STM32-o4/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -ID:/VSC/ServoDog-STM32-o4/Drivers/CMSIS/Device/ST/STM32F4xx/Include -ID:/VSC/ServoDog-STM32-o4/Drivers/CMSIS/Include  -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard  -Wall -Wextra -Wpedantic -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -o cmake\\stm32cubemx\\CMakeFiles\\STM32_Drivers.dir\\__\\__\\Drivers\\STM32F4xx_HAL_Driver\\Src\\stm32f4xx_hal.c.obj -c D:\\VSC\\ServoDog-STM32-o4\\Drivers\\STM32F4xx_HAL_Driver\\Src\\stm32f4xx_hal.c",
+  "file": "D:\\VSC\\ServoDog-STM32-o4\\Drivers\\STM32F4xx_HAL_Driver\\Src\\stm32f4xx_hal.c",
+  "output": "cmake\\stm32cubemx\\CMakeFiles\\STM32_Drivers.dir\\__\\__\\Drivers\\STM32F4xx_HAL_Driver\\Src\\stm32f4xx_hal.c.obj"
+},
+{
+  "directory": "D:/VSC/ServoDog-STM32-o4",
+  "command": "C:\\Users\\Nixya\\.eide\\tools\\gcc_arm\\bin\\arm-none-eabi-gcc.exe -DDEBUG -DSTM32F407xx -DUSE_HAL_DRIVER -ID:/VSC/ServoDog-STM32-o4/Inc -ID:/VSC/ServoDog-STM32-o4/Drivers/STM32F4xx_HAL_Driver/Inc -ID:/VSC/ServoDog-STM32-o4/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -ID:/VSC/ServoDog-STM32-o4/Drivers/CMSIS/Device/ST/STM32F4xx/Include -ID:/VSC/ServoDog-STM32-o4/Drivers/CMSIS/Include  -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard  -Wall -Wextra -Wpedantic -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -o cmake\\stm32cubemx\\CMakeFiles\\STM32_Drivers.dir\\__\\__\\Drivers\\STM32F4xx_HAL_Driver\\Src\\stm32f4xx_hal_exti.c.obj -c D:\\VSC\\ServoDog-STM32-o4\\Drivers\\STM32F4xx_HAL_Driver\\Src\\stm32f4xx_hal_exti.c",
+  "file": "D:\\VSC\\ServoDog-STM32-o4\\Drivers\\STM32F4xx_HAL_Driver\\Src\\stm32f4xx_hal_exti.c",
+  "output": "cmake\\stm32cubemx\\CMakeFiles\\STM32_Drivers.dir\\__\\__\\Drivers\\STM32F4xx_HAL_Driver\\Src\\stm32f4xx_hal_exti.c.obj"
+},
+{
+  "directory": "D:/VSC/ServoDog-STM32-o4",
+  "command": "C:\\Users\\Nixya\\.eide\\tools\\gcc_arm\\bin\\arm-none-eabi-gcc.exe -DDEBUG -DSTM32F407xx -DUSE_HAL_DRIVER -ID:/VSC/ServoDog-STM32-o4/Inc -ID:/VSC/ServoDog-STM32-o4/Drivers/STM32F4xx_HAL_Driver/Inc -ID:/VSC/ServoDog-STM32-o4/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -ID:/VSC/ServoDog-STM32-o4/Drivers/CMSIS/Device/ST/STM32F4xx/Include -ID:/VSC/ServoDog-STM32-o4/Drivers/CMSIS/Include  -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard  -Wall -Wextra -Wpedantic -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -o cmake\\stm32cubemx\\CMakeFiles\\STM32_Drivers.dir\\__\\__\\Drivers\\STM32F4xx_HAL_Driver\\Src\\stm32f4xx_hal_tim.c.obj -c D:\\VSC\\ServoDog-STM32-o4\\Drivers\\STM32F4xx_HAL_Driver\\Src\\stm32f4xx_hal_tim.c",
+  "file": "D:\\VSC\\ServoDog-STM32-o4\\Drivers\\STM32F4xx_HAL_Driver\\Src\\stm32f4xx_hal_tim.c",
+  "output": "cmake\\stm32cubemx\\CMakeFiles\\STM32_Drivers.dir\\__\\__\\Drivers\\STM32F4xx_HAL_Driver\\Src\\stm32f4xx_hal_tim.c.obj"
+},
+{
+  "directory": "D:/VSC/ServoDog-STM32-o4",
+  "command": "C:\\Users\\Nixya\\.eide\\tools\\gcc_arm\\bin\\arm-none-eabi-gcc.exe -DDEBUG -DSTM32F407xx -DUSE_HAL_DRIVER -ID:/VSC/ServoDog-STM32-o4/Inc -ID:/VSC/ServoDog-STM32-o4/Drivers/STM32F4xx_HAL_Driver/Inc -ID:/VSC/ServoDog-STM32-o4/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -ID:/VSC/ServoDog-STM32-o4/Drivers/CMSIS/Device/ST/STM32F4xx/Include -ID:/VSC/ServoDog-STM32-o4/Drivers/CMSIS/Include  -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard  -Wall -Wextra -Wpedantic -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -o cmake\\stm32cubemx\\CMakeFiles\\STM32_Drivers.dir\\__\\__\\Drivers\\STM32F4xx_HAL_Driver\\Src\\stm32f4xx_hal_tim_ex.c.obj -c D:\\VSC\\ServoDog-STM32-o4\\Drivers\\STM32F4xx_HAL_Driver\\Src\\stm32f4xx_hal_tim_ex.c",
+  "file": "D:\\VSC\\ServoDog-STM32-o4\\Drivers\\STM32F4xx_HAL_Driver\\Src\\stm32f4xx_hal_tim_ex.c",
+  "output": "cmake\\stm32cubemx\\CMakeFiles\\STM32_Drivers.dir\\__\\__\\Drivers\\STM32F4xx_HAL_Driver\\Src\\stm32f4xx_hal_tim_ex.c.obj"
+},
+{
+  "directory": "D:/VSC/ServoDog-STM32-o4",
+  "command": "C:\\Users\\Nixya\\.eide\\tools\\gcc_arm\\bin\\arm-none-eabi-gcc.exe -DDEBUG -DSTM32F407xx -DUSE_HAL_DRIVER -ID:/VSC/ServoDog-STM32-o4/Inc -ID:/VSC/ServoDog-STM32-o4/Drivers/STM32F4xx_HAL_Driver/Inc -ID:/VSC/ServoDog-STM32-o4/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -ID:/VSC/ServoDog-STM32-o4/Drivers/CMSIS/Device/ST/STM32F4xx/Include -ID:/VSC/ServoDog-STM32-o4/Drivers/CMSIS/Include  -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard  -Wall -Wextra -Wpedantic -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -o cmake\\stm32cubemx\\CMakeFiles\\STM32_Drivers.dir\\__\\__\\Drivers\\STM32F4xx_HAL_Driver\\Src\\stm32f4xx_hal_uart.c.obj -c D:\\VSC\\ServoDog-STM32-o4\\Drivers\\STM32F4xx_HAL_Driver\\Src\\stm32f4xx_hal_uart.c",
+  "file": "D:\\VSC\\ServoDog-STM32-o4\\Drivers\\STM32F4xx_HAL_Driver\\Src\\stm32f4xx_hal_uart.c",
+  "output": "cmake\\stm32cubemx\\CMakeFiles\\STM32_Drivers.dir\\__\\__\\Drivers\\STM32F4xx_HAL_Driver\\Src\\stm32f4xx_hal_uart.c.obj"
+}
+]
